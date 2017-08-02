@@ -9,8 +9,19 @@ defmodule CommuterRailBoarding.Application do
     # List all child processes to be supervised
     children = [
       {ServerSentEvent.Producer,
+       name: ServerSentEvent.Producer,
        url: {FirebaseUrl, :url, []}},
-       Uploader.Consumer
+
+      {BoardingStatus.ProducerConsumer,
+       name: BoardingStatus.ProducerConsumer,
+       subscribe_to: [ServerSentEvent.Producer]},
+
+      {TripUpdates.ProducerConsumer,
+       name: TripUpdates.ProducerConsumer,
+       subscribe_to: [BoardingStatus.ProducerConsumer]},
+
+      {Uploader.Consumer,
+       subscribe_to: [TripUpdates.ProducerConsumer]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

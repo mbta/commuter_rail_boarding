@@ -8,7 +8,12 @@ defmodule ServerSentEvent.Producer do
   # Client functions
   def start_link(args) do
     url = Keyword.fetch!(args, :url)
-    GenStage.start_link(__MODULE__, url)
+    opts = if name = Keyword.get(args, :name) do
+      [name: name]
+    else
+      []
+    end
+    GenStage.start_link(__MODULE__, url, opts)
   end
 
   # Server functions
@@ -50,6 +55,10 @@ defmodule ServerSentEvent.Producer do
     end
     state = %{state | buffer: buffer}
     {:noreply, events, state}
+  end
+
+  def handle_demand(_demand, state) do
+    {:noreply, [], state}
   end
 
   defp compute_url(%{url: {m, f, a}}) do
