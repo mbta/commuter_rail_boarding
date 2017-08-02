@@ -1,22 +1,13 @@
 defmodule TripUpdates.ProducerConsumer do
   use GenStage
+  import StageHelpers
 
   def start_link(args) do
-    opts = if name = Keyword.get(args, :name) do
-      [name: name]
-    else
-      []
-    end
-    GenStage.start_link(__MODULE__, args, opts)
+    GenStage.start_link(__MODULE__, args, start_link_opts(args))
   end
 
   def init(args) do
-    opts = if subscribe_to = Keyword.get(args, :subscribe_to) do
-      [subscribe_to: subscribe_to]
-    else
-      []
-    end
-    {:producer_consumer, :state, opts}
+    {:producer_consumer, :state, init_opts(args)}
   end
 
   def handle_events(events, _from, state) do

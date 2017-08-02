@@ -23,6 +23,7 @@ defmodule CommuterRailBoarding.Application do
        subscribe_to: [BoardingStatus.ProducerConsumer]},
 
       {Uploader.Consumer,
+       name: Uploader.Consumer,
        subscribe_to: [TripUpdates.ProducerConsumer]}
     ]
 

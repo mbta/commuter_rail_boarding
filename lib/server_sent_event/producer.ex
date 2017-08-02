@@ -3,17 +3,13 @@ defmodule ServerSentEvent.Producer do
   A GenStage Producer responsible for emitting ServerSentEvent structs.
   """
   use GenStage
+  import StageHelpers
   require Logger
 
   # Client functions
   def start_link(args) do
     url = Keyword.fetch!(args, :url)
-    opts = if name = Keyword.get(args, :name) do
-      [name: name]
-    else
-      []
-    end
-    GenStage.start_link(__MODULE__, url, opts)
+    GenStage.start_link(__MODULE__, url, start_link_opts(args))
   end
 
   # Server functions

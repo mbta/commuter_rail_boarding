@@ -1,18 +1,14 @@
 defmodule Uploader.Consumer do
   use GenStage
+  import StageHelpers
 
   def start_link(args) do
-    GenStage.start_link(__MODULE__, args)
+    GenStage.start_link(__MODULE__, args, start_link_opts(args))
   end
 
   # Server callbacks
   def init(args) do
-    opts = if subscribe_to = Keyword.get(args, :subscribe_to) do
-      [subscribe_to: subscribe_to]
-    else
-      []
-    end
-    {:consumer, :state, opts}
+    {:consumer, :state, init_opts(args)}
   end
 
   def handle_events(events, _from, state) do

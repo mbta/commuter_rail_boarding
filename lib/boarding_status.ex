@@ -39,7 +39,7 @@ defmodule BoardingStatus do
          {:ok, stop_id} <- stop_id(map["gtfs_stop_name"]) do
       {:ok, %__MODULE__{
           scheduled_time: scheduled_time,
-          predicted_time: scheduled_time,
+          predicted_time: predicted_time(map["gtfsrt_departure"], scheduled_time),
           route_id: route_id,
           trip_id: trip_id,
           stop_id: stop_id,
@@ -52,6 +52,17 @@ defmodule BoardingStatus do
       _ ->
         _ = Logger.error(fn -> "unable to parse firebase map: #{inspect map}" end)
         :error
+    end
+  end
+
+  defp predicted_time("", scheduled_time) do
+    scheduled_time
+  end
+  defp predicted_time(iso_dt, scheduled_time) do
+    with {:ok, predicted_time, _} <- DateTime.from_iso8601(iso_dt) do
+      predicted_time
+    else
+      _ -> scheduled_time
     end
   end
 

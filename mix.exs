@@ -33,7 +33,8 @@ defmodule CommuterRailBoarding.Mixfile do
       {:httpoison, "~> 0.12"},
       {:ex_aws, "~> 1.1"},
       {:gen_stage, "~> 0.12"},
-      {:excoveralls, "~> 0.7", only: [:dev, :test]}
+      {:excoveralls, "~> 0.7", only: [:dev, :test]},
+      {:credo, "~> 0.8", only: [:dev, :test]}
     ]
   end
 
