@@ -26,6 +26,8 @@ defmodule TripUpdates do
         trip_update: %{
           trip: %{
             trip_id: trip_id,
+            route_id: status.route_id,
+            direction_id: status.direction_id,
             start_date: DateTime.to_date(status.scheduled_time),
             schedule_relationship: "SCHEDULED"
           },

@@ -27,11 +27,13 @@ defmodule ServerSentEvent.Producer do
   end
 
   def handle_info(:connect, state) do
+    url = compute_url(state)
+    Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
     headers = [
       {"Accept", "text/event-stream"}
     ]
     {:ok, _} = HTTPoison.get(
-      compute_url(state), headers,
+      url, headers,
       recv_timeout: :infinity,
       stream_to: self())
     {:noreply, [], state}

@@ -1,11 +1,11 @@
 defmodule TripCacheTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   import TripCache
 
   setup_all do
     Application.ensure_all_started(:httpoison)
-    {:ok, _pid} = TripCache.start_link
+    {:ok, _pid} = TripCache.start_link()
     :ok
   end
 

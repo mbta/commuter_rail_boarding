@@ -28,9 +28,10 @@ defmodule BoardingStatus.ProducerConsumer do
       []
     else
       [
-        valid_event_data
-        |> List.last
-        |> Enum.map(&BoardingStatus.from_firebase/1)
+        for {:ok, {:ok, status}} <- Task.async_stream(
+              List.last(valid_event_data), &BoardingStatus.from_firebase/1) do
+          status
+        end
       ]
     end
     {:noreply, statuses, state}
