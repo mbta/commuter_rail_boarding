@@ -2,8 +2,16 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-# test-credentials.json comes from the goth repo
-config :goth,
-  json: File.read!("test/test-credentials.json")
+config :commuter_rail_boarding,
+  firebase_url: "https://keolis-api-production.firebaseio.com/departureData.json",
+  stop_ids: %{
+    "Boston" => "place-sstat", # South Station,
+    "Boston North Station" => "place-north", # North Station,
+    "Back Bay" => "place-bbsta" # Back Bay
+  },
+  uploader: Uploader.Console
 
-#     import_config "#{Mix.env}.exs"
+config :goth,
+  json: {:system, "GCS_CREDENTIAL_JSON"}
+
+import_config "#{Mix.env}.exs"
