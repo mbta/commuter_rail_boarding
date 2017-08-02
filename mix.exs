@@ -9,6 +9,7 @@ defmodule CommuterRailBoarding.Mixfile do
       start_permanent: Mix.env == :prod,
       elixirc_paths: elixirc_paths(Mix.env),
       deps: deps(),
+      aliases: aliases(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [{:"coveralls.html", :test}]
     ]
@@ -33,6 +34,13 @@ defmodule CommuterRailBoarding.Mixfile do
       {:ex_aws, "~> 1.1"},
       {:gen_stage, "~> 0.12"},
       {:excoveralls, "~> 0.7", only: [:dev, :test]}
+    ]
+  end
+
+  defp aliases do
+    [
+      start: "run --no-halt",
+      test: "test --no-start"
     ]
   end
 end

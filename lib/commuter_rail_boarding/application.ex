@@ -8,7 +8,9 @@ defmodule CommuterRailBoarding.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      Uploader.Consumer
+      {ServerSentEvent.Producer,
+       url: {FirebaseUrl, :url, []}},
+       Uploader.Consumer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
