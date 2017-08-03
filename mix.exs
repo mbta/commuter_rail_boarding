@@ -30,10 +30,13 @@ defmodule CommuterRailBoarding.Mixfile do
   defp deps do
     [
       {:goth, "~> 0.5"},
+      {:poison, "~> 3.1"},
       {:httpoison, "~> 0.12"},
       {:ex_aws, "~> 1.1"},
       {:gen_stage, "~> 0.12"},
-      {:excoveralls, "~> 0.7", only: [:dev, :test]}
+      {:excoveralls, "~> 0.7", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev, :test]},
+      {:credo, "~> 0.8", only: [:dev, :test]}
     ]
   end
 

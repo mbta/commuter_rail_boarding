@@ -1,13 +1,17 @@
 defmodule Uploader.Consumer do
+  @moduledoc """
+  GenStage consumer which uploads a binary to the configured Uploader.
+  """
   use GenStage
+  import StageHelpers
 
-  def start_link(_arg \\ :ignored) do
-    GenStage.start_link(__MODULE__, :ok)
+  def start_link(args) do
+    GenStage.start_link(__MODULE__, args, start_link_opts(args))
   end
 
   # Server callbacks
-  def init(:ok) do
-    {:consumer, :state}
+  def init(args) do
+    {:consumer, :state, init_opts(args)}
   end
 
   def handle_events(events, _from, state) do

@@ -3,12 +3,13 @@ defmodule ServerSentEvent.Producer do
   A GenStage Producer responsible for emitting ServerSentEvent structs.
   """
   use GenStage
+  import StageHelpers
   require Logger
 
   # Client functions
   def start_link(args) do
     url = Keyword.fetch!(args, :url)
-    GenStage.start_link(__MODULE__, url)
+    GenStage.start_link(__MODULE__, url, start_link_opts(args))
   end
 
   # Server functions
@@ -22,11 +23,13 @@ defmodule ServerSentEvent.Producer do
   end
 
   def handle_info(:connect, state) do
+    url = compute_url(state)
+    Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
     headers = [
       {"Accept", "text/event-stream"}
     ]
     {:ok, _} = HTTPoison.get(
-      compute_url(state), headers,
+      url, headers,
       recv_timeout: :infinity,
       stream_to: self())
     {:noreply, [], state}
@@ -50,6 +53,10 @@ defmodule ServerSentEvent.Producer do
     end
     state = %{state | buffer: buffer}
     {:noreply, events, state}
+  end
+
+  def handle_demand(_demand, state) do
+    {:noreply, [], state}
   end
 
   defp compute_url(%{url: {m, f, a}}) do

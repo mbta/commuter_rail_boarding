@@ -4,9 +4,9 @@ defmodule Uploader.ConsumerTest do
 
   import Uploader.Consumer
 
-  describe "start_link/0" do
+  describe "start_link/1" do
     test "starts the upload consumer" do
-      assert {:ok, pid} = start_link()
+      assert {:ok, pid} = start_link([])
       assert is_pid(pid)
     end
   end
