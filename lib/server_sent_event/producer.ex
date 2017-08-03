@@ -13,12 +13,11 @@ defmodule ServerSentEvent.Producer do
   end
 
   # Server functions
-  defstruct [:url, buffer: ""]
+  defstruct [:url, buffer: "", connected?: false]
 
   def init(url) do
     state = %__MODULE__{
       url: url}
-    send self(), :connect
     {:producer, state}
   end
 
@@ -68,7 +67,16 @@ defmodule ServerSentEvent.Producer do
   end
 
   def handle_demand(_demand, state) do
+    state = maybe_connect(state)
     {:noreply, [], state}
+  end
+
+  defp maybe_connect(%{connected?: false} = state) do
+    send self(), :connect
+    %{state | connected?: true}
+  end
+  defp maybe_connect(state) do
+    state
   end
 
   defp compute_url(%{url: {m, f, a}}) do
