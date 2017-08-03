@@ -11,7 +11,7 @@ defmodule FirebaseUrl do
   end
 
   def url([token_fn: token_fn]) do
-    uri = URI.parse(Application.get_env(:commuter_rail_boarding, :firebase_url))
+    uri = URI.parse(config(:firebase_url))
     uri = %{uri | query: merge_query(uri.query, "access_token=#{token_fn.()}")}
     URI.to_string(uri)
   end
@@ -19,6 +19,13 @@ defmodule FirebaseUrl do
   defp merge_query(nil, query), do: query
   defp merge_query("", query), do: query
   defp merge_query(first, second), do: first <> "&" <> second
+
+  defp config(key) do
+    case Application.get_env(:commuter_rail_boarding, key) do
+      {:system, envvar} -> System.get_env(envvar)
+      value -> value
+    end
+  end
 
   defp goth_token do
     scopes = Enum.join([

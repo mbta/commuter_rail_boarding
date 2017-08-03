@@ -1,6 +1,7 @@
 use Mix.Config
 
 config :commuter_rail_boarding,
+  firebase_url: {:system, "FIREBASE_URL"},
   uploader: Uploader.S3
 
 config :commuter_rail_boarding, Uploader.S3,
