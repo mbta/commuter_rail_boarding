@@ -1,0 +1,14 @@
+*~
+/_build
+/deps
+/test
+rel
+!rel/config.exs
+erl_crash.dump
+build.sh
+deploy.sh
+*-build.zip
+aws
+.git
+.gitignore
+.dockerignore

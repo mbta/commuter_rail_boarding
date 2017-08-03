@@ -10,7 +10,9 @@ defmodule Uploader.S3 do
     request = S3.put_object(
       config(:bucket),
       "TripUpdates_enhanced.json",
-      binary)
+      binary,
+      acl: :public_read,
+      content_type: "application/json")
     config(:requestor).request!(request)
   end
 

@@ -30,7 +30,7 @@ defmodule ServerSentEvent.Producer do
     ]
     {:ok, _} = HTTPoison.get(
       url, headers,
-      recv_timeout: :infinity,
+      recv_timeout: 60_000,
       stream_to: self())
     {:noreply, [], state}
   end
@@ -53,6 +53,18 @@ defmodule ServerSentEvent.Producer do
     end
     state = %{state | buffer: buffer}
     {:noreply, events, state}
+  end
+  def handle_info(%HTTPoison.Error{reason: reason}, state) do
+    Logger.error fn -> "#{__MODULE__} HTTP error: #{inspect reason}" end
+    state = %{state | buffer: ""}
+    send self(), :connect
+    {:noreply, [], state}
+  end
+  def handle_info(%HTTPoison.AsyncEnd{}, state) do
+    Logger.info fn -> "#{__MODULE__} disconnected, reconnecting..." end
+    state = %{state | buffer: ""}
+    send self(), :connect
+    {:noreply, [], state}
   end
 
   def handle_demand(_demand, state) do

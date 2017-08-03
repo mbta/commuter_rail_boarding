@@ -15,6 +15,7 @@ defmodule TripCache do
   """
   @spec route_direction_id(trip_id) :: {:ok, route_id, direction_id} | :error
   when trip_id: binary, route_id: binary, direction_id: 0 | 1
+  def route_direction_id(""), do: :error
   def route_direction_id(trip_id) when is_binary(trip_id) do
     case :ets.lookup(@table, trip_id) do
       [{^trip_id, route_id, direction_id}] -> {:ok, route_id, direction_id}
