@@ -1,4 +1,7 @@
 defmodule TripCache do
+  @moduledoc """
+  Caches information about GTFS trips for later use.
+  """
   use GenServer
 
   @table __MODULE__.Table
@@ -7,6 +10,11 @@ defmodule TripCache do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
+  @doc """
+  Returns the route_id and direction_id for a trip, or an error
+  """
+  @spec route_direction_id(trip_id) :: {:ok, route_id, direction_id} | :error
+  when trip_id: binary, route_id: binary, direction_id: 0 | 1
   def route_direction_id(trip_id) when is_binary(trip_id) do
     case :ets.lookup(@table, trip_id) do
       [{^trip_id, route_id, direction_id}] -> {:ok, route_id, direction_id}
@@ -38,7 +46,9 @@ defmodule TripCache do
 
   # Server callbacks
   def init(:ok) do
-    _ = :ets.new(@table, [:set, :public, :named_table, {:read_concurrency, true}, {:write_concurrency, true}])
+    ets_options = [:set, :public, :named_table,
+                   {:read_concurrency, true}, {:write_concurrency, true}]
+    _ = :ets.new(@table, ets_options)
     {:ok, :state}
   end
 end

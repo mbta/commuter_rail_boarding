@@ -1,4 +1,7 @@
 defmodule Uploader.Consumer do
+  @moduledoc """
+  GenStage consumer which uploads a binary to the configured Uploader.
+  """
   use GenStage
   import StageHelpers
 

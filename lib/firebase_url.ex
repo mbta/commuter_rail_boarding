@@ -1,4 +1,11 @@
 defmodule FirebaseUrl do
+  @moduledoc """
+  Builds the URL to get data out of Firebase.
+
+  Requires Goth to be configured properly in order to calculate the token.
+  """
+  alias Goth.Token
+
   def url do
     url(token_fn: &goth_token/0)
   end
@@ -17,7 +24,7 @@ defmodule FirebaseUrl do
     scopes = Enum.join([
       "https://www.googleapis.com/auth/firebase.database",
       "https://www.googleapis.com/auth/userinfo.email"], " ")
-    {:ok, token} = Goth.Token.for_scope(scopes)
+    {:ok, token} = Token.for_scope(scopes)
     token.token
   end
 end

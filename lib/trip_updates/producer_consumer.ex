@@ -1,4 +1,7 @@
 defmodule TripUpdates.ProducerConsumer do
+  @moduledoc """
+  GenStage ProducerConsumer which turns a list of BoardingStatus structs into an enhanced TripUpdates JSON file.
+  """
   use GenStage
   import StageHelpers
 

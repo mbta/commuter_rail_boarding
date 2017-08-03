@@ -1,4 +1,7 @@
 defmodule BoardingStatus.ProducerConsumer do
+  @moduledoc """
+  GenStage ProducerConsumer which takes a ServerSentEvent and parses it into a list of BoardingStatus structs.
+  """
   use GenStage
   import StageHelpers
 

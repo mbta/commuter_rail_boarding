@@ -1,7 +1,11 @@
 defmodule Uploader.S3 do
+  @moduledoc """
+  Uploader implementation which puts the file into an S3 bucket
+  """
   @behaviour Uploader
   alias ExAws.S3
 
+  @impl true
   def upload(binary) do
     request = S3.put_object(
       config(:bucket),
