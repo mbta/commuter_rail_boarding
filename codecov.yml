@@ -1,5 +1,7 @@
 codecov:
   bot: mbtace
+  notify:
+    require_ci_to_pass: false
 comment:
   behavior: default
   layout: header, diff
