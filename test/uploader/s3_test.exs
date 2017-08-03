@@ -1,6 +1,7 @@
 defmodule Uploader.S3Test do
   @moduledoc false
   use ExUnit.Case
+  @moduletag :capture_log
 
   import Uploader.S3
 

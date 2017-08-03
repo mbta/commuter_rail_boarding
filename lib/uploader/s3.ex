@@ -4,6 +4,7 @@ defmodule Uploader.S3 do
   """
   @behaviour Uploader
   alias ExAws.S3
+  require Logger
 
   @impl true
   def upload(binary) do
@@ -13,7 +14,13 @@ defmodule Uploader.S3 do
       binary,
       acl: :public_read,
       content_type: "application/json")
-    config(:requestor).request!(request)
+    {time, result} = :timer.tc(fn -> config(:requestor).request!(request) end)
+    log_result(time, result)
+  end
+
+  defp log_result(time, result) do
+    _ = Logger.info(fn -> "#{__MODULE__} took #{time / 1000}ms: #{inspect result}" end)
+    result
   end
 
   def config(key) do
