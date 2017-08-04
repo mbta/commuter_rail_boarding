@@ -6,6 +6,9 @@ WORKDIR /root
 RUN mix local.hex --force && \
   mix local.rebar --force
 
+# Install git
+RUN apk --update add git
+
 ENV MIX_ENV=prod
 
 ADD . .

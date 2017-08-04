@@ -8,6 +8,8 @@ defmodule CommuterRailBoarding.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
+      Logger.Backend.Logentries.Output.SslKeepOpen.Server,
+
       TripCache,
 
       {ServerSentEvent.Producer,
