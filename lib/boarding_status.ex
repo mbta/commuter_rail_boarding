@@ -3,6 +3,7 @@ defmodule BoardingStatus do
   Structure to represent the status of a single train
   """
   require Logger
+  import ConfigHelpers
 
   defstruct [
     scheduled_time: :unknown,
@@ -68,7 +69,7 @@ defmodule BoardingStatus do
 
   def stop_id(stop_name) do
     Map.fetch(
-      Application.get_env(:commuter_rail_boarding, :stop_ids),
+      config(:stop_ids),
       stop_name)
   end
 end

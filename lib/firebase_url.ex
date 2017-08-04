@@ -5,6 +5,7 @@ defmodule FirebaseUrl do
   Requires Goth to be configured properly in order to calculate the token.
   """
   alias Goth.Token
+  import ConfigHelpers
 
   def url do
     url(token_fn: &goth_token/0)
@@ -19,13 +20,6 @@ defmodule FirebaseUrl do
   defp merge_query(nil, query), do: query
   defp merge_query("", query), do: query
   defp merge_query(first, second), do: first <> "&" <> second
-
-  defp config(key) do
-    case Application.get_env(:commuter_rail_boarding, key) do
-      {:system, envvar} -> System.get_env(envvar)
-      value -> value
-    end
-  end
 
   defp goth_token do
     scopes = Enum.join([

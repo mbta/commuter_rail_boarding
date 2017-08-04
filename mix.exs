@@ -37,6 +37,7 @@ defmodule CommuterRailBoarding.Mixfile do
       {:excoveralls, "~> 0.7", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
       {:credo, "~> 0.8", only: [:dev, :test]},
+      {:bypass, "~> 0.8", only: :test},
       {:distillery, "~> 1.4.1", runtime: false}
     ]
   end
