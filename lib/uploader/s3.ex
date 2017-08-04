@@ -4,25 +4,27 @@ defmodule Uploader.S3 do
   """
   @behaviour Uploader
   alias ExAws.S3
+  require Logger
+  import ConfigHelpers
 
   @impl true
   def upload(binary) do
     request = S3.put_object(
-      config(:bucket),
+      config(Uploader.S3, :bucket),
       "TripUpdates_enhanced.json",
-      binary)
-    config(:requestor).request!(request)
+      binary,
+      acl: :public_read,
+      content_type: "application/json")
+    {time, result} = :timer.tc(fn -> request!(request) end)
+    log_result(time, result)
   end
 
-  def config(key) do
-    opts = Application.fetch_env!(:commuter_rail_boarding, Uploader.S3)
-    do_config(Keyword.get(opts, key))
+  defp request!(request) do
+    config(Uploader.S3, :requestor).request!(request)
   end
 
-  defp do_config({:system, envvar}) do
-    System.get_env(envvar)
-  end
-  defp do_config(value) do
-    value
+  defp log_result(time, result) do
+    _ = Logger.info(fn -> "#{__MODULE__} took #{time / 1000}ms: #{inspect result}" end)
+    result
   end
 end

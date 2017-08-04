@@ -1,6 +1,7 @@
 defmodule Uploader.S3Test do
   @moduledoc false
   use ExUnit.Case
+  @moduletag :capture_log
 
   import Uploader.S3
 
@@ -25,6 +26,8 @@ defmodule Uploader.S3Test do
       assert request.path == "TripUpdates_enhanced.json"
       assert request.bucket == "test_bucket"
       assert request.body == "binary"
+      assert request.headers["content-type"] == "application/json"
+      assert request.headers["x-amz-acl"] == "public-read"
     end
   end
 

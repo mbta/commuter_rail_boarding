@@ -15,7 +15,8 @@ defmodule BoardingStatus.ProducerConsumer do
 
   def handle_events(events, _from, state) do
     valid_event_data = for event <- events,
-      {:ok, %{"data" => data}} when is_list(data) <- [Poison.decode(event.data)] do
+      {:ok, data} <- [Poison.decode(event.data)],
+      data <- valid_data(data) do
         data
     end
     statuses = if valid_event_data == [] do
@@ -29,5 +30,15 @@ defmodule BoardingStatus.ProducerConsumer do
       ]
     end
     {:noreply, statuses, state}
+  end
+
+  defp valid_data(%{"data" => list}) when is_list(list) do
+    [list]
+  end
+  defp valid_data(%{"data" => %{"results" => list}}) when is_list(list) do
+    [list]
+  end
+  defp valid_data(_) do
+    []
   end
 end

@@ -5,13 +5,14 @@ defmodule FirebaseUrl do
   Requires Goth to be configured properly in order to calculate the token.
   """
   alias Goth.Token
+  import ConfigHelpers
 
   def url do
     url(token_fn: &goth_token/0)
   end
 
   def url([token_fn: token_fn]) do
-    uri = URI.parse(Application.get_env(:commuter_rail_boarding, :firebase_url))
+    uri = URI.parse(config(:firebase_url))
     uri = %{uri | query: merge_query(uri.query, "access_token=#{token_fn.()}")}
     URI.to_string(uri)
   end
