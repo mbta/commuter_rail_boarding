@@ -6,7 +6,7 @@ rel
 !rel/config.exs
 erl_crash.dump
 build.sh
-deploy.sh
+push.sh
 *-build.zip
 aws
 .git

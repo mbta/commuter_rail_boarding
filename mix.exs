@@ -38,7 +38,9 @@ defmodule CommuterRailBoarding.Mixfile do
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
       {:credo, "~> 0.8", only: [:dev, :test]},
       {:bypass, "~> 0.8", only: :test},
-      {:distillery, "~> 1.4.1", runtime: false}
+      {:distillery, "~> 1.4.1", runtime: false},
+      {:ehmon, git: "https://github.com/heroku/ehmon.git", tag: "v4", only: :prod},
+      {:logger_logentries_backend, github: "paulswartz/logger_logentries_backend", branch: "elixir-1.5", only: :prod}
     ]
   end
 
