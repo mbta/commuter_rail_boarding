@@ -98,6 +98,24 @@ defmodule TripUpdatesTest do
         platform_id: "track"
       }
     end
+
+    test "does not include boarding status if it's empty" do
+      status = %BoardingStatus{
+        predicted_time: DateTime.from_unix!(0),
+        stop_id: "stop",
+        track: "track"
+      }
+      refute :boarding_status in Map.keys(stop_time_update(status))
+    end
+
+    test "does not include track if it's empty" do
+      status = %BoardingStatus{
+        predicted_time: DateTime.from_unix!(0),
+        stop_id: "stop",
+        boarding_status: "status"
+      }
+      refute :platform_id in Map.keys(stop_time_update(status))
+    end
   end
 
   defp utc_now do
