@@ -60,13 +60,30 @@ defmodule TripUpdates do
   end
 
   def stop_time_update(%BoardingStatus{} = status) do
-    Map.merge(
-      %{
-        stop_id: status.stop_id,
-        boarding_status: status.boarding_status,
-        platform_id: status.track
-      },
-      departure_map(status.predicted_time))
+    Enum.reduce([
+      %{stop_id: status.stop_id},
+      boarding_status_map(status.boarding_status),
+      platform_id_map(status.track),
+      departure_map(status.predicted_time)
+    ], &Map.merge/2)
+  end
+
+  def boarding_status_map("") do
+    %{}
+  end
+  def boarding_status_map(status) do
+    %{
+      boarding_status: status
+    }
+  end
+
+  def platform_id_map("") do
+    %{}
+  end
+  def platform_id_map(track) do
+    %{
+      platform_id: track
+    }
   end
 
   defp departure_map(:unknown) do
