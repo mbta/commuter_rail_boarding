@@ -1,13 +1,8 @@
 defmodule TripCacheTest do
+  @moduledoc false
   use ExUnit.Case
 
   import TripCache
-
-  setup_all do
-    Application.ensure_all_started(:httpoison)
-    {:ok, _pid} = TripCache.start_link()
-    :ok
-  end
 
   describe "route_direction_id/1" do
     @route_1_trip_id "34543891"
