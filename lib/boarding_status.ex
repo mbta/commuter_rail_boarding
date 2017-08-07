@@ -51,7 +51,7 @@ defmodule BoardingStatus do
       }
     else
       _ ->
-        _ = Logger.error(fn -> "unable to parse firebase map: #{inspect map}" end)
+        _ = Logger.warn(fn -> "unable to parse firebase map: #{inspect map}" end)
         :error
     end
   end
