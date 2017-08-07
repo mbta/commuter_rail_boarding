@@ -20,6 +20,16 @@ defmodule BoardingStatus do
   @type trip_id :: binary
   @type stop_id :: binary
   @type direction_id :: 0 | 1
+  @typedoc """
+  * scheduled_time: When the train is supposed to leave the station
+  * predicted_time: When we expect the train to leave the station
+  * route_id: GTFS route ID
+  * trip_id: GTFS trip ID, or some other value for added trips
+  * direction_id: GTFS direction ID
+  * stop_id: GTFS stop ID
+  * boarding_status: what appears on the big board in the station
+  * track: the track the train will be on, or empty if not provided
+  """
   @type t :: %__MODULE__{
     scheduled_time: :unknown | DateTime.t,
     predicted_time: :unknown | DateTime.t,
@@ -31,7 +41,19 @@ defmodule BoardingStatus do
     track: String.t
   }
 
-  @doc "Builds a BoardingStatus from the data we get out of Firebase"
+  @doc """
+  Builds a BoardingStatus from the data we get out of Firebase.
+
+  Firebase keys, and their mappings to BoardingStatus fields:
+  * `gtfs_departure_time`: an ISO DateTime, maps to `scheduled_time`
+  * `gtfs_trip_id`: maps to `trip_id` (and `route_id`/`direction_id`)
+  * `gtfsrt_departure`: an ISO DateTime, maps to `predicted_time`
+     (will use the scheduled_time if empty)
+  * `current_display_status`: maps to `boarding_status`
+  * `track`: maps to `track
+
+  There are examples of this data in test/fixtures/firebase.json
+  """
   @spec from_firebase(map) :: {:ok, t} | :error
   def from_firebase(map) do
     with {:ok, scheduled_time, _} <- DateTime.from_iso8601(map["gtfs_departure_time"]),
