@@ -47,7 +47,9 @@ defmodule ServerSentEvent.Producer do
     unless events == [] do
       Logger.info fn -> "#{__MODULE__} sending #{length events} events" end
       for event <- events do
-        Logger.debug(fn -> inspect(event) end)
+        Logger.debug(fn ->
+          inspect(event, limit: :infinity, printable_limit: :infinity)
+        end)
       end
     end
     state = %{state | buffer: buffer}
