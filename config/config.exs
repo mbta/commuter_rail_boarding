@@ -5,9 +5,9 @@ use Mix.Config
 config :commuter_rail_boarding,
   firebase_url: "https://keolis-api-production.firebaseio.com/departureData.json",
   stop_ids: %{
-    "Boston" => "place-sstat", # South Station,
-    "Boston North Station" => "place-north", # North Station,
-    "Back Bay" => "place-bbsta" # Back Bay
+    "Boston" => "South Station",
+    "Boston North Station" => "North Station",
+    "Back Bay" => "Back Bay"
   },
   uploader: Uploader.Console
 
