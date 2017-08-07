@@ -79,6 +79,17 @@ defmodule TripUpdatesTest do
         schedule_relationship: "SCHEDULED"
       }
     end
+
+    test "does not include an unknown direction" do
+      status = %BoardingStatus{}
+      refute :direction_id in Map.keys(trip(status))
+    end
+
+    test "schedule_relationship is ADDED if added? is true" do
+      status = %BoardingStatus{
+        added?: true}
+      assert trip(status).schedule_relationship == "ADDED"
+    end
   end
 
   describe "stop_time_update/1" do
