@@ -13,6 +13,7 @@ config :sasl,
   errlog_type: :error
 
 config :logger,
+  truncate: :infinity,
   handle_sasl_reports: true,
   level: :debug,
   backends: [{Logger.Backend.Logentries, :logentries}, :console]
