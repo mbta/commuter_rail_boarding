@@ -7,9 +7,7 @@ defmodule CommuterRailBoarding.Application do
 
   def start(_type, _args) do
     # List all child processes to be supervised
-    children = [
-      Logger.Backend.Logentries.Output.SslKeepOpen.Server,
-
+    children = env_children(Mix.env) ++ [
       TripCache,
 
       {ServerSentEvent.Producer,
@@ -33,5 +31,14 @@ defmodule CommuterRailBoarding.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: CommuterRailBoarding.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp env_children(:prod) do
+    [
+      Logger.Backend.Logentries.Output.SslKeepOpen.Server
+    ]
+  end
+  defp env_children(_) do
+    []
   end
 end
