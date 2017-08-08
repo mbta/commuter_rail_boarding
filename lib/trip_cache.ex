@@ -41,11 +41,10 @@ defmodule TripCache do
   end
 
   defp insert_and_return_route_direction_id(trip_id) do
-    with {:ok, response} <- HTTPoison.get(
-           "https://api.mbtace.com/trips/#{trip_id}", [], params: [{"fields[trip]", "direction_id"}]),
+    with {:ok, response} <- HTTPClient.get(
+           "/trips/#{trip_id}", [], params: [{"fields[trip]", "direction_id"}]),
          %{status_code: 200, body: body} <- response,
-         {:ok, parsed} <- Poison.decode(body),
-         {:ok, route_id, direction_id} <- decode_single_trip(parsed) do
+         {:ok, route_id, direction_id} <- decode_single_trip(body) do
       _ = :ets.insert_new(@table, {{:trip, trip_id}, route_id, direction_id})
       {:ok, route_id, direction_id}
     else
@@ -70,15 +69,14 @@ defmodule TripCache do
   end
 
   defp insert_and_return_trip_id(route_id, trip_name) do
-    with {:ok, response} <- HTTPoison.get(
-           "https://api.mbtace.com/trips/", [],
-           params: [{"fields[trip]", "name,direction_id"},
+    with {:ok, response} <- HTTPClient.get(
+           "/trips/", [],
+           params: ["fields[trip]": "name,direction_id",
                     route: route_id,
                     date: Date.to_iso8601(DateHelpers.service_date)]),
          %{status_code: 200, body: body} <- response,
-         {:ok, parsed} <- Poison.decode(body),
-         {:ok, items} <- decode_trips(parsed) do
-      _ = :ets.insert_new(@table, items)
+         {:ok, items} <- decode_trips(body) do
+      _ = :ets.insert(@table, items)
       do_route_trip_name_to_id(route_id, trip_name, fn _ -> :error end)
     end
   end

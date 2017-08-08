@@ -9,3 +9,5 @@ config :goth, json: File.read!("test/test-credentials.json")
 
 # increase default assert_receive timeout
 config :ex_unit, assert_receive_timeout: 1_000
+
+config :logger, level: :warn

@@ -34,12 +34,11 @@ defmodule RouteCache do
   end
 
   defp insert_and_return(route_name) do
-    with {:ok, response} <- HTTPoison.get(
-           "https://api.mbtace.com/routes/?type=2&fields[route]=long_name"),
+    with {:ok, response} <- HTTPClient.get(
+           "/routes/?fields[route]=long_name&type=2"),
          %{status_code: 200, body: body} <- response,
-         {:ok, parsed} <- Poison.decode(body),
-         {:ok, items} <- decode_data(parsed) do
-      _ = :ets.insert_new(@table, items)
+         {:ok, items} <- decode_data(body) do
+      _ = :ets.insert(@table, items)
       # try to fetch from the table again
       do_id_from_long_name(route_name, fn _ -> :error end)
     else
