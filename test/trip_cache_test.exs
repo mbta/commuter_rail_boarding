@@ -10,16 +10,6 @@ defmodule TripCacheTest do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
     end
 
-    test "a valid trip is cached" do
-      assert {first_time, {:ok, "1", 0}} = :timer.tc(fn -> \
-        route_direction_id(@route_1_trip_id)
-      end)
-      assert {second_time, {:ok, "1", 0}} = :timer.tc(fn ->
-        route_direction_id(@route_1_trip_id)
-      end)
-      assert second_time < first_time
-    end
-
     test "returns :error for an invalid trip" do
       assert :error = route_direction_id("made up trip")
     end
@@ -34,16 +24,6 @@ defmodule TripCacheTest do
     test "returns {:ok, trip_id, direction_id} for a value route + name" do
       assert {:ok, @trip_id, @direction_id} ==
         route_trip_name_to_id(@route_id, @trip_name)
-    end
-
-    test "caches the result" do
-      assert {first_time, _} = :timer.tc(fn -> \
-        route_trip_name_to_id(@route_id, @trip_name)
-      end)
-      assert {second_time, _} = :timer.tc(fn ->
-        route_direction_id(@route_1_trip_id)
-      end)
-      assert second_time < first_time
     end
 
     test "returns an error if we can't match the name" do

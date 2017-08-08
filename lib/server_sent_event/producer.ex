@@ -34,6 +34,7 @@ defmodule ServerSentEvent.Producer do
     {:noreply, [], state}
   end
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
+    Logger.debug(fn -> "#{__MODULE__} connected" end)
     {:noreply, [], state}
   end
   def handle_info(%HTTPoison.AsyncHeaders{}, state) do
