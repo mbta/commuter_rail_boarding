@@ -85,7 +85,16 @@ defmodule BoardingStatus do
   defp trip_route_direction_id(%{"gtfs_trip_id" => ""} = map) do
     long_name = map["gtfs_route_long_name"]
     with {:ok, route_id} <- RouteCache.id_from_long_name(long_name) do
-      trip_id = "CRB_" <> map["trip_id"]
+      case map["gtfs_trip_short_name"] do
+        "" -> :ok
+        short_name ->
+          Logger.warn(fn ->
+            trip_id = map["trip_id"]
+            "unexpected missing GTFS trip ID: \
+route #{route_id}, short name #{short_name}, trip ID #{trip_id}"
+          end)
+      end
+      trip_id = "CRB_#{map["trip_id"]}"
       direction_id = :unknown
       {:ok, trip_id, route_id, direction_id, true}
     end

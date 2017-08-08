@@ -2,6 +2,7 @@ defmodule BoardingStatusTest do
   @moduledoc false
   use ExUnit.Case
   import BoardingStatus
+  import ExUnit.CaptureLog
 
   @moduletag :capture_log
   @results "test/fixtures/firebase.json"
@@ -45,11 +46,25 @@ defmodule BoardingStatusTest do
 
     test "creates a trip ID if one doesn't exist" do
       original = List.first(@results)
-      result = put_in original["gtfs_trip_id"], ""
+      result = Map.merge(original,
+        %{"gtfs_trip_id" => "",
+          "gtfs_trip_short_name" => ""})
       assert {:ok, status} = from_firebase(result)
       refute status.trip_id == ""
       assert status.route_id == "CR-Newburyport"
       assert status.added?
+    end
+
+    test "logs a warning if we have a trip short name but no trip ID" do
+      original = List.first(@results)
+      result = put_in original["gtfs_trip_id"], ""
+      message = capture_log fn ->
+        from_firebase(result)
+      end
+      assert message =~ "unexpected missing GTFS trip ID"
+      assert message =~ "CR-Newburyport"
+      assert message =~ result["gtfs_trip_short_name"]
+      assert message =~ result["trip_id"]
     end
   end
 end
