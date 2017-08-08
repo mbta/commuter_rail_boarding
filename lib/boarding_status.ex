@@ -82,30 +82,46 @@ defmodule BoardingStatus do
     end
   end
 
-  defp trip_route_direction_id(%{"gtfs_trip_id" => ""} = map) do
+  defp trip_route_direction_id(%{"gtfs_trip_id" => "",
+                                 "gtfs_trip_short_name" => ""} = map) do
+    # no ID, no name, we have to add the trip
     long_name = map["gtfs_route_long_name"]
     with {:ok, route_id} <- RouteCache.id_from_long_name(long_name) do
-      case map["gtfs_trip_short_name"] do
-        "" -> :ok
-        short_name ->
-          Logger.warn(fn ->
-            trip_id = map["trip_id"]
-            "unexpected missing GTFS trip ID: \
-route #{route_id}, short name #{short_name}, trip ID #{trip_id}"
-          end)
-      end
       trip_id = "CRB_#{map["trip_id"]}"
       direction_id = :unknown
       {:ok, trip_id, route_id, direction_id, true}
     end
   end
+  defp trip_route_direction_id(%{"gtfs_trip_id" => ""} = map) do
+    # with a short name, we can try looking up the trip
+    long_name = map["gtfs_route_long_name"]
+    trip_name = map["gtfs_trip_short_name"]
+    with {:ok, route_id} <- RouteCache.id_from_long_name(long_name) do
+      {trip_id, direction_id, added?} =
+        case TripCache.route_trip_name_to_id(route_id, trip_name) do
+          {:ok, trip_id, direction_id} -> {trip_id, direction_id, false}
+          :error ->
+            # looking up the trip by short_name failed, so log a warning and
+            # create a trip ID
+            Logger.warn(fn ->
+              trip_id = map["trip_id"]
+              "unexpected missing GTFS trip ID: \
+route #{route_id}, name #{trip_name}, trip ID #{trip_id}"
+            end)
+            {"CRB_#{map["trip_id"]}_#{trip_name}", :unknown, true}
+        end
+      {:ok, trip_id, route_id, direction_id, added?}
+    end
+  end
   defp trip_route_direction_id(%{"gtfs_trip_id" => trip_id}) do
+    # easy case: we have a trip ID, so we look up the route/direction
     with {:ok, route_id, direction_id} <- TripCache.route_direction_id(
            trip_id) do
       {:ok, trip_id, route_id, direction_id, false}
     end
   end
 
+  defp predicted_time(iso_dt, scheduled_time)
   defp predicted_time("", scheduled_time) do
     scheduled_time
   end

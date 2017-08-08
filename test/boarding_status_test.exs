@@ -55,9 +55,17 @@ defmodule BoardingStatusTest do
       assert status.added?
     end
 
-    test "logs a warning if we have a trip short name but no trip ID" do
+    test "looks up a trip ID based on the name if needed" do
       original = List.first(@results)
       result = put_in original["gtfs_trip_id"], ""
+      assert from_firebase(result) == from_firebase(original)
+    end
+
+    test "logs a warning if we have a non-matched trip short name but no trip ID" do
+      original = List.first(@results)
+      result = Map.merge(original,
+        %{"gtfs_trip_id" => "",
+          "gtfs_trip_short_name" => "not matching"})
       message = capture_log fn ->
         from_firebase(result)
       end
