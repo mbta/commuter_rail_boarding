@@ -91,11 +91,11 @@ defmodule BoardingStatus do
         "gtfs_trip_id" => "",
         "gtfs_route_long_name" => long_name,
         "gtfs_trip_short_name" => trip_name,
-        "trip_id" => internal_trip_id}) do
+        "trip_id" => keolis_trip_id}) do
     # no ID, but maybe we can look it up with the trip name
     with {:ok, route_id} <- RouteCache.id_from_long_name(long_name),
-         {:ok, trip_id, direction_id, added?} <- trip_direction_id(
-           route_id, trip_name, internal_trip_id) do
+         {:ok, trip_id, direction_id, added?} <- create_trip_id(
+           route_id, trip_name, keolis_trip_id) do
       {:ok, trip_id, route_id, direction_id, added?}
     end
   end
@@ -107,11 +107,11 @@ defmodule BoardingStatus do
     end
   end
 
-  defp trip_direction_id(_route_id, "", internal_trip_id) do
+  defp create_trip_id(_route_id, "", keolis_trip_id) do
     # no trip name, build a new trip_id
-    {:ok, "CRB_" <> internal_trip_id, :unknown, true}
+    {:ok, "CRB_" <> keolis_trip_id, :unknown, true}
   end
-  defp trip_direction_id(route_id, trip_name, internal_trip_id) do
+  defp create_trip_id(route_id, trip_name, keolis_trip_id) do
     case TripCache.route_trip_name_to_id(route_id, trip_name) do
       {:ok, trip_id, direction_id} ->
         {:ok, trip_id, direction_id, false}
@@ -120,9 +120,9 @@ defmodule BoardingStatus do
         # anyways.
         Logger.warn(fn ->
           "unexpected missing GTFS trip ID: \
-route #{route_id}, name #{trip_name}, trip ID #{internal_trip_id}"
+route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
         end)
-        {:ok, "CRB_#{internal_trip_id}_#{trip_name}", :unknown, true}
+        {:ok, "CRB_#{keolis_trip_id}_#{trip_name}", :unknown, true}
     end
   end
 
