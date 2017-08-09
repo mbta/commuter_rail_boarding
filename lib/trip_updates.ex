@@ -50,13 +50,15 @@ defmodule TripUpdates do
                    :unknown -> Date.utc_today()
                    dt -> DateTime.to_date(dt)
                  end
-    %{
-      trip_id: status.trip_id,
-      route_id: status.route_id,
-      direction_id: status.direction_id,
-      start_date: start_date,
-      schedule_relationship: "SCHEDULED"
-    }
+    Map.merge(
+      %{
+        trip_id: status.trip_id,
+        route_id: status.route_id,
+        start_date: start_date,
+        schedule_relationship: if(status.added?, do: "ADDED", else: "SCHEDULED")
+      },
+      direction_id_map(status.direction_id)
+    )
   end
 
   def stop_time_update(%BoardingStatus{} = status) do
@@ -66,6 +68,13 @@ defmodule TripUpdates do
       platform_id_map(status.track),
       departure_map(status.predicted_time)
     ], &Map.merge/2)
+  end
+
+  def direction_id_map(:unknown) do
+    %{}
+  end
+  def direction_id_map(direction_id) do
+    %{direction_id: direction_id}
   end
 
   def boarding_status_map("") do

@@ -1,5 +1,5 @@
 defmodule ServerSentEvent.ProducerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   import ServerSentEvent.Producer
 
   @moduletag :capture_log

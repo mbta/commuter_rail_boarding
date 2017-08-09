@@ -8,12 +8,6 @@ defmodule BoardingStatus.ProducerConsumerTest do
   |> File.read!
   |> Poison.decode!
 
-  setup_all do
-    Application.ensure_all_started(:httpoison)
-    {:ok, _pid} = TripCache.start_link()
-    :ok
-  end
-
   describe "handle_events/2" do
     test "returns a list of parsed %BoardingStatus{} from %ServerSentEvent{}" do
       results = Map.get(@data, "results")

@@ -13,7 +13,8 @@ defmodule BoardingStatus do
     direction_id: :unknown,
     stop_id: :unknown,
     boarding_status: "",
-    track: ""
+    track: "",
+    added?: false
   ]
 
   @type route_id :: binary
@@ -29,6 +30,7 @@ defmodule BoardingStatus do
   * stop_id: GTFS stop ID
   * boarding_status: what appears on the big board in the station
   * track: the track the train will be on, or empty if not provided
+  * added?: true if the trip isn't included in the GTFS schedule
   """
   @type t :: %__MODULE__{
     scheduled_time: :unknown | DateTime.t,
@@ -38,7 +40,8 @@ defmodule BoardingStatus do
     direction_id: :unknown | direction_id,
     stop_id: :unknown | stop_id,
     boarding_status: String.t,
-    track: String.t
+    track: String.t,
+    added?: boolean
   }
 
   @doc """
@@ -55,20 +58,26 @@ defmodule BoardingStatus do
   There are examples of this data in test/fixtures/firebase.json
   """
   @spec from_firebase(map) :: {:ok, t} | :error
-  def from_firebase(map) do
-    with {:ok, scheduled_time, _} <- DateTime.from_iso8601(map["gtfs_departure_time"]),
-         trip_id = map["gtfs_trip_id"],
-         {:ok, route_id, direction_id} <- TripCache.route_direction_id(trip_id),
-         {:ok, stop_id} <- stop_id(map["gtfs_stop_name"]) do
+  def from_firebase(%{
+        "gtfs_departure_time" => schedule_time_iso,
+        "gtfs_stop_name" => stop_name,
+        "gtfsrt_departure" => predicted_time_iso,
+        "current_display_status" => boarding_status,
+        "track" => track} = map) do
+    with {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
+         {:ok, stop_id} <- stop_id(stop_name),
+         {:ok, trip_id, route_id, direction_id, added?} <-
+           trip_route_direction_id(map) do
       {:ok, %__MODULE__{
           scheduled_time: scheduled_time,
-          predicted_time: predicted_time(map["gtfsrt_departure"], scheduled_time),
+          predicted_time: predicted_time(predicted_time_iso, scheduled_time),
           route_id: route_id,
           trip_id: trip_id,
           stop_id: stop_id,
           direction_id: direction_id,
-          boarding_status: map["current_display_status"],
-          track: map["track"]
+          boarding_status: boarding_status,
+          track: track,
+          added?: added?
        }
       }
     else
@@ -78,6 +87,46 @@ defmodule BoardingStatus do
     end
   end
 
+  defp trip_route_direction_id(%{
+        "gtfs_trip_id" => "",
+        "gtfs_route_long_name" => long_name,
+        "gtfs_trip_short_name" => trip_name,
+        "trip_id" => keolis_trip_id}) do
+    # no ID, but maybe we can look it up with the trip name
+    with {:ok, route_id} <- RouteCache.id_from_long_name(long_name),
+         {:ok, trip_id, direction_id, added?} <- create_trip_id(
+           route_id, trip_name, keolis_trip_id) do
+      {:ok, trip_id, route_id, direction_id, added?}
+    end
+  end
+  defp trip_route_direction_id(%{"gtfs_trip_id" => trip_id}) do
+    # easy case: we have a trip ID, so we look up the route/direction
+    with {:ok, route_id, direction_id} <- TripCache.route_direction_id(
+           trip_id) do
+      {:ok, trip_id, route_id, direction_id, false}
+    end
+  end
+
+  defp create_trip_id(_route_id, "", keolis_trip_id) do
+    # no trip name, build a new trip_id
+    {:ok, "CRB_" <> keolis_trip_id, :unknown, true}
+  end
+  defp create_trip_id(route_id, trip_name, keolis_trip_id) do
+    case TripCache.route_trip_name_to_id(route_id, trip_name) do
+      {:ok, trip_id, direction_id} ->
+        {:ok, trip_id, direction_id, false}
+      :error ->
+        # couldn't match the trip name: log a warning but build a trip ID
+        # anyways.
+        Logger.warn(fn ->
+          "unexpected missing GTFS trip ID: \
+route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
+        end)
+        {:ok, "CRB_#{keolis_trip_id}_#{trip_name}", :unknown, true}
+    end
+  end
+
+  defp predicted_time(iso_dt, scheduled_time)
   defp predicted_time("", scheduled_time) do
     scheduled_time
   end

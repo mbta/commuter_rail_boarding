@@ -7,7 +7,7 @@ RUN mix local.hex --force && \
   mix local.rebar --force
 
 # Install git
-RUN apk --update add git
+RUN apk --update add git make
 
 ENV MIX_ENV=prod
 
