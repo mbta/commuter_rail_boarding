@@ -1,7 +1,7 @@
 *~
-/_build
-/deps
-/test
+_build
+deps
+test
 rel
 !rel/config.exs
 erl_crash.dump
