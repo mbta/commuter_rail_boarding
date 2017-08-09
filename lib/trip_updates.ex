@@ -64,6 +64,7 @@ defmodule TripUpdates do
   def stop_time_update(%BoardingStatus{} = status) do
     Enum.reduce([
       %{stop_id: status.stop_id},
+      stop_sequence_map(status.stop_sequence),
       boarding_status_map(status.boarding_status),
       platform_id_map(status.track),
       departure_map(status.predicted_time)
@@ -75,6 +76,13 @@ defmodule TripUpdates do
   end
   def direction_id_map(direction_id) do
     %{direction_id: direction_id}
+  end
+
+  def stop_sequence_map(:unknown) do
+    %{}
+  end
+  def stop_sequence_map(stop_sequence) do
+    %{stop_sequence: stop_sequence}
   end
 
   def boarding_status_map("") do

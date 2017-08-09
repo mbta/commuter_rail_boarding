@@ -97,17 +97,24 @@ defmodule TripUpdatesTest do
       status = %BoardingStatus{
         predicted_time: DateTime.from_unix!(12_345),
         stop_id: "stop",
+        stop_sequence: 5,
         boarding_status: "status",
         track: "track"
       }
       assert stop_time_update(status) == %{
         stop_id: "stop",
+        stop_sequence: 5,
         departure: %{
           time: 12_345
         },
         boarding_status: "status",
         platform_id: "track"
       }
+    end
+
+    test "does not include stop sequence if it's unknown" do
+      status = %BoardingStatus{}
+      refute :stop_sequence in Map.keys(stop_time_update(status))
     end
 
     test "does not include boarding status if it's empty" do
