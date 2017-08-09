@@ -72,7 +72,8 @@ defmodule BoardingStatus do
            trip_route_direction_id(map) do
       {:ok, %__MODULE__{
           scheduled_time: scheduled_time,
-          predicted_time: predicted_time(predicted_time_iso, scheduled_time),
+          predicted_time: predicted_time(
+            predicted_time_iso, scheduled_time, boarding_status),
           route_id: route_id,
           trip_id: trip_id,
           stop_id: stop_id,
@@ -141,11 +142,14 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
     end
   end
 
-  defp predicted_time(iso_dt, scheduled_time)
-  defp predicted_time("", scheduled_time) do
+  defp predicted_time(iso_dt, scheduled_time, status)
+  defp predicted_time(_, _, "CANCELLED") do
+    :unknown
+  end
+  defp predicted_time("", scheduled_time, _) do
     scheduled_time
   end
-  defp predicted_time(iso_dt, scheduled_time) do
+  defp predicted_time(iso_dt, scheduled_time, _) do
     with {:ok, predicted_time, _} <- DateTime.from_iso8601(iso_dt) do
       predicted_time
     else

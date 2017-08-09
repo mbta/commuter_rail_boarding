@@ -55,7 +55,7 @@ defmodule TripUpdates do
         trip_id: status.trip_id,
         route_id: status.route_id,
         start_date: start_date,
-        schedule_relationship: if(status.added?, do: "ADDED", else: "SCHEDULED")
+        schedule_relationship: schedule_relationship(status)
       },
       direction_id_map(status.direction_id)
     )
@@ -69,6 +69,16 @@ defmodule TripUpdates do
       platform_id_map(status.track),
       departure_map(status.predicted_time)
     ], &Map.merge/2)
+  end
+
+  def schedule_relationship(%BoardingStatus{boarding_status: "CANCELLED"}) do
+    "CANCELED"
+  end
+  def schedule_relationship(%BoardingStatus{added?: true}) do
+    "ADDED"
+  end
+  def schedule_relationship(%BoardingStatus{}) do
+    "SCHEDULED"
   end
 
   def direction_id_map(:unknown) do

@@ -45,6 +45,13 @@ defmodule BoardingStatusTest do
         ~N[2018-09-01T12:02:03], "Etc/UTC")
     end
 
+    test "predicted_time is :unknown if the status is CANCELLED" do
+      result = List.first(@results)
+      result = put_in result["current_display_status"], "CANCELLED"
+      assert {:ok, status} = from_firebase(result)
+      assert status.predicted_time == :unknown
+    end
+
     test "creates a trip ID if one doesn't exist" do
       original = List.first(@results)
       result = Map.merge(original,
