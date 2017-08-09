@@ -10,6 +10,7 @@ defmodule CommuterRailBoarding.Application do
     children = env_children(System.get_env("MIX_ENV")) ++ [
       TripCache,
       RouteCache,
+      ScheduleCache,
 
       {ServerSentEvent.Producer,
        name: ServerSentEvent.Producer,

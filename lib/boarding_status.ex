@@ -12,6 +12,7 @@ defmodule BoardingStatus do
     trip_id: :unknown,
     direction_id: :unknown,
     stop_id: :unknown,
+    stop_sequence: :unknown,
     boarding_status: "",
     track: "",
     added?: false
@@ -39,6 +40,7 @@ defmodule BoardingStatus do
     trip_id: :unknown | trip_id,
     direction_id: :unknown | direction_id,
     stop_id: :unknown | stop_id,
+    stop_sequence: :unknown | non_neg_integer,
     boarding_status: String.t,
     track: String.t,
     added?: boolean
@@ -70,10 +72,12 @@ defmodule BoardingStatus do
            trip_route_direction_id(map) do
       {:ok, %__MODULE__{
           scheduled_time: scheduled_time,
-          predicted_time: predicted_time(predicted_time_iso, scheduled_time),
+          predicted_time: predicted_time(
+            predicted_time_iso, scheduled_time, boarding_status),
           route_id: route_id,
           trip_id: trip_id,
           stop_id: stop_id,
+          stop_sequence: stop_sequence(trip_id, stop_id, added?),
           direction_id: direction_id,
           boarding_status: boarding_status,
           track: track,
@@ -126,11 +130,26 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
     end
   end
 
-  defp predicted_time(iso_dt, scheduled_time)
-  defp predicted_time("", scheduled_time) do
+  defp stop_sequence(trip_id, stop_id, added?)
+  defp stop_sequence(_, _, true) do
+    # added trips don't have a stop sequence ID
+    :unknown
+  end
+  defp stop_sequence(trip_id, stop_id, _) do
+    case ScheduleCache.stop_sequence(trip_id, stop_id) do
+      {:ok, sequence} -> sequence
+      :error -> :unknown
+    end
+  end
+
+  defp predicted_time(iso_dt, scheduled_time, status)
+  defp predicted_time(_, _, "CANCELLED") do
+    :unknown
+  end
+  defp predicted_time("", scheduled_time, _) do
     scheduled_time
   end
-  defp predicted_time(iso_dt, scheduled_time) do
+  defp predicted_time(iso_dt, scheduled_time, _) do
     with {:ok, predicted_time, _} <- DateTime.from_iso8601(iso_dt) do
       predicted_time
     else

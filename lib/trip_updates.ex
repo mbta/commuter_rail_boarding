@@ -55,7 +55,7 @@ defmodule TripUpdates do
         trip_id: status.trip_id,
         route_id: status.route_id,
         start_date: start_date,
-        schedule_relationship: if(status.added?, do: "ADDED", else: "SCHEDULED")
+        schedule_relationship: schedule_relationship(status)
       },
       direction_id_map(status.direction_id)
     )
@@ -64,10 +64,21 @@ defmodule TripUpdates do
   def stop_time_update(%BoardingStatus{} = status) do
     Enum.reduce([
       %{stop_id: status.stop_id},
+      stop_sequence_map(status.stop_sequence),
       boarding_status_map(status.boarding_status),
       platform_id_map(status.track),
       departure_map(status.predicted_time)
     ], &Map.merge/2)
+  end
+
+  def schedule_relationship(%BoardingStatus{boarding_status: "CANCELLED"}) do
+    "CANCELED"
+  end
+  def schedule_relationship(%BoardingStatus{added?: true}) do
+    "ADDED"
+  end
+  def schedule_relationship(%BoardingStatus{}) do
+    "SCHEDULED"
   end
 
   def direction_id_map(:unknown) do
@@ -75,6 +86,13 @@ defmodule TripUpdates do
   end
   def direction_id_map(direction_id) do
     %{direction_id: direction_id}
+  end
+
+  def stop_sequence_map(:unknown) do
+    %{}
+  end
+  def stop_sequence_map(stop_sequence) do
+    %{stop_sequence: stop_sequence}
   end
 
   def boarding_status_map("") do

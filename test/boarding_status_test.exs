@@ -19,13 +19,14 @@ defmodule BoardingStatusTest do
     test "returns {:ok, t} for all items from fixture" do
       refute @results == []
       for result <- Task.async_stream(@results, &from_firebase/1) do
-        parsed =
-          case result do
-            {:ok, {:ok, %BoardingStatus{}}} -> :ok
-            unknown -> {:unknown, unknown}
-          end
-        assert parsed == :ok
+        assert {:ok, {:ok, %BoardingStatus{}}} = result
       end
+    end
+
+    test "looks up a stop_sequence" do
+      result = List.first(@results)
+      assert {:ok, status} = from_firebase(result)
+      refute status.stop_sequence == :unknown
     end
 
     test "predicted_time is scheduled_time without other data" do
@@ -44,6 +45,13 @@ defmodule BoardingStatusTest do
         ~N[2018-09-01T12:02:03], "Etc/UTC")
     end
 
+    test "predicted_time is :unknown if the status is CANCELLED" do
+      result = List.first(@results)
+      result = put_in result["current_display_status"], "CANCELLED"
+      assert {:ok, status} = from_firebase(result)
+      assert status.predicted_time == :unknown
+    end
+
     test "creates a trip ID if one doesn't exist" do
       original = List.first(@results)
       result = Map.merge(original,
@@ -52,6 +60,7 @@ defmodule BoardingStatusTest do
       assert {:ok, status} = from_firebase(result)
       refute status.trip_id == ""
       assert status.route_id == "CR-Newburyport"
+      assert status.stop_sequence == :unknown
       assert status.added?
     end
 
