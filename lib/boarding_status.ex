@@ -13,7 +13,7 @@ defmodule BoardingStatus do
     direction_id: :unknown,
     stop_id: :unknown,
     stop_sequence: :unknown,
-    boarding_status: "",
+    boarding_status: :unknown,
     track: "",
     added?: false
   ]
@@ -41,7 +41,7 @@ defmodule BoardingStatus do
     direction_id: :unknown | direction_id,
     stop_id: :unknown | stop_id,
     stop_sequence: :unknown | non_neg_integer,
-    boarding_status: String.t,
+    boarding_status: atom,
     track: String.t,
     added?: boolean
   }
@@ -64,7 +64,7 @@ defmodule BoardingStatus do
         "gtfs_departure_time" => schedule_time_iso,
         "gtfs_stop_name" => stop_name,
         "gtfsrt_departure" => predicted_time_iso,
-        "current_display_status" => boarding_status,
+        "status" => status,
         "track" => track} = map) do
     with {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, stop_id} <- stop_id(stop_name),
@@ -73,13 +73,13 @@ defmodule BoardingStatus do
       {:ok, %__MODULE__{
           scheduled_time: scheduled_time,
           predicted_time: predicted_time(
-            predicted_time_iso, scheduled_time, boarding_status),
+            predicted_time_iso, scheduled_time, status),
           route_id: route_id,
           trip_id: trip_id,
           stop_id: stop_id,
           stop_sequence: stop_sequence(trip_id, stop_id, added?),
           direction_id: direction_id,
-          boarding_status: boarding_status,
+          boarding_status: boarding_status(status),
           track: track,
           added?: added?
        }
@@ -143,7 +143,8 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
   end
 
   defp predicted_time(iso_dt, scheduled_time, status)
-  defp predicted_time(_, _, "CANCELLED") do
+  defp predicted_time(_, _, "CX") do
+    # cancelled trips don't have a predictions
     :unknown
   end
   defp predicted_time("", scheduled_time, _) do
@@ -161,5 +162,18 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
     Map.fetch(
       config(:stop_ids),
       stop_name)
+  end
+
+  def boarding_status("") do
+    :unknown
+  end
+  for {status, atom} <- Application.get_env(:commuter_rail_boarding, :statuses) do
+    def boarding_status(unquote(status)) do
+      unquote(atom)
+    end
+  end
+  def boarding_status(status) do
+    _ = Logger.warn(fn -> "unknown status: #{inspect status}" end)
+    :unknown
   end
 end

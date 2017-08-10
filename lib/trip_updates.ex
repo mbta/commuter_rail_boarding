@@ -71,7 +71,7 @@ defmodule TripUpdates do
     ], &Map.merge/2)
   end
 
-  def schedule_relationship(%BoardingStatus{boarding_status: "CANCELLED"}) do
+  def schedule_relationship(%BoardingStatus{boarding_status: :cancelled}) do
     "CANCELED"
   end
   def schedule_relationship(%BoardingStatus{added?: true}) do
@@ -95,12 +95,12 @@ defmodule TripUpdates do
     %{stop_sequence: stop_sequence}
   end
 
-  def boarding_status_map("") do
+  def boarding_status_map(:unknown) do
     %{}
   end
   def boarding_status_map(status) do
     %{
-      boarding_status: status
+      boarding_status: status |> Atom.to_string |> String.upcase
     }
   end
 

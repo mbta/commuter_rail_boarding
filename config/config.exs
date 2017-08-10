@@ -9,6 +9,27 @@ config :commuter_rail_boarding,
     "Boston North Station" => "North Station",
     "Back Bay" => "Back Bay"
   },
+  statuses: %{
+    "AA" => :all_aboard,
+    "AR" => :arrived,
+    "ARVG" => :arriving,
+    "BL" => :not_stopping_here, # :blue_line,
+    "BS" => :bus_substitution,
+    "CX" => :cancelled,
+    "DL" => :delayed,
+    "DP" => :departed,
+    "GL" => :not_stopping_here, # :green_line,
+    "HD" => :info_to_follow, # :hold,
+    "LT" => :late,
+    "NB" => :now_boarding,
+    "ON" => :on_time,
+    "OL" => :not_stopping_here, # :orange_line,
+    "PR" => :info_to_follow, # :priority,
+    "RL" => :not_stopping_here, # :red_line,
+    "SA" => :see_agent,
+    "SL" => :not_stopping_here, # :silver_line,
+    "SUB" => :not_stopping_here # :subway
+  },
   uploader: Uploader.Console
 
 config :goth,
