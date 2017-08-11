@@ -13,7 +13,7 @@ defmodule BoardingStatus do
     direction_id: :unknown,
     stop_id: :unknown,
     stop_sequence: :unknown,
-    boarding_status: :unknown,
+    status: :unknown,
     track: "",
     added?: false
   ]
@@ -29,7 +29,7 @@ defmodule BoardingStatus do
   * trip_id: GTFS trip ID, or some other value for added trips
   * direction_id: GTFS direction ID
   * stop_id: GTFS stop ID
-  * boarding_status: what appears on the big board in the station
+  * status: atom representing what appears on the big board in the station
   * track: the track the train will be on, or empty if not provided
   * added?: true if the trip isn't included in the GTFS schedule
   """
@@ -41,7 +41,7 @@ defmodule BoardingStatus do
     direction_id: :unknown | direction_id,
     stop_id: :unknown | stop_id,
     stop_sequence: :unknown | non_neg_integer,
-    boarding_status: atom,
+    status: atom,
     track: String.t,
     added?: boolean
   }
@@ -54,7 +54,7 @@ defmodule BoardingStatus do
   * `gtfs_trip_id`: maps to `trip_id` (and `route_id`/`direction_id`)
   * `gtfsrt_departure`: an ISO DateTime, maps to `predicted_time`
      (will use the scheduled_time if empty)
-  * `current_display_status`: maps to `boarding_status`
+  * `status`: maps to `status`
   * `track`: maps to `track
 
   There are examples of this data in test/fixtures/firebase.json
@@ -79,7 +79,7 @@ defmodule BoardingStatus do
           stop_id: stop_id,
           stop_sequence: stop_sequence(trip_id, stop_id, added?),
           direction_id: direction_id,
-          boarding_status: boarding_status(status),
+          status: status_atom(status),
           track: track,
           added?: added?
        }
@@ -164,15 +164,17 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
       stop_name)
   end
 
-  def boarding_status("") do
+  def status_atom("") do
     :unknown
   end
-  for {status, atom} <- Application.get_env(:commuter_rail_boarding, :statuses) do
-    def boarding_status(unquote(status)) do
+  for {status, atom} <- Application.get_env(
+        :commuter_rail_boarding, :statuses) do
+      # build a function for each status in the map
+    def status_atom(unquote(status)) do
       unquote(atom)
     end
   end
-  def boarding_status(status) do
+  def status_atom(status) do
     _ = Logger.warn(fn -> "unknown status: #{inspect status}" end)
     :unknown
   end
