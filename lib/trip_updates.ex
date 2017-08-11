@@ -33,45 +33,45 @@ defmodule TripUpdates do
   def trip_update(_current_time, []) do
     []
   end
-  def trip_update(current_time, [%BoardingStatus{} = status | _] = statuses) do
+  def trip_update(current_time, [%BoardingStatus{} = bs | _] = statuses) do
     [
       %{
-        id: "#{current_time}_#{status.trip_id}",
+        id: "#{current_time}_#{bs.trip_id}",
         trip_update: %{
-          trip: trip(status),
+          trip: trip(bs),
           stop_time_update: Enum.map(statuses, &stop_time_update/1)
         }
       }
     ]
   end
 
-  def trip(%BoardingStatus{} = status) do
-    start_date = case status.scheduled_time do
+  def trip(%BoardingStatus{} = bs) do
+    start_date = case bs.scheduled_time do
                    :unknown -> Date.utc_today()
                    dt -> DateTime.to_date(dt)
                  end
     Map.merge(
       %{
-        trip_id: status.trip_id,
-        route_id: status.route_id,
+        trip_id: bs.trip_id,
+        route_id: bs.route_id,
         start_date: start_date,
-        schedule_relationship: schedule_relationship(status)
+        schedule_relationship: schedule_relationship(bs)
       },
-      direction_id_map(status.direction_id)
+      direction_id_map(bs.direction_id)
     )
   end
 
-  def stop_time_update(%BoardingStatus{} = status) do
+  def stop_time_update(%BoardingStatus{} = bs) do
     Enum.reduce([
-      %{stop_id: status.stop_id},
-      stop_sequence_map(status.stop_sequence),
-      boarding_status_map(status.boarding_status),
-      platform_id_map(status.track),
-      departure_map(status.predicted_time)
+      %{stop_id: bs.stop_id},
+      stop_sequence_map(bs.stop_sequence),
+      boarding_status_map(bs.status),
+      platform_id_map(bs.track),
+      departure_map(bs.predicted_time)
     ], &Map.merge/2)
   end
 
-  def schedule_relationship(%BoardingStatus{boarding_status: "CANCELLED"}) do
+  def schedule_relationship(%BoardingStatus{status: :cancelled}) do
     "CANCELED"
   end
   def schedule_relationship(%BoardingStatus{added?: true}) do
@@ -95,12 +95,12 @@ defmodule TripUpdates do
     %{stop_sequence: stop_sequence}
   end
 
-  def boarding_status_map("") do
+  def boarding_status_map(:unknown) do
     %{}
   end
   def boarding_status_map(status) do
     %{
-      boarding_status: status
+      boarding_status: status |> Atom.to_string |> String.upcase
     }
   end
 

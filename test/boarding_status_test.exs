@@ -47,7 +47,9 @@ defmodule BoardingStatusTest do
 
     test "predicted_time is :unknown if the status is CANCELLED" do
       result = List.first(@results)
-      result = put_in result["current_display_status"], "CANCELLED"
+      result = Map.merge(result, %{
+            "status" => "CX",
+            "current_display_status" => "CANCELLED"})
       assert {:ok, status} = from_firebase(result)
       assert status.predicted_time == :unknown
     end
