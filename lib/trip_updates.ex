@@ -66,7 +66,7 @@ defmodule TripUpdates do
       %{stop_id: bs.stop_id},
       stop_sequence_map(bs.stop_sequence),
       boarding_status_map(bs.status),
-      platform_id_map(bs.track),
+      platform_id_map(bs.stop_id, bs.track),
       departure_map(bs.predicted_time)
     ], &Map.merge/2)
   end
@@ -104,12 +104,14 @@ defmodule TripUpdates do
     }
   end
 
-  def platform_id_map("") do
+  def platform_id_map(_, "") do
     %{}
   end
-  def platform_id_map(track) do
+  def platform_id_map(stop_id, track) do
+    platform_id = "#{stop_id}-#{String.pad_leading(track, 2, ["0"])}"
     %{
-      platform_id: track
+      track: track,
+      platform_id: platform_id
     }
   end
 

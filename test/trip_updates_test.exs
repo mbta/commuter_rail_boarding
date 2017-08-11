@@ -107,7 +107,7 @@ defmodule TripUpdatesTest do
         stop_id: "stop",
         stop_sequence: 5,
         status: :all_aboard,
-        track: "track"
+        track: "5"
       }
       assert stop_time_update(status) == %{
         stop_id: "stop",
@@ -116,7 +116,8 @@ defmodule TripUpdatesTest do
           time: 12_345
         },
         boarding_status: "ALL_ABOARD",
-        platform_id: "track"
+        platform_id: "stop-05",
+        track: "5"
       }
     end
 
