@@ -4,25 +4,29 @@ defmodule Parser do
     """
 
     def parse_line(line) do
-        split_line = String.split(line, " - ")
-        line_prefix = Enum.at(split_line,0)
-        if String.length(line_prefix) == 38 do
-            split_prefix = String.split_at(line_prefix, 22)
-            timestamp = case Timex.parse(elem(split_prefix, 0), "{0M}-{0D}-{YYYY} {0h12}:{0m}:{0s} {AM}") do
-                {:ok, result} -> result
-                {:error, reason} -> {:error, reason}
-            end
-            if timestamp == {:error, :eshortline} do
-                {:error, :eshortline}
-            else
-                vehicle_id = elem(String.split_at(elem(split_prefix, 1), 12), 1)
-                case parse_msg_body(Enum.at(split_line, 1)) do
-                    {:ok, parsed_body} -> {:ok, Map.merge(%{timestamp: timestamp, vehicle_id: vehicle_id}, parsed_body)}
+        if String.length(line) == 0 do
+            {:ok, nil} #input file might have blank lines between records, so they shouldn't cause parsing to halt like an incomplete line
+        else
+            split_line = String.split(line, " - ")
+            line_prefix = Enum.at(split_line,0)
+            if String.length(line_prefix) == 38 do
+                split_prefix = String.split(line_prefix, "\t")
+                timestamp = case split_prefix |> Enum.at(0) |> Timex.parse("{0M}-{0D}-{YYYY} {0h12}:{0m}:{0s} {AM}") do
+                    {:ok, result} -> result
                     {:error, reason} -> {:error, reason}
                 end
+                if timestamp == {:error, :eshortline} do
+                    {:error, :eshortline}
+                else
+                    vehicle_id = split_prefix |> Enum.at(1) |> split_by_colon()
+                    case split_line |> Enum.at(1) |> parse_msg_body() do
+                        {:ok, parsed_body} -> {:ok, Map.merge(%{timestamp: timestamp, vehicle_id: vehicle_id}, parsed_body)}
+                        {:error, reason} -> {:error, reason}
+                    end
+                end
+            else
+                {:error, :eshortline}
             end
-        else
-            {:error, :eshortline}
         end
     end
 
@@ -30,10 +34,10 @@ defmodule Parser do
         [type, body] = String.split(data, "[")
         data_map = %{type: type}
         if Map.get(data_map, :type) == "Location" do
-            split_body = String.split(elem(String.split_at(body, -1), 0), ", ")
+            split_body = body |> String.split_at(-1) |> elem(0) |> String.split(", ")
             if length(split_body) == 4 do
                 [operator_clause, workpiece_clause, pattern_clause, gps_clause] = split_body
-                gps_parse_result = parse_gps(Enum.at(String.split(gps_clause, ":"), 1))
+                gps_parse_result = gps_clause |> String.split(":") |> Enum.at(1) |> parse_gps()
                 parsed_gps = case gps_parse_result do
                     {:error, reason} -> {:error, reason}
                     {:ok, result} -> result
@@ -82,6 +86,7 @@ defmodule Parser do
 
     def read_lines(file, this_line, data) do
         case parse_line(this_line) do
+            {:ok, nil} -> read_lines(file, IO.read(file, :line), data)
             {:ok, parsed_line} -> read_lines(file, IO.read(file, :line), [parsed_line | data])
             {:error, :eshortline} -> data
         end
