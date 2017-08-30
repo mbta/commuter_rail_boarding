@@ -5,9 +5,8 @@ defmodule ParserTest do
     test "parses line from PTIS" do
         good_result = Parser.parse_line("08-04-2017 11:01:51 AM	Vehicle ID:1712 - Location[Operator:910, Workpiece:802, Pattern:509, GPS:>RPV54109+4224023-0711289000018812<]")
         assert good_result == {:ok,
-            %{
-                timestamp: ~N[2017-08-04 11:01:51],
-                vehicle_id: "1712",
+            {"1712",
+                %{timestamp: ~N[2017-08-04 11:01:51],
                 type: "Location",
                 operator: "910",
                 workpiece: "802",
@@ -21,7 +20,7 @@ defmodule ParserTest do
                     source: "1",
                     age: "2"
                 }
-            }}
+            }}}
         #line truncated within timestamp
         bad_result_one = Parser.parse_line("08-0")
         assert bad_result_one == {:error, :eshortline}
@@ -80,18 +79,18 @@ defmodule ParserTest do
 
     test "parses PTIS file" do
         assert Parser.parse_file("data/test-AVL.txt") == [
-            %{timestamp: ~N[2017-08-04 11:01:51], vehicle_id: "1712", type: "Location", operator: "910", workpiece: "802", pattern: "509",
-                gps: %{time: "54109", lat: "+4224023", long: "-07112890", speed: "000", heading: "188", source: "1", age: "2"}},
-            %{timestamp: ~N[2017-08-04 11:01:50], vehicle_id: "1644", type: "Location", operator: "910", workpiece: "154", pattern: "315",
-                gps: %{time: "54107", lat: "+4236658", long: "-07106287", speed: "005", heading: "173", source: "1", age: "1"}},
-            %{timestamp: ~N[2017-08-04 11:01:50], vehicle_id: "1717", type: "Location", operator: "910", workpiece: "0", pattern: "9999",
-                gps: %{time: "54107", lat: "+4234021", long: "-07106019", speed: "005", heading: "177", source: "1", age: "2"}},
-            %{timestamp: ~N[2017-08-04 11:01:49], vehicle_id: "1716", type: "Location", operator: "910", workpiece: "0", pattern: "9999",
-                gps: %{time: "54105", lat: "+4233913", long: "-07106041", speed: "006", heading: "318", source: "1", age: "1"}},
-            %{timestamp: ~N[2017-08-04 11:01:49], vehicle_id: "1822", type: "SAM Ack"},
-            %{timestamp: ~N[2017-08-04 11:01:48], vehicle_id: "1651", type: "Initialize Pattern Ack"},
-            %{timestamp: ~N[2017-08-04 11:01:48], vehicle_id: "1625", type: "Location", operator: "0", workpiece: "0", pattern: "0",
-                gps: %{time: "54106", lat: "+4237434", long: "-07107818", speed: "000", heading: "280", source: "1", age: "2"}}
+            {"1712", %{timestamp: ~N[2017-08-04 11:01:51], type: "Location", operator: "910", workpiece: "802", pattern: "509",
+                gps: %{time: "54109", lat: "+4224023", long: "-07112890", speed: "000", heading: "188", source: "1", age: "2"}}},
+            {"1644", %{timestamp: ~N[2017-08-04 11:01:50], type: "Location", operator: "910", workpiece: "154", pattern: "315",
+                gps: %{time: "54107", lat: "+4236658", long: "-07106287", speed: "005", heading: "173", source: "1", age: "1"}}},
+            {"1717", %{timestamp: ~N[2017-08-04 11:01:50], type: "Location", operator: "910", workpiece: "0", pattern: "9999",
+                gps: %{time: "54107", lat: "+4234021", long: "-07106019", speed: "005", heading: "177", source: "1", age: "2"}}},
+            {"1716", %{timestamp: ~N[2017-08-04 11:01:49], type: "Location", operator: "910", workpiece: "0", pattern: "9999",
+                gps: %{time: "54105", lat: "+4233913", long: "-07106041", speed: "006", heading: "318", source: "1", age: "1"}}},
+            {"1822", %{timestamp: ~N[2017-08-04 11:01:49], type: "SAM Ack"}},
+            {"1651", %{timestamp: ~N[2017-08-04 11:01:48], type: "Initialize Pattern Ack"}},
+            {"1625", %{timestamp: ~N[2017-08-04 11:01:48], type: "Location", operator: "0", workpiece: "0", pattern: "0",
+                gps: %{time: "54106", lat: "+4237434", long: "-07107818", speed: "000", heading: "280", source: "1", age: "2"}}}
         ]
     end
 end

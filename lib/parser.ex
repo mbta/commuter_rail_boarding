@@ -20,7 +20,7 @@ defmodule Parser do
                 else
                     vehicle_id = split_prefix |> Enum.at(1) |> split_by_colon()
                     case split_line |> Enum.at(1) |> parse_msg_body() do
-                        {:ok, parsed_body} -> {:ok, Map.merge(%{timestamp: timestamp, vehicle_id: vehicle_id}, parsed_body)}
+                        {:ok, parsed_body} -> {:ok, {vehicle_id, Map.merge(%{timestamp: timestamp}, parsed_body)}}
                         {:error, reason} -> {:error, reason}
                     end
                 end
