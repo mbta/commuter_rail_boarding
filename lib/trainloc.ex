@@ -1,4 +1,5 @@
 defmodule TrainLoc do
+    alias TrainLoc.Parser
     @moduledoc """
     Documentation for TrainLoc.
     """

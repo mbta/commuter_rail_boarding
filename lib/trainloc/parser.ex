@@ -1,4 +1,4 @@
-defmodule Parser do
+defmodule TrainLoc.Parser do
     @moduledoc """
     Parser for PTIS data
     """
@@ -20,7 +20,7 @@ defmodule Parser do
                 else
                     vehicle_id = split_prefix |> Enum.at(1) |> split_by_colon()
                     case split_line |> Enum.at(1) |> parse_msg_body() do
-                        {:ok, parsed_body} -> {:ok, {vehicle_id, Map.merge(%{timestamp: timestamp}, parsed_body)}}
+                        {:ok, parsed_body} -> {:ok, Map.merge(%{vehicle_id: vehicle_id, timestamp: timestamp}, parsed_body)}
                         {:error, reason} -> {:error, reason}
                     end
                 end
@@ -51,7 +51,7 @@ defmodule Parser do
                 {:error, :eshortline}
             end
         else
-            {:ok, data_map}
+            {:ok, Map.put(data_map, :data, body |> String.split("]") |> Enum.at(0))}
         end
     end
 
@@ -80,7 +80,7 @@ defmodule Parser do
         read_lines(file, IO.read(file, :line), [])
     end
 
-    def read_lines(file, :eof, data) do
+    def read_lines(_file, :eof, data) do
         data
     end
 
