@@ -3,6 +3,7 @@ defmodule TrainLoc.Parser do
     Parser for PTIS data
     """
 
+    @spec parse_line(String.t) :: {:ok, map} | {:error, term}
     def parse_line(line) do
         if String.length(line) == 0 do
             {:ok, nil} #input file might have blank lines between records, so they shouldn't cause parsing to halt like an incomplete line
@@ -16,7 +17,7 @@ defmodule TrainLoc.Parser do
                     {:error, reason} -> {:error, reason}
                 end
                 if timestamp == {:error, :eshortline} do
-                    {:error, :eshortline}
+                    timestamp
                 else
                     vehicle_id = split_prefix |> Enum.at(1) |> split_by_colon()
                     case split_line |> Enum.at(1) |> parse_msg_body() do
@@ -30,6 +31,7 @@ defmodule TrainLoc.Parser do
         end
     end
 
+    @spec parse_msg_body(String.t) :: {:ok, map} | {:error, term}
     def parse_msg_body(data) do
         [type, body] = String.split(data, "[")
         data_map = %{type: type}
@@ -55,35 +57,51 @@ defmodule TrainLoc.Parser do
         end
     end
 
+    @spec split_by_colon(String.t) :: String.t
     def split_by_colon(input) do
         Enum.at(String.split(input, ":"), 1)
     end
 
+    @spec parse_gps(String.t) :: {:ok, map} | {:error, term}
     def parse_gps(gps_data) do
         if String.starts_with?(gps_data, ">RPV") and String.length(gps_data) >= 35 do
             {_, rest} = String.split_at(gps_data, 4)
-            {time, rest} = String.split_at(rest, 5)
-            {lat, rest} = String.split_at(rest, 8)
-            {long, rest} = String.split_at(rest, 9)
-            {speed, rest} = String.split_at(rest, 3)
-            {heading, rest} = String.split_at(rest, 3)
-            {source, rest} = String.split_at(rest, 1)
-            {age, _} = String.split_at(rest, 1)
+            {time_string, rest} = String.split_at(rest, 5)
+            {lat_string, rest} = String.split_at(rest, 8)
+            {long_string, rest} = String.split_at(rest, 9)
+            {speed_string, rest} = String.split_at(rest, 3)
+            {heading_string, rest} = String.split_at(rest, 3)
+            {source_string, rest} = String.split_at(rest, 1)
+            {age_string, _} = String.split_at(rest, 1)
+
+            time = String.to_integer(time_string)
+            {big_lat, _} = Float.parse(lat_string)
+            lat = big_lat / 100000
+            {big_long, _} = Float.parse(long_string)
+            long = big_long / 100000
+            speed = String.to_integer(speed_string)
+            heading = String.to_integer(heading_string)
+            source = String.to_integer(source_string)
+            age = String.to_integer(age_string)
+
             {:ok, %{time: time, lat: lat, long: long, speed: speed, heading: heading, source: source, age: age}}
         else
             {:error, :eshortline}
         end
     end
 
+    @spec parse_file(String.t) :: map
     def parse_file(file_path) do
         {:ok, file} = File.open(file_path, [:read])
         read_lines(file, IO.read(file, :line), [])
     end
 
+    @spec read_lines(File.io_device, :eof, map) :: map
     def read_lines(_file, :eof, data) do
         data
     end
 
+    @spec read_lines(File.io_device, String.t, map) :: map
     def read_lines(file, this_line, data) do
         case parse_line(this_line) do
             {:ok, nil} -> read_lines(file, IO.read(file, :line), data)

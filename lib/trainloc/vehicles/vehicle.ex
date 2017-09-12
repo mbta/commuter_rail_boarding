@@ -1,4 +1,5 @@
 defmodule TrainLoc.Vehicles.Vehicle do
+alias TrainLoc.Vehicles.Vehicle.GPS
 
     defstruct [
         :vehicle_id,
@@ -20,6 +21,18 @@ defmodule TrainLoc.Vehicles.Vehicle do
         gps: GPS.t | nil
     }
 
+    def from_map(map) do
+        %__MODULE__{
+            vehicle_id: map |> Map.get(:vehicle_id, ""),
+            timestamp:  map |> Map.get(:timestamp),
+            type:       map |> Map.get(:type, "Unknown"),
+            operator:   map |> Map.get(:operator, ""),
+            workpiece:  map |> Map.get(:workpiece, "0"),
+            pattern:    map |> Map.get(:pattern, "0"),
+            gps:        map |> Map.get(:gps, %{}) |> GPS.from_map
+        }
+    end
+
     defmodule GPS do
 
         defstruct [
@@ -33,14 +46,25 @@ defmodule TrainLoc.Vehicles.Vehicle do
         ]
 
         @type t :: %__MODULE__{
-            time: String.t | nil,
-            lat: String.t | nil,
-            long: String.t | nil,
-            speed: String.t | nil,
-            heading: String.t | nil,
-            source: String.t | nil,
-            age: String.t | nil
+            time: non_neg_integer,
+            lat: float,
+            long: float,
+            speed: non_neg_integer,
+            heading: 0..359,
+            source: 0..9,
+            age: 0..2
         }
 
+        def from_map(map) do
+            %__MODULE__{
+                time:    map |> Map.get(:time, 0),
+                lat:     map |> Map.get(:lat, 0),
+                long:    map |> Map.get(:long, 0),
+                speed:   map |> Map.get(:speed, 0),
+                heading: map |> Map.get(:heading, 0),
+                source:  map |> Map.get(:source, 0),
+                age:     map |> Map.get(:age, 0)
+            }
+        end
     end
 end
