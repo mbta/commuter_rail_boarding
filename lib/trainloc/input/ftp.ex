@@ -12,14 +12,11 @@ defmodule TrainLoc.Input.FTP do
 
 
     def init(_) do
-        {:ok, []}
+        Process.send_after(self(), :timeout, 1000)
+        {:ok, Timex.epoch}
     end
 
-    def handle_cast(:start_ftp, _state) do
-        loop(Timex.epoch)
-    end
-
-    def loop(previous_timestamp) do
+    def handle_info(:timeout, previous_timestamp) do
         {:ok, pid} = connect_ftp()
         current_timestamp = get_file_last_updated(pid)
         Logger.debug("Remote file last updated: #{current_timestamp}")
@@ -29,8 +26,12 @@ defmodule TrainLoc.Input.FTP do
             Logger.debug("Sending message to TrainLoc.Manager")
             send(TrainLoc.Manager, {:new_file, parsed_file})
         end
-        Process.sleep(1000)
-        loop(current_timestamp)
+        Process.send_after(self(), :timeout, 1000)
+        {:noreply, current_timestamp}
+    end
+
+    def handle_info(_msg, state) do
+        {:norelpy, state}
     end
 
     def connect_ftp() do

@@ -19,7 +19,5 @@ use Application
 
         opts = [strategy: :one_for_all, name: __MODULE__]
         Supervisor.start_link(children, opts)
-
-        GenServer.cast(TrainLoc.Input.FTP, :start_ftp)
     end
 end
