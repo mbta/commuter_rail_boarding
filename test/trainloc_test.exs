@@ -1,6 +1,6 @@
-defmodule TrainlocTest do
+defmodule TrainLocTest do
   use ExUnit.Case
-  doctest Trainloc
+  doctest TrainLoc
 
   test "the truth" do
     assert 1 + 1 == 2

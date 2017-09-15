@@ -17,8 +17,10 @@ defmodule Trainloc.Mixfile do
     # Specify extra applications you'll use from Erlang/Elixir
     [extra_applications: [
         :logger,
-        :timex
-        ]]
+        :timex,
+        :logger_logentries_backend
+        ],
+    mod: {TrainLoc, []}]
   end
 
   # Dependencies can be Hex packages:
@@ -32,7 +34,8 @@ defmodule Trainloc.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-        {:timex, "~> 3.1.24"}
+        {:timex, "~> 3.1.24"},
+        {:logger_logentries_backend, github: "paulswartz/logger_logentries_backend"}
     ]
   end
 end
