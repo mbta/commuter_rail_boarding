@@ -1,5 +1,5 @@
-defmodule TrainLoc.ParserTest do
-    alias TrainLoc.Parser
+defmodule TrainLoc.Input.ParserTest do
+    alias TrainLoc.Input.Parser
     use ExUnit.Case, async: true
     doctest Parser
 

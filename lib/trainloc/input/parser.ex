@@ -1,4 +1,4 @@
-defmodule TrainLoc.Parser do
+defmodule TrainLoc.Input.Parser do
     @moduledoc """
     Parser for PTIS data
     """
@@ -88,6 +88,13 @@ defmodule TrainLoc.Parser do
         else
             {:error, :eshortline}
         end
+    end
+
+    def parse(file_contents) do
+        #{:ok, file} = File.open(file_path, [:read])
+
+        #Split file contents into lines (lineseps might have extra CR), parse each line, remove any error tuples, and return the second element of the remaining {:ok, result} tuples
+        file_contents |> String.split(~r/[\r\n]+/) |> Enum.map(&parse_line(&1)) |> Enum.reject(& elem(&1,0)==:error) |> Enum.map(&elem(&1, 1))
     end
 
     @spec parse_file(String.t) :: map

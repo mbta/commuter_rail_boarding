@@ -2,6 +2,7 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
     use ExUnit.Case, async: true
     alias TrainLoc.Conflicts.Conflict
     alias TrainLoc.Conflicts.Conflicts
+    doctest Conflicts
 
     test "adds and removes conflicts" do
         conflict1 = %Conflict{

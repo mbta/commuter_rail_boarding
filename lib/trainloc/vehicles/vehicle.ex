@@ -6,8 +6,8 @@ alias TrainLoc.Vehicles.Vehicle.GPS
         :timestamp,
         :type,
         :operator,
-        :workpiece,
-        :pattern,
+        :block,
+        :trip,
         :gps
     ]
 
@@ -16,8 +16,8 @@ alias TrainLoc.Vehicles.Vehicle.GPS
         timestamp: DateTime.t | nil,
         type: String.t | nil,
         operator: String.t | nil,
-        workpiece: String.t | nil,
-        pattern: String.t | nil,
+        block: String.t | nil,
+        trip: String.t | nil,
         gps: GPS.t | nil
     }
 
@@ -27,8 +27,8 @@ alias TrainLoc.Vehicles.Vehicle.GPS
             timestamp:  map |> Map.get(:timestamp),
             type:       map |> Map.get(:type, "Unknown"),
             operator:   map |> Map.get(:operator, ""),
-            workpiece:  map |> Map.get(:workpiece, "0"),
-            pattern:    map |> Map.get(:pattern, "0"),
+            block:      map |> Map.get(:workpiece, "0"),
+            trip:       map |> Map.get(:pattern, "0"),
             gps:        map |> Map.get(:gps, %{}) |> GPS.from_map
         }
     end

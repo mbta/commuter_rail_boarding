@@ -4,6 +4,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
     alias TrainLoc.Vehicles.Vehicle
     alias TrainLoc.Vehicles.Vehicle.GPS
     alias TrainLoc.Conflicts.Conflict
+    doctest Vehicles
 
     test "Stores and deletes train vehicles" do
         vehicles = %{}
@@ -14,8 +15,8 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             timestamp: ~N[2017-08-04 11:01:51],
             type: "Location",
             operator: "910",
-            workpiece: "802",
-            pattern: "509",
+            block: "802",
+            trip: "509",
             gps: %GPS{
                 time: 54109,
                 lat: 42.24023,
@@ -40,8 +41,8 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             timestamp: ~N[2017-08-04 11:01:51],
             type: "Location",
             operator: "910",
-            workpiece: "802",
-            pattern: "509",
+            block: "802",
+            trip: "509",
             gps: %GPS{
                 time: 54109,
                 lat: 42.24023,
@@ -57,8 +58,8 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             timestamp: ~N[2017-08-04 11:02:51],
             type: "Location",
             operator: "910",
-            workpiece: "802",
-            pattern: "509",
+            block: "802",
+            trip: "509",
             gps: %GPS{
                 time: 54169,
                 lat: 42.24123,
@@ -88,8 +89,8 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             timestamp: ~N[2017-08-04 11:01:51],
             type: "Location",
             operator: "910",
-            workpiece: "802",
-            pattern: "509",
+            block: "802",
+            trip: "509",
             gps: %GPS{
                 time: 54109,
                 lat: 42.24023,
@@ -105,8 +106,8 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             timestamp: ~N[2017-08-04 11:01:51],
             type: "Location",
             operator: "910",
-            workpiece: "803",
-            pattern: "508",
+            block: "803",
+            trip: "508",
             gps: %GPS{
                 time: 54109,
                 lat: 42.24023,
@@ -122,8 +123,8 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             timestamp: ~N[2017-08-04 11:01:51],
             type: "Location",
             operator: "910",
-            workpiece: "803",
-            pattern: "508",
+            block: "803",
+            trip: "508",
             gps: %GPS{
                 time: 54109,
                 lat: 42.24023,
@@ -139,8 +140,8 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             timestamp: ~N[2017-08-04 11:01:51],
             type: "Location",
             operator: "910",
-            workpiece: "802",
-            pattern: "510",
+            block: "802",
+            trip: "510",
             gps: %GPS{
                 time: 54109,
                 lat: 42.24023,
@@ -156,19 +157,19 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         vehicles = %{} |> Map.put("1712", vehicle_one) |> Map.put("1713", vehicle_two) |> Map.put("1714", vehicle_three) |> Map.put("1715", vehicle_four)
         assert Vehicles.find_duplicate_logons(vehicles) == [
             %Conflict{
-                assign_type: :pattern,
+                assign_type: :trip,
                 assign_id: "508",
                 vehicles: ["1713", "1714"],
                 service_date: ~D[2017-08-04]
             },
             %Conflict{
-                assign_type: :workpiece,
+                assign_type: :block,
                 assign_id: "802",
                 vehicles: ["1712", "1715"],
                 service_date: ~D[2017-08-04]
             },
             %Conflict{
-                assign_type: :workpiece,
+                assign_type: :block,
                 assign_id: "803",
                 vehicles: ["1713", "1714"],
                 service_date: ~D[2017-08-04]

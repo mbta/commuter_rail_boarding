@@ -16,10 +16,14 @@ use Mix.Config
 #
 #     Application.get_env(:trainloc, :key)
 #
-# Or configure a 3rd-party app:
-#
-#     config :logger, level: :info
-#
+
+config :logger, :console,
+    format: "$date $time $metadata[$level] $message\n",
+    metadata: [:request_id],
+    level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "info")
+
+config :trainloc,
+    time_zone: "America/New_York"
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
@@ -27,4 +31,4 @@ use Mix.Config
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+import_config "#{Mix.env}.exs"

@@ -28,8 +28,12 @@ defmodule TrainLoc.Vehicles.State do
         GenServer.call(pid, {:get, vehicle_id})
     end
 
-    def delete_vehicle(pid \\__MODULE__, vehicle_id) do
+    def delete_vehicle(pid \\ __MODULE__, vehicle_id) do
         GenServer.call(pid, {:delete, vehicle_id})
+    end
+
+    def get_duplicate_logons(pid \\ __MODULE__) do
+        GenServer.call(pid, :get_duplicates)
     end
 
     #Server Callbacks
@@ -63,5 +67,9 @@ defmodule TrainLoc.Vehicles.State do
     def handle_call({:delete, vehicle_id}, _from, vehicles) do
         {:ok, vehicles} = Vehicles.delete(vehicles, vehicle_id)
         {:reply, :ok, vehicles}
+    end
+
+    def handle_call(:get_duplicates, _from, vehicles) do
+        {:reply, Vehicles.find_duplicate_logons(vehicles), vehicles}
     end
 end

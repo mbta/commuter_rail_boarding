@@ -36,8 +36,8 @@ defmodule TrainLoc.Vehicles.Vehicles do
 
     @spec find_duplicate_logons(map) :: [Conflict.t]
     def find_duplicate_logons(vehicles) do
-        same_pattern = vehicles |> Map.values |> Enum.group_by(& &1.pattern) |> Enum.reject(&match?({_,[_]}, &1)) |> Enum.map(&Conflict.from_tuple(&1, :pattern))
-        same_workpiece = vehicles |> Map.values |> Enum.group_by(& &1.workpiece) |> Enum.reject(&match?({_,[_]}, &1)) |> Enum.map(&Conflict.from_tuple(&1, :workpiece))
-        Enum.concat(same_pattern, same_workpiece)
+        same_trip = vehicles |> Map.values |> Enum.group_by(& &1.trip) |> Enum.reject(&match?({_,[_]}, &1)) |> Enum.map(&Conflict.from_tuple(&1, :trip))
+        same_block = vehicles |> Map.values |> Enum.group_by(& &1.block) |> Enum.reject(&match?({_,[_]}, &1)) |> Enum.map(&Conflict.from_tuple(&1, :block))
+        Enum.concat(same_trip, same_block)
     end
 end
