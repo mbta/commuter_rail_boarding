@@ -3,6 +3,7 @@ defmodule TrainLoc do
     Documentation for TrainLoc.
     """
 use Application
+require Logger
 
     @env Mix.env
     def env, do: @env
@@ -17,6 +18,7 @@ use Application
             worker(Logger.Backend.Logentries.Output.SslKeepOpen.Server, [])
         ]
 
+        Logger.info("Starting main TrainLoc supervisor...")
         opts = [strategy: :one_for_all, name: __MODULE__]
         Supervisor.start_link(children, opts)
     end

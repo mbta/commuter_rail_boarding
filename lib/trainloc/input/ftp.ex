@@ -4,14 +4,13 @@ defmodule TrainLoc.Input.FTP do
     require Logger
     require Timex
 
-    @file_location "AVLData.txt"
-
     def start_link(opts) do
         GenServer.start_link(__MODULE__, :ok, opts)
     end
 
 
     def init(_) do
+        Logger.debug("Starting #{__MODULE__}...")
         Process.send_after(self(), :timeout, 1000)
         {:ok, Timex.epoch}
     end
@@ -31,7 +30,7 @@ defmodule TrainLoc.Input.FTP do
     end
 
     def handle_info(_msg, state) do
-        {:norelpy, state}
+        {:noreply, state}
     end
 
     def connect_ftp() do
@@ -48,10 +47,11 @@ defmodule TrainLoc.Input.FTP do
     end
 
     def fetch_file(pid) do
-        :ftp.recv(pid, to_charlist(@file_location))
+        file_name = Application.get_env(:trainloc, :input_ftp_file_name)
+        :ftp.recv(pid, to_charlist(file_name))
         Logger.debug("File retrieved.")
         :ftp.close(pid)
-        read_file(Application.app_dir(:trainloc, [@file_location]))
+        read_file(Application.app_dir(:trainloc, [file_name]))
     end
 
     def read_file(file_path) do
@@ -62,20 +62,11 @@ defmodule TrainLoc.Input.FTP do
 
     def get_file_last_updated(pid) do
         {:ok, ls} = :ftp.ls(pid)
-        {_,last_updated} = ls |> to_string |> String.split(" "<>@file_location) |> Enum.at(0) |> String.split_at(-12)
+        file_name = Application.get_env(:trainloc, :input_ftp_file_name)
+        {_,last_updated} = ls |> to_string |> String.split(" "<>file_name) |> Enum.at(0) |> String.split_at(-12)
         case Timex.parse(last_updated, "{Mshort} {_D} {h24}:{m}") do
             {:ok, result} -> Timex.set(result, [year: Timex.today.year])
             {:error, _} -> last_updated |> Timex.parse("{Mshort} {_D}  {YYYY}") |> elem(1)
         end
-    end
-
-    def child_spec(_) do
-        %{
-            id: TrainLoc.Input.FTP,
-            restart: :permanent,
-            shutdown: 5000,
-            start: {TrainLoc.Input.FTP, :start, []},
-            type: :worker
-        }
     end
 end

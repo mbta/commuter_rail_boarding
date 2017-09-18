@@ -1,5 +1,6 @@
 defmodule TrainLoc.Conflicts.State do
     use GenServer
+    require Logger
     alias TrainLoc.Conflicts.Conflicts
 
     #Client Interface
@@ -35,6 +36,7 @@ defmodule TrainLoc.Conflicts.State do
     #Server Callbacks
 
     def init(_) do
+        Logger.debug("Starting #{__MODULE__}...")
         {:ok, []}
     end
 

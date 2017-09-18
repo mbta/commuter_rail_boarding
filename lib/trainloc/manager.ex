@@ -1,5 +1,6 @@
 defmodule TrainLoc.Manager do
     use GenServer
+    require Logger
     alias TrainLoc.Vehicles.Vehicle
     alias TrainLoc.Conflicts.Conflict
     alias TrainLoc.Vehicles.State, as: VState
@@ -11,6 +12,7 @@ defmodule TrainLoc.Manager do
 
 
     def init(_) do
+        Logger.debug("Starting #{__MODULE__}...")
         {:ok, []}
     end
 
