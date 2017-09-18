@@ -4,7 +4,6 @@ alias TrainLoc.Vehicles.Vehicle.GPS
     defstruct [
         :vehicle_id,
         :timestamp,
-        :type,
         :operator,
         :block,
         :trip,
@@ -14,7 +13,6 @@ alias TrainLoc.Vehicles.Vehicle.GPS
     @type t :: %__MODULE__{
         vehicle_id: String.t | nil,
         timestamp: DateTime.t | nil,
-        type: String.t | nil,
         operator: String.t | nil,
         block: String.t | nil,
         trip: String.t | nil,
@@ -25,7 +23,6 @@ alias TrainLoc.Vehicles.Vehicle.GPS
         %__MODULE__{
             vehicle_id: map |> Map.get(:vehicle_id, ""),
             timestamp:  map |> Map.get(:timestamp),
-            type:       map |> Map.get(:type, "Unknown"),
             operator:   map |> Map.get(:operator, ""),
             block:      map |> Map.get(:workpiece, "0"),
             trip:       map |> Map.get(:pattern, "0"),

@@ -36,8 +36,13 @@ defmodule TrainLoc.Vehicles.Vehicles do
 
     @spec find_duplicate_logons(map) :: [Conflict.t]
     def find_duplicate_logons(vehicles) do
-        same_trip = vehicles |> Map.values |> Enum.group_by(& &1.trip) |> Enum.reject(&match?({_,[_]}, &1)) |> Enum.map(&Conflict.from_tuple(&1, :trip))
-        same_block = vehicles |> Map.values |> Enum.group_by(& &1.block) |> Enum.reject(&match?({_,[_]}, &1)) |> Enum.map(&Conflict.from_tuple(&1, :block))
+        same_trip = vehicles |> Map.values |> Enum.group_by(& &1.trip) |> Enum.reject(&reject_group?(&1)) |> Enum.map(&Conflict.from_tuple(&1, :trip))
+        same_block = vehicles |> Map.values |> Enum.group_by(& &1.block) |> Enum.reject(&reject_group?(&1)) |> Enum.map(&Conflict.from_tuple(&1, :block))
         Enum.concat(same_trip, same_block)
+    end
+
+    @spec reject_group?({String.t, [Vehicle.t]}) :: boolean
+    def reject_group?(grouping) do
+        match?({_,[_]}, grouping) or elem(grouping, 0) == "0" or elem(grouping, 0) == "9999"
     end
 end

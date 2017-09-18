@@ -1,5 +1,6 @@
 defmodule TrainLoc.Vehicles.State do
     use GenServer
+    require Logger
     alias TrainLoc.Vehicles.Vehicles
 
     #Client Interface
@@ -39,6 +40,7 @@ defmodule TrainLoc.Vehicles.State do
     #Server Callbacks
 
     def init(_) do
+        Logger.debug("Starting #{__MODULE__}...")
         {:ok, %{}}
     end
 
