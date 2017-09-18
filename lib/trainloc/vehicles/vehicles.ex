@@ -43,6 +43,6 @@ defmodule TrainLoc.Vehicles.Vehicles do
 
     @spec reject_group?({String.t, [Vehicle.t]}) :: boolean
     def reject_group?(grouping) do
-        match?({_,[_]}, grouping) || elem(grouping, 0) == "0" || elem(grouping, 0) == "9999"
+        match?({_,[_]}, grouping) or elem(grouping, 0) == "0" or elem(grouping, 0) == "9999"
     end
 end

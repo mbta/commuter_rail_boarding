@@ -13,7 +13,6 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         test_vehicle = %Vehicle{
             vehicle_id: "1712",
             timestamp: ~N[2017-08-04 11:01:51],
-            type: "Location",
             operator: "910",
             block: "802",
             trip: "509",
@@ -39,7 +38,6 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         test_vehicle = %Vehicle{
             vehicle_id: "1712",
             timestamp: ~N[2017-08-04 11:01:51],
-            type: "Location",
             operator: "910",
             block: "802",
             trip: "509",
@@ -56,7 +54,6 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         new_vehicle = %Vehicle{
             vehicle_id: "1712",
             timestamp: ~N[2017-08-04 11:02:51],
-            type: "Location",
             operator: "910",
             block: "802",
             trip: "509",
@@ -87,7 +84,6 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         vehicle_one = %Vehicle{
             vehicle_id: "1712",
             timestamp: ~N[2017-08-04 11:01:51],
-            type: "Location",
             operator: "910",
             block: "802",
             trip: "509",
@@ -104,7 +100,6 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         vehicle_two = %Vehicle{
             vehicle_id: "1713",
             timestamp: ~N[2017-08-04 11:01:51],
-            type: "Location",
             operator: "910",
             block: "803",
             trip: "508",
@@ -121,7 +116,6 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         vehicle_three = %Vehicle{
             vehicle_id: "1714",
             timestamp: ~N[2017-08-04 11:01:51],
-            type: "Location",
             operator: "910",
             block: "803",
             trip: "508",
@@ -138,7 +132,6 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         vehicle_four = %Vehicle{
             vehicle_id: "1715",
             timestamp: ~N[2017-08-04 11:01:51],
-            type: "Location",
             operator: "910",
             block: "802",
             trip: "510",

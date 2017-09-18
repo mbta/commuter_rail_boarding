@@ -4,62 +4,76 @@ defmodule TrainLoc.Input.FTP do
     require Logger
     require Timex
 
+    @type state :: DateTime.t
+
     def start_link(opts) do
         GenServer.start_link(__MODULE__, :ok, opts)
     end
 
-
+    @spec init(term) :: {:ok, state}
     def init(_) do
         Logger.debug("Starting #{__MODULE__}...")
         Process.send_after(self(), :timeout, 1000)
         {:ok, Timex.epoch}
     end
 
+    @spec handle_info(:timeout, state) :: {:noreply, state}
     def handle_info(:timeout, previous_timestamp) do
-        {:ok, pid} = connect_ftp()
-        current_timestamp = get_file_last_updated(pid)
-        Logger.debug("Remote file last updated: #{current_timestamp}")
-        if current_timestamp > previous_timestamp do
-            Logger.debug("Retrieving and parsing file...")
-            parsed_file = pid |> fetch_file() |> Parser.parse()
-            Logger.debug("Sending message to TrainLoc.Manager")
-            send(TrainLoc.Manager, {:new_file, parsed_file})
+        new_state = case connect_ftp() do
+            {:ok, pid} -> current_timestamp = get_file_last_updated(pid)
+                          Logger.debug("#{__MODULE__}: Remote file last updated: #{current_timestamp}")
+                          if current_timestamp > previous_timestamp do
+                              Logger.debug("#{__MODULE__}: Retrieving and parsing file...")
+                              parsed_file = pid |> fetch_file() |> Parser.parse()
+                              Logger.debug("#{__MODULE__}: Sending message to TrainLoc.Manager...")
+                              send(TrainLoc.Manager, {:new_file, parsed_file})
+                          end
+                          current_timestamp
+            {:error, _} -> previous_timestamp
         end
         Process.send_after(self(), :timeout, 1000)
-        {:noreply, current_timestamp}
+        {:noreply, new_state}
     end
 
+    @spec handle_info(any, state) :: {:noreply, state}
     def handle_info(_msg, state) do
+        Logger.debug("#{__MODULE__}: Unknown message received.")
         {:noreply, state}
     end
 
+    @spec connect_ftp() :: {:ok, pid} | {:error, term}
     def connect_ftp() do
         :inets.start()
         ftp_host = Application.get_env(:trainloc, :input_ftp_host)
         ftp_user = Application.get_env(:trainloc, :input_ftp_user)
         ftp_password = Application.get_env(:trainloc, :input_ftp_password)
-        Logger.debug("Connecting to ftp host: #{ftp_host}")
-        {:ok, pid} = :inets.start(:ftpc, host: ftp_host)
-        :ftp.user(pid, ftp_user, ftp_password)
-        Logger.debug("Username/password accepted.")
-        :ftp.lcd(pid, to_charlist(Application.app_dir(:trainloc)))
-        {:ok, pid}
+        Logger.debug("#{__MODULE__}: Connecting to ftp host: #{ftp_host}")
+        case :inets.start(:ftpc, host: ftp_host) do
+            {:ok, pid} -> :ftp.user(pid, ftp_user, ftp_password)
+                          Logger.debug("#{__MODULE__}: Username/password accepted.")
+                          :ftp.lcd(pid, to_charlist(Application.app_dir(:trainloc)))
+                          {:ok, pid}
+            {:error, reason} -> {:error, reason}
+        end
     end
 
+    @spec fetch_file(pid) :: String.t
     def fetch_file(pid) do
         file_name = Application.get_env(:trainloc, :input_ftp_file_name)
         :ftp.recv(pid, to_charlist(file_name))
-        Logger.debug("File retrieved.")
+        Logger.debug("#{__MODULE__}: File retrieved.")
         :ftp.close(pid)
         read_file(Application.app_dir(:trainloc, [file_name]))
     end
 
+    @spec read_file(String.t) :: String.t
     def read_file(file_path) do
-        Logger.debug("Reading file at location: #{file_path}")
+        Logger.debug("#{__MODULE__}: Reading file at location: #{file_path}")
         {:ok, file} = File.open(file_path, [:read])
         IO.read(file, :all)
     end
 
+    @spec get_file_last_updated(pid) :: DateTime.t
     def get_file_last_updated(pid) do
         {:ok, ls} = :ftp.ls(pid)
         file_name = Application.get_env(:trainloc, :input_ftp_file_name)
