@@ -4,7 +4,7 @@ defmodule Trainloc.Mixfile do
   def project do
     [app: :trainloc,
      version: "0.1.0",
-     elixir: "~> 1.4",
+     elixir: "~> 1.5.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
