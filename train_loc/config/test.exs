@@ -4,7 +4,7 @@ config :logger,
     backends: [:console]
 
 config :logger, :console,
-    level: :debug
+    level: :info
 
 config :trainloc,
     input_ftp_host: 'localhost',

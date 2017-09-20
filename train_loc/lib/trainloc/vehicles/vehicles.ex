@@ -34,6 +34,15 @@ defmodule TrainLoc.Vehicles.Vehicles do
         {:ok, Map.delete(vehicles, vehicle_id)}
     end
 
+    @spec purge_old_vehicles(map, Timex.Duration.t) :: {:ok, map}
+    def purge_old_vehicles(vehicles, duration \\ nil) do
+        duration = if duration == nil, do: Timex.Duration.from_days(1), else: duration
+
+        newest = vehicles |> Map.values |> Enum.map(& &1.timestamp) |> Enum.max
+        vehicles = vehicles |> Enum.reject(& Timex.diff(newest, &1, :duration) > duration)
+        {:ok, vehicles}
+    end
+
     @spec find_duplicate_logons(map) :: [Conflict.t]
     def find_duplicate_logons(vehicles) do
         same_trip = vehicles |> Map.values |> Enum.group_by(& &1.trip) |> Enum.reject(&reject_group?(&1)) |> Enum.map(&Conflict.from_tuple(&1, :trip))
@@ -42,7 +51,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
     end
 
     @spec reject_group?({String.t, [Vehicle.t]}) :: boolean
-    def reject_group?(grouping) do
+    defp reject_group?(grouping) do
         match?({_,[_]}, grouping) or elem(grouping, 0) == "0" or elem(grouping, 0) == "9999"
     end
 end
