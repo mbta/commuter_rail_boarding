@@ -1,6 +1,7 @@
 defmodule TrainLoc.Manager do
     use GenServer
     require Logger
+    alias Timex.Duration
     alias TrainLoc.Vehicles.Vehicle
     alias TrainLoc.Conflicts.Conflict
     alias TrainLoc.Vehicles.State, as: VState
@@ -18,18 +19,14 @@ defmodule TrainLoc.Manager do
 
     def handle_info({:new_file, messages}, state) do
         #Get all "Location" messages, convert them to Vehicle objects, and store them in Vehicles.State
-        messages |> Enum.filter(&is_relevant_message?(&1)) |> Enum.map(&Vehicle.from_map(&1)) |> Enum.map(&VState.update_vehicle(&1))
+        messages |> Enum.filter(&is_relevant_message?(&1)) |> Enum.map(&Vehicle.from_map(&1)) |> Enum.each(&VState.update_vehicle(&1))
+        #VState.purge_vehicles(Duration.from_hours(2)) |> Enum.each(&Logger.info("Vehicle #{&1.vehicle_id} removed due to stale data."))
 
         #Filter list down to only known conflicts
         {removed_conflicts, new_conflicts} = VState.get_duplicate_logons() |> CState.set_conflicts()
 
-        #TODO: Send notification email for each new_conflict
-        IO.puts("New Conflicts:")
-        new_conflicts |> Enum.each(&IO.puts(Conflict.conflict_string(&1)))
-
-        #TODO: Send "Resolved" email for each removed_conflict
-        IO.puts("\nResolved Conflicts:")
-        removed_conflicts |> Enum.each(&IO.puts(Conflict.conflict_string(&1)))
+        new_conflicts |> Enum.each(&Logger.warn("New Conflict - #{Conflict.conflict_string(&1)}"))
+        removed_conflicts |> Enum.each(&Logger.info("Resolved Conflict - #{Conflict.conflict_string(&1)}"))
         {:noreply, state}
     end
 

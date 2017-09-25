@@ -33,6 +33,10 @@ defmodule TrainLoc.Vehicles.State do
         GenServer.call(pid, {:delete, vehicle_id})
     end
 
+    def purge_vehicles(pid \\ __MODULE__, max_age) do
+        GenServer.call(pid, {:purge, max_age})
+    end
+
     def get_duplicate_logons(pid \\ __MODULE__) do
         GenServer.call(pid, :get_duplicates)
     end
@@ -69,6 +73,11 @@ defmodule TrainLoc.Vehicles.State do
     def handle_call({:delete, vehicle_id}, _from, vehicles) do
         {:ok, vehicles} = Vehicles.delete(vehicles, vehicle_id)
         {:reply, :ok, vehicles}
+    end
+
+    def handle_call({:purge, max_age}, _from, vehicles) do
+        {:ok, vehicles, purged_vehicles} = Vehicles.purge_old_vehicles(vehicles, max_age)
+        {:reply, purged_vehicles, vehicles}
     end
 
     def handle_call(:get_duplicates, _from, vehicles) do

@@ -34,13 +34,14 @@ defmodule TrainLoc.Vehicles.Vehicles do
         {:ok, Map.delete(vehicles, vehicle_id)}
     end
 
-    @spec purge_old_vehicles(map, Timex.Duration.t) :: {:ok, map}
+    @spec purge_old_vehicles(map, Timex.Duration.t) :: {:ok, map, [Vehicle.t]}
     def purge_old_vehicles(vehicles, duration \\ nil) do
         duration = if duration == nil, do: Timex.Duration.from_days(1), else: duration
 
         newest = vehicles |> Map.values |> Enum.map(& &1.timestamp) |> Enum.max
-        vehicles = vehicles |> Enum.reject(& Timex.diff(newest, &1, :duration) > duration)
-        {:ok, vehicles}
+        vehicles_to_purge = vehicles |> Map.values |> Enum.split_with(& Timex.diff(newest, &1.timestamp, :duration) < duration)
+        vehicles = vehicles_to_purge |> Enum.reduce(vehicles, fn(x, acc) -> Map.delete(acc, x.vehicle_id) end)
+        {:ok, vehicles, vehicles_to_purge}
     end
 
     @spec find_duplicate_logons(map) :: [Conflict.t]
