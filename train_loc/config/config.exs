@@ -23,7 +23,8 @@ config :logger, :console,
     level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "info")
 
 config :trainloc,
-    time_zone: "America/New_York"
+    time_zone: "America/New_York",
+    input_ftp_file_name: "AVLData.txt"
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

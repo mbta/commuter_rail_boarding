@@ -6,6 +6,8 @@ defmodule TrainLoc.Input.FTP do
 
     @type state :: DateTime.t
 
+    @check_delay 2*60*1000
+
     def start_link(opts) do
         GenServer.start_link(__MODULE__, :ok, opts)
     end
@@ -13,7 +15,7 @@ defmodule TrainLoc.Input.FTP do
     @spec init(term) :: {:ok, state}
     def init(_) do
         Logger.debug("Starting #{__MODULE__}...")
-        Process.send_after(self(), :timeout, 1000)
+        Process.send_after(self(), :timeout, @check_delay)
         {:ok, Timex.epoch}
     end
 
@@ -27,11 +29,13 @@ defmodule TrainLoc.Input.FTP do
                               parsed_file = pid |> fetch_file() |> Parser.parse()
                               Logger.debug("#{__MODULE__}: Sending message to TrainLoc.Manager...")
                               send(TrainLoc.Manager, {:new_file, parsed_file})
+                          else
+                              :ftp.close(pid)
                           end
                           current_timestamp
             {:error, _} -> previous_timestamp
         end
-        Process.send_after(self(), :timeout, 1000)
+        Process.send_after(self(), :timeout, @check_delay)
         {:noreply, new_state}
     end
 
@@ -44,13 +48,11 @@ defmodule TrainLoc.Input.FTP do
     @spec connect_ftp() :: {:ok, pid} | {:error, term}
     def connect_ftp() do
         :inets.start()
-        ftp_host = Application.get_env(:trainloc, :input_ftp_host)
-        ftp_user = Application.get_env(:trainloc, :input_ftp_user)
-        ftp_password = Application.get_env(:trainloc, :input_ftp_password)
-        Logger.debug("#{__MODULE__}: Connecting to ftp host: #{ftp_host}")
+        ftp_host = :trainloc |> Application.get_env(:input_ftp_host) |> to_charlist
+        ftp_user = :trainloc |> Application.get_env(:input_ftp_user) |> to_charlist
+        ftp_password = :trainloc |> Application.get_env(:input_ftp_password) |> to_charlist
         case :inets.start(:ftpc, host: ftp_host) do
             {:ok, pid} -> :ftp.user(pid, ftp_user, ftp_password)
-                          Logger.debug("#{__MODULE__}: Username/password accepted.")
                           :ftp.lcd(pid, to_charlist(Application.app_dir(:trainloc)))
                           {:ok, pid}
             {:error, reason} -> {:error, reason}
