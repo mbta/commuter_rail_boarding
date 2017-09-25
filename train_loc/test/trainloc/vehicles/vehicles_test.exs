@@ -1,5 +1,6 @@
 defmodule TrainLoc.Vehicles.VehiclesTest do
     use ExUnit.Case, async: true
+    alias Timex.Duration
     alias TrainLoc.Vehicles.Vehicles
     alias TrainLoc.Vehicles.Vehicle
     alias TrainLoc.Vehicles.Vehicle.GPS
@@ -168,5 +169,64 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
                 service_date: ~D[2017-08-04]
             }
         ]
+    end
+
+    test "purges vehicles older than a given age" do
+        vehicle_one = %Vehicle{
+            vehicle_id: "1712",
+            timestamp: ~N[2017-08-04 11:01:51],
+            operator: "910",
+            block: "802",
+            trip: "509",
+            gps: %GPS{
+                time: 54109,
+                lat: 42.24023,
+                long: -71.12890,
+                speed: 0,
+                heading: 188,
+                source: 1,
+                age: 2
+            }
+        }
+        vehicle_two = %Vehicle{
+            vehicle_id: "1713",
+            timestamp: ~N[2017-08-03 11:01:50],
+            operator: "910",
+            block: "803",
+            trip: "507",
+            gps: %GPS{
+                time: 54109,
+                lat: 42.24023,
+                long: -71.12890,
+                speed: 0,
+                heading: 188,
+                source: 1,
+                age: 2
+            }
+        }
+        vehicle_three = %Vehicle{
+            vehicle_id: "1714",
+            timestamp: ~N[2017-08-04 11:01:51],
+            operator: "910",
+            block: "804",
+            trip: "508",
+            gps: %GPS{
+                time: 54109,
+                lat: 42.24023,
+                long: -71.12890,
+                speed: 000,
+                heading: 188,
+                source: 1,
+                age: 2
+            }
+        }
+
+        vehicles = %{"1712" => vehicle_one, "1713" => vehicle_two, "1714" => vehicle_three}
+
+        assert Vehicles.purge_vehicles(vehicles, Duration.from_days(1)) == {
+            :ok,
+            %{"1712" => vehicle_one, "1714" => vehicle_three},
+            [vehicle_two]
+        }
     end
 end

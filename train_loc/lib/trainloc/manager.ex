@@ -20,7 +20,7 @@ defmodule TrainLoc.Manager do
     def handle_info({:new_file, messages}, state) do
         #Get all "Location" messages, convert them to Vehicle objects, and store them in Vehicles.State
         messages |> Enum.filter(&is_relevant_message?(&1)) |> Enum.map(&Vehicle.from_map(&1)) |> Enum.each(&VState.update_vehicle(&1))
-        #VState.purge_vehicles(Duration.from_hours(2)) |> Enum.each(&Logger.info("Vehicle #{&1.vehicle_id} removed due to stale data."))
+        VState.purge_vehicles(Duration.from_minutes(30)) |> Enum.each(&Logger.info("Vehicle #{&1.vehicle_id} removed due to stale data."))
 
         #Filter list down to only known conflicts
         {removed_conflicts, new_conflicts} = VState.get_duplicate_logons() |> CState.set_conflicts()

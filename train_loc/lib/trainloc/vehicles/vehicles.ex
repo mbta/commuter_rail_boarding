@@ -39,7 +39,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
         duration = if duration == nil, do: Timex.Duration.from_days(1), else: duration
 
         newest = vehicles |> Map.values |> Enum.map(& &1.timestamp) |> Enum.max
-        vehicles_to_purge = vehicles |> Map.values |> Enum.split_with(& Timex.diff(newest, &1.timestamp, :duration) < duration)
+        vehicles_to_purge = vehicles |> Map.values |> Enum.split_with(& Timex.diff(newest, &1.timestamp, :duration) < duration) |> elem(1)
         vehicles = vehicles_to_purge |> Enum.reduce(vehicles, fn(x, acc) -> Map.delete(acc, x.vehicle_id) end)
         {:ok, vehicles, vehicles_to_purge}
     end

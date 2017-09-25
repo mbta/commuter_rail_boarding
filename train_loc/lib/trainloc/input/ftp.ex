@@ -15,7 +15,7 @@ defmodule TrainLoc.Input.FTP do
     @spec init(term) :: {:ok, state}
     def init(_) do
         Logger.debug("Starting #{__MODULE__}...")
-        Process.send_after(self(), :timeout, @check_delay)
+        send(self(), :timeout)
         {:ok, Timex.epoch}
     end
 
