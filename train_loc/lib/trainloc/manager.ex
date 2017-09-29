@@ -23,8 +23,7 @@ defmodule TrainLoc.Manager do
         VState.purge_vehicles(Duration.from_minutes(30)) |> Enum.each(&Logger.info("#{__MODULE__}: Vehicle #{&1.vehicle_id} removed due to stale data."))
 
         Logger.debug("#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles.")
-        active_vehicles = VState.all_vehicles |> Enum.reject(&is_active_vehicle(&1))
-        Logger.debug("#{__MODULE__}: #{VState.all_vehicles |> Enum.reject(&is_inactive_vehicle(&1)) |> length} vehicles active.")
+        Logger.debug("#{__MODULE__}: #{VState.all_vehicles |> Enum.reject(&is_inactive_vehicle?(&1)) |> length} vehicles active.")
 
         all_conflicts = VState.get_duplicate_logons()
         Logger.info("#{__MODULE__}: Active conflicts:#{length(all_conflicts)}")
