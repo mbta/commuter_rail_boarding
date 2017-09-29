@@ -25,7 +25,6 @@ defmodule TrainLoc.Input.FTP do
             {:ok, pid} -> current_timestamp = get_file_last_updated(pid)
                           Logger.debug("#{__MODULE__}: Remote file last updated: #{current_timestamp}")
                           if current_timestamp > previous_timestamp do
-                              Logger.debug("#{__MODULE__}: Retrieving and parsing file...")
                               parsed_file = pid |> fetch_file() |> Parser.parse()
                               Logger.debug("#{__MODULE__}: Sending message to TrainLoc.Manager...")
                               send(TrainLoc.Manager, {:new_file, parsed_file})
@@ -63,14 +62,12 @@ defmodule TrainLoc.Input.FTP do
     def fetch_file(pid) do
         file_name = Application.get_env(:trainloc, :input_ftp_file_name)
         :ftp.recv(pid, to_charlist(file_name))
-        Logger.debug("#{__MODULE__}: File retrieved.")
         :ftp.close(pid)
         read_file(Application.app_dir(:trainloc, [file_name]))
     end
 
     @spec read_file(String.t) :: String.t
     def read_file(file_path) do
-        Logger.debug("#{__MODULE__}: Reading file at location: #{file_path}")
         {:ok, file} = File.open(file_path, [:read])
         IO.read(file, :all)
     end

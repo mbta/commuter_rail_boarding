@@ -223,7 +223,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
 
         vehicles = %{"1712" => vehicle_one, "1713" => vehicle_two, "1714" => vehicle_three}
 
-        assert Vehicles.purge_vehicles(vehicles, Duration.from_days(1)) == {
+        assert Vehicles.purge_old_vehicles(vehicles, Duration.from_days(1)) == {
             :ok,
             %{"1712" => vehicle_one, "1714" => vehicle_three},
             [vehicle_two]

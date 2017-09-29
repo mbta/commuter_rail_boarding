@@ -20,10 +20,15 @@ defmodule TrainLoc.Manager do
     def handle_info({:new_file, messages}, state) do
         #Get all "Location" messages, convert them to Vehicle objects, and store them in Vehicles.State
         messages |> Enum.filter(&is_relevant_message?(&1)) |> Enum.map(&Vehicle.from_map(&1)) |> Enum.each(&VState.update_vehicle(&1))
-        VState.purge_vehicles(Duration.from_minutes(30)) |> Enum.each(&Logger.info("Vehicle #{&1.vehicle_id} removed due to stale data."))
+        VState.purge_vehicles(Duration.from_minutes(30)) |> Enum.each(&Logger.info("#{__MODULE__}: Vehicle #{&1.vehicle_id} removed due to stale data."))
 
-        #Filter list down to only known conflicts
-        {removed_conflicts, new_conflicts} = VState.get_duplicate_logons() |> CState.set_conflicts()
+        Logger.debug("#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles.")
+        active_vehicles = VState.all_vehicles |> Enum.reject(&is_active_vehicle(&1))
+        Logger.debug("#{__MODULE__}: #{VState.all_vehicles |> Enum.reject(&is_inactive_vehicle(&1)) |> length} vehicles active.")
+
+        all_conflicts = VState.get_duplicate_logons()
+        Logger.info("#{__MODULE__}: Active conflicts:#{length(all_conflicts)}")
+        {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
         new_conflicts |> Enum.each(&Logger.warn("New Conflict - #{Conflict.conflict_string(&1)}"))
         removed_conflicts |> Enum.each(&Logger.info("Resolved Conflict - #{Conflict.conflict_string(&1)}"))
@@ -36,6 +41,10 @@ defmodule TrainLoc.Manager do
 
     @spec is_relevant_message?(map) :: boolean
     def is_relevant_message?(message) do
-        Map.get(message, :type) == "Location"
+        message["type"] == "Location"
+    end
+
+    def is_inactive_vehicle?(vehicle) do
+        vehicle.operator == "0" or vehicle.block == "0" or vehicle.trip == "0" or vehicle.trip == "9999"
     end
 end

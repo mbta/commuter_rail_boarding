@@ -49,7 +49,7 @@ defmodule TrainLoc.Vehicles.State do
     end
 
     def handle_call(:all_vehicles, _from, vehicles) do
-        {:reply, vehicles, vehicles}
+        {:reply, Map.values(vehicles), vehicles}
     end
 
     def handle_call(:all_ids, _from, vehicles) do

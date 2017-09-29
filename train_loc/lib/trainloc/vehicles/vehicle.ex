@@ -1,45 +1,46 @@
 defmodule TrainLoc.Vehicles.Vehicle do
 alias TrainLoc.Vehicles.Vehicle.GPS
 
+    @enforce_keys [:vehicle_id]
     defstruct [
         :vehicle_id,
-        :timestamp,
-        :operator,
-        :block,
-        :trip,
-        :gps
+        timestamp: ~N[1970-01-01 00:00:00],
+        operator: "910",
+        block: "0",
+        trip: "0",
+        gps: nil
     ]
 
     @type t :: %__MODULE__{
-        vehicle_id: String.t | nil,
-        timestamp: DateTime.t | nil,
-        operator: String.t | nil,
-        block: String.t | nil,
-        trip: String.t | nil,
+        vehicle_id: String.t,
+        timestamp: DateTime.t,
+        operator: String.t,
+        block: String.t,
+        trip: String.t,
         gps: GPS.t | nil
     }
 
     def from_map(map) do
         %__MODULE__{
-            vehicle_id: map |> Map.get(:vehicle_id, ""),
-            timestamp:  map |> Map.get(:timestamp),
-            operator:   map |> Map.get(:operator, ""),
-            block:      map |> Map.get(:workpiece, "0"),
-            trip:       map |> Map.get(:pattern, "0"),
-            gps:        map |> Map.get(:gps, %{}) |> GPS.from_map
+            vehicle_id: map["vehicle_id"],
+            timestamp:  map["timestamp"] |> Timex.parse!("{0M}-{0D}-{YYYY} {0h12}:{0m}:{0s} {AM}"),
+            operator:   map["operator"],
+            block:      map["workpiece"],
+            trip:       map["pattern"],
+            gps:        GPS.from_map(map)
         }
     end
 
     defmodule GPS do
 
         defstruct [
-            :time,
-            :lat,
-            :long,
-            :speed,
-            :heading,
-            :source,
-            :age
+            time: 0,
+            lat: 0.0,
+            long: 0.0,
+            speed: 0,
+            heading: 0,
+            source: 0,
+            age: 0
         ]
 
         @type t :: %__MODULE__{
@@ -54,13 +55,13 @@ alias TrainLoc.Vehicles.Vehicle.GPS
 
         def from_map(map) do
             %__MODULE__{
-                time:    map |> Map.get(:time, 0),
-                lat:     map |> Map.get(:lat, 0),
-                long:    map |> Map.get(:long, 0),
-                speed:   map |> Map.get(:speed, 0),
-                heading: map |> Map.get(:heading, 0),
-                source:  map |> Map.get(:source, 0),
-                age:     map |> Map.get(:age, 0)
+                time:    map["time"] |> String.to_integer,
+                lat:    (map["lat"] |> Float.parse |> elem(0)) / 100000,
+                long:   (map["long"] |> Float.parse |> elem(0)) / 100000,
+                speed:   map["speed"] |> String.to_integer,
+                heading: map["heading"] |> String.to_integer,
+                source:  map["source"] |> String.to_integer,
+                age:     map["age"] |> String.to_integer
             }
         end
     end

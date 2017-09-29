@@ -8,7 +8,7 @@ config :logger, :logentries,
     host: 'data.logentries.com',
     port: 443,
   token: {:system, "LOGENTRIES_TOKEN"},
-    format: "$dateT$time [$level]$levelpad node=$node $metadata$message\n",
+    format: "$dateT$time [$level]$levelpad $metadata$message\n",
     metadata: [:request_id]
 
 config :trainloc,
