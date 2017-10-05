@@ -64,4 +64,18 @@ defmodule TrainLoc.Conflicts.State do
         {removed, added, known_conflicts} = Conflicts.set(known_conflicts, new_conflicts)
         {:reply, {removed, added}, known_conflicts}
     end
+
+    #Catchalls
+
+    def handle_call(_, _from, known_conflicts) do
+        {:reply, {:error, "Unknown callback."}, known_conflicts}
+    end
+
+    def handle_cast(_, known_conflicts) do
+        {:noreply, known_conflicts}
+    end
+
+    def handle_info(_, known_conflicts) do
+        {:noreply, known_conflicts}
+    end
 end

@@ -1,15 +1,7 @@
 use Mix.Config
 
 config :logger,
-    backends: [{Logger.Backend.Logentries, :logentries}, :console]
-
-config :logger, :logentries,
-    connector: Logger.Backend.Logentries.Output.SslKeepOpen,
-    host: 'data.logentries.com',
-    port: 443,
-    token: {:system, "LOGENTRIES_TOKEN"},
-    format: "$dateT$time [$level]$levelpad $metadata$message\n",
-    metadata: [:request_id]
+    backends: [:console]
 
 config :logger, :console,
     level: :debug

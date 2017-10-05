@@ -83,4 +83,18 @@ defmodule TrainLoc.Vehicles.State do
     def handle_call(:get_duplicates, _from, vehicles) do
         {:reply, Vehicles.find_duplicate_logons(vehicles), vehicles}
     end
+
+    #Catchalls
+
+    def handle_call(_, _from, vehicles) do
+        {:reply, {:error, "Unknown callback."}, vehicles}
+    end
+
+    def handle_cast(_, vehicles) do
+        {:noreply, vehicles}
+    end
+
+    def handle_info(_, vehicles) do
+        {:noreply, vehicles}
+    end
 end

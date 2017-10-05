@@ -8,10 +8,10 @@ config :logger, :logentries,
     host: 'data.logentries.com',
     port: 443,
   token: {:system, "LOGENTRIES_TOKEN"},
-    format: "$dateT$time [$level]$levelpad $metadata$message\n",
+    format: "$dateT$time [$level]$levelpad node=$node $metadata$message\n",
     metadata: [:request_id]
 
 config :trainloc,
     input_ftp_host:     '131.108.88.219',
-    input_ftp_user:     'mbtamobile',
-    input_ftp_password: 'massbay'
+    input_ftp_user: System.get_env("FTP_USERNAME"),
+    input_ftp_password: System.get_env("FTP_PASSWORD")
