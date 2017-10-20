@@ -35,6 +35,7 @@ defmodule Trainloc.Mixfile do
   defp deps do
     [
         {:timex, "~> 3.1.24"},
+        {:ehmon, git: "https://github.com/heroku/ehmon.git", tag: "v4"},
         {:logger_logentries_backend, github: "paulswartz/logger_logentries_backend"}
     ]
   end

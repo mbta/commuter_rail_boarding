@@ -1,5 +1,7 @@
 use Mix.Config
 
+config :ehmon, :report_mf, {:ehmon, :info_report}
+
 config :logger,
     backends: [{Logger.Backend.Logentries, :logentries}, :console]
 

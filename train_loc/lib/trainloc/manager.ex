@@ -14,10 +14,10 @@ defmodule TrainLoc.Manager do
 
     def init(_) do
         Logger.debug("Starting #{__MODULE__}...")
-        {:ok, []}
+        {:ok, true}
     end
 
-    def handle_info({:new_file, messages}, state) do
+    def handle_info({:new_file, messages}, is_first_message?) do
         #Get all "Location" messages, convert them to Vehicle objects, and store them in Vehicles.State
         messages |> Enum.filter(&is_relevant_message?(&1)) |> Enum.map(&Vehicle.from_map(&1)) |> Enum.each(&VState.update_vehicle(&1))
         VState.purge_vehicles(Duration.from_minutes(30)) |> Enum.each(&Logger.info("#{__MODULE__}: Vehicle #{&1.vehicle_id} removed due to stale data."))
@@ -29,9 +29,12 @@ defmodule TrainLoc.Manager do
         Logger.info("#{__MODULE__}: Active conflicts:#{length(all_conflicts)}")
         {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
-        new_conflicts |> Enum.each(&Logger.warn("New Conflict - #{Conflict.conflict_string(&1)}"))
-        removed_conflicts |> Enum.each(&Logger.info("Resolved Conflict - #{Conflict.conflict_string(&1)}"))
-        {:noreply, state}
+        if !is_first_message? do
+            new_conflicts |> Enum.each(&Logger.warn("New Conflict - #{Conflict.conflict_string(&1)}"))
+            removed_conflicts |> Enum.each(&Logger.info("Resolved Conflict - #{Conflict.conflict_string(&1)}"))
+        end
+
+        {:noreply, false}
     end
 
     def handle_info(_msg, state) do

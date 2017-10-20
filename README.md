@@ -25,8 +25,8 @@ Once started, the application's current state can be probed from anywhere on the
 
   Example:
 ```elixir
-iex> vehicle_state = {TrainLoc.Vehicles.State, :"trainloc-dev@localhost"}
-{TrainLoc.Vehicles.State, :"trainloc-dev@localhost"}
+iex> vehicle_state = {TrainLoc.Vehicles.State, :"trainloc-dev@mycomputer"}
+{TrainLoc.Vehicles.State, :"trainloc-dev@mycomputer"}
 iex> GenServer.call(vehicle_state, :all_ids)
 ["1707", "1634", "1531", "1630", "1649", "1507", "1506", "1709", "1821", "1724",
 ...]
