@@ -1,5 +1,7 @@
 defmodule TrainLoc.Input.ParserTest do
     alias TrainLoc.Input.Parser
+    alias TrainLoc.Vehicles.Vehicle
+    alias TrainLoc.Vehicles.Vehicle.GPS
     use ExUnit.Case, async: true
     doctest Parser
 
@@ -49,76 +51,81 @@ defmodule TrainLoc.Input.ParserTest do
         08-0
         """
         assert Parser.parse(test_file_contents) == [
-            %{
-                "vehicle_id" => "1625",
-                "timestamp" => "08-04-2017 11:01:48 AM",
-                "type" => "Location",
-                "operator" => "0",
-                "workpiece" => "0",
-                "pattern" => "0",
-                "time" => "54106",
-                "lat" => "+4237434",
-                "long" => "-07107818",
-                "speed" => "000",
-                "heading" => "280",
-                "source" => "1",
-                "age" => "2"
-           }, %{
-                "vehicle_id" => "1716",
-                "timestamp" => "08-04-2017 11:01:49 AM",
-                "type" => "Location",
-                "operator" => "910",
-                "workpiece" => "0",
-                "pattern" => "9999",
-                "time" => "54105",
-                "lat" => "+4233913",
-                "long" => "-07106041",
-                "speed" => "006",
-                "heading" => "318",
-                "source" => "1",
-                "age" => "1"
-            }, %{
-                "vehicle_id" => "1717",
-                "timestamp" => "08-04-2017 11:01:50 AM",
-                "type" => "Location",
-                "operator" => "910",
-                "workpiece" => "0",
-                "pattern" => "9999",
-                "time" => "54107",
-                "lat" => "+4234021",
-                "long" => "-07106019",
-                "speed" => "005",
-                "heading" => "177",
-                "source" => "1",
-                "age" => "2"
-            }, %{
-                "vehicle_id" => "1644",
-                "timestamp" => "08-04-2017 11:01:50 AM",
-                "type" => "Location",
-                "operator" => "910",
-                "workpiece" => "154",
-                "pattern" => "315",
-                "time" => "54107",
-                "lat" => "+4236658",
-                "long" => "-07106287",
-                "speed" => "005",
-                "heading" => "173",
-                "source" => "1",
-                "age" => "1"
-            }, %{
-                "vehicle_id" => "1712",
-                "timestamp" => "08-04-2017 11:01:51 AM",
-                "type" => "Location",
-                "operator" => "910",
-                "workpiece" => "802",
-                "pattern" => "509",
-                "time" => "54109",
-                "lat" => "+4224023",
-                "long" => "-07112890",
-                "speed" => "000",
-                "heading" => "188",
-                "source" => "1",
-                "age" => "2"
+            %Vehicle{
+                vehicle_id: "1625",
+                timestamp: ~N[2017-08-04 11:01:48],
+                operator: "0",
+                block: "0",
+                trip: "0",
+                gps: %GPS{
+                    time: 54106,
+                    lat: 42.37434,
+                    long: -71.07818,
+                    speed: 0,
+                    heading: 280,
+                    source: 1,
+                    age: 2
+                }
+           }, %Vehicle{
+                vehicle_id: "1716",
+                timestamp: ~N[2017-08-04 11:01:49],
+                operator: "910",
+                block: "0",
+                trip: "9999",
+                gps: %GPS{
+                    time: 54105,
+                    lat: 42.33913,
+                    long: -71.06041,
+                    speed: 6,
+                    heading: 318,
+                    source: 1,
+                    age: 1
+                }
+            }, %Vehicle{
+                vehicle_id: "1717",
+                timestamp: ~N[2017-08-04 11:01:50],
+                operator: "910",
+                block: "0",
+                trip: "9999",
+                gps: %GPS{
+                    time: 54107,
+                    lat: 42.34021,
+                    long: -71.06019,
+                    speed: 5,
+                    heading: 177,
+                    source: 1,
+                    age: 2
+                }
+            }, %Vehicle{
+                vehicle_id: "1644",
+                timestamp: ~N[2017-08-04 11:01:50],
+                operator: "910",
+                block: "154",
+                trip: "315",
+                gps: %GPS{
+                    time: 54107,
+                    lat: 42.36658,
+                    long: -71.06287,
+                    speed: 5,
+                    heading: 173,
+                    source: 1,
+                    age: 1
+                }
+            }, %Vehicle{
+                vehicle_id: "1712",
+                timestamp: ~N[2017-08-04 11:01:51],
+                operator: "910",
+                block: "802",
+                trip: "509",
+                gps: %GPS{
+                    time: 54109,
+                    lat: 42.24023,
+                    long: -71.12890,
+                    speed: 0,
+                    heading: 188,
+                    source: 1,
+                    age: 2
+                }
             }
         ]
     end

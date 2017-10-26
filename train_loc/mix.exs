@@ -18,6 +18,7 @@ defmodule Trainloc.Mixfile do
     [extra_applications: [
         :logger,
         :timex,
+        :inets,
         :logger_logentries_backend
         ],
     mod: {TrainLoc, []}]

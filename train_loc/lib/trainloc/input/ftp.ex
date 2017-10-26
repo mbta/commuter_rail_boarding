@@ -1,6 +1,5 @@
 defmodule TrainLoc.Input.FTP do
     use GenServer
-    alias TrainLoc.Input.Parser
     require Logger
     require Timex
 
@@ -24,12 +23,15 @@ defmodule TrainLoc.Input.FTP do
         new_state = case connect_ftp() do
             {:ok, pid} -> current_timestamp = get_file_last_updated(pid)
                           Logger.debug("#{__MODULE__}: Remote file last updated: #{current_timestamp}")
-                          if current_timestamp > previous_timestamp do
-                              parsed_file = pid |> fetch_file() |> Parser.parse()
-                              Logger.debug("#{__MODULE__}: Sending message to TrainLoc.Manager...")
-                              send(TrainLoc.Manager, {:new_file, parsed_file})
-                          else
+                          try do
+                              if current_timestamp > previous_timestamp do
+                                  new_file = pid |> fetch_file()
+                                  Logger.debug("#{__MODULE__}: Sending message to TrainLoc.Manager...")
+                                  send(TrainLoc.Manager, {:new_file, new_file})
+                              end
+                          after
                               :ftp.close(pid)
+                              :inets.stop(:stand_alone, pid)
                           end
                           current_timestamp
             {:error, _} -> previous_timestamp
@@ -46,11 +48,10 @@ defmodule TrainLoc.Input.FTP do
 
     @spec connect_ftp() :: {:ok, pid} | {:error, term}
     def connect_ftp() do
-        :inets.start()
         ftp_host = :trainloc |> Application.get_env(:input_ftp_host) |> to_charlist
         ftp_user = :trainloc |> Application.get_env(:input_ftp_user) |> to_charlist
         ftp_password = :trainloc |> Application.get_env(:input_ftp_password) |> to_charlist
-        case :inets.start(:ftpc, host: ftp_host) do
+        case :inets.start(:ftpc, [{:host, ftp_host}], :stand_alone) do
             {:ok, pid} -> :ftp.user(pid, ftp_user, ftp_password)
                           :ftp.lcd(pid, to_charlist(Application.app_dir(:trainloc)))
                           {:ok, pid}
@@ -61,15 +62,10 @@ defmodule TrainLoc.Input.FTP do
     @spec fetch_file(pid) :: String.t
     def fetch_file(pid) do
         file_name = Application.get_env(:trainloc, :input_ftp_file_name)
-        :ftp.recv(pid, to_charlist(file_name))
-        :ftp.close(pid)
-        read_file(Application.app_dir(:trainloc, [file_name]))
-    end
-
-    @spec read_file(String.t) :: String.t
-    def read_file(file_path) do
-        {:ok, file} = File.open(file_path, [:read])
-        IO.read(file, :all)
+        case :ftp.recv_bin(pid, to_charlist(file_name)) do
+            {:ok, file} -> file
+            {:error, _reason} -> ""
+        end
     end
 
     @spec get_file_last_updated(pid) :: DateTime.t
