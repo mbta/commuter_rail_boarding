@@ -1,4 +1,7 @@
 defmodule TrainLoc.Utilities.Time do
+    @moduledoc """
+    Utility module for working with times
+    """
 
     @spec local_now(Timex.Types.valid_timezone) :: DateTime.t | Timex.AmbiguousDateTime.t | {:error, term}
     def local_now(timezone \\ Application.get_env(:trainloc, :time_zone)) do
@@ -7,7 +10,11 @@ defmodule TrainLoc.Utilities.Time do
 
     @spec end_of_service_date(Datetime.t) :: Datetime.t
     def end_of_service_date(current_time \\ local_now()) do
-        datetime = current_time |> Timex.end_of_day |> Timex.shift(hours: 3)
+        datetime =
+            current_time
+            |> Timex.end_of_day()
+            |> Timex.shift(hours: 3)
+
         if current_time.hour < 3 do
             Timex.shift(datetime, days: -1)
         else

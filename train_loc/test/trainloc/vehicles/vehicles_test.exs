@@ -148,7 +148,13 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         }
         #Same Pattern: vehicle_two & vehicle_three
         #Same Workpiece: vehicle_one & vehicle_four; vehicle_two & vehicle_three
-        vehicles = %{} |> Map.put("1712", vehicle_one) |> Map.put("1713", vehicle_two) |> Map.put("1714", vehicle_three) |> Map.put("1715", vehicle_four)
+        vehicles = %{
+            "1712" => vehicle_one,
+            "1713" => vehicle_two,
+            "1714" => vehicle_three,
+            "1715" => vehicle_four
+        }
+
         assert Vehicles.find_duplicate_logons(vehicles) == [
             %Conflict{
                 assign_type: :trip,
@@ -221,7 +227,11 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
             }
         }
 
-        vehicles = %{"1712" => vehicle_one, "1713" => vehicle_two, "1714" => vehicle_three}
+        vehicles = %{
+            "1712" => vehicle_one,
+            "1713" => vehicle_two,
+            "1714" => vehicle_three
+        }
 
         assert Vehicles.purge_old_vehicles(vehicles, Duration.from_days(1)) == {
             :ok,

@@ -1,5 +1,11 @@
 defmodule TrainLoc.Vehicles.Vehicle do
-alias TrainLoc.Vehicles.Vehicle.GPS
+    @moduledoc """
+    Struct for storing general Vehicle information
+    """
+
+    import String, only: [to_integer: 1]
+
+    alias TrainLoc.Vehicles.Vehicle.GPS
 
     @enforce_keys [:vehicle_id]
     defstruct [
@@ -23,7 +29,7 @@ alias TrainLoc.Vehicles.Vehicle.GPS
     def from_map(map) do
         %__MODULE__{
             vehicle_id: map["vehicle_id"],
-            timestamp:  map["timestamp"] |> Timex.parse!("{0M}-{0D}-{YYYY} {0h12}:{0m}:{0s} {AM}"),
+            timestamp:  Timex.parse!(map["timestamp"], "{0M}-{0D}-{YYYY} {0h12}:{0m}:{0s} {AM}"),
             operator:   map["operator"],
             block:      map["workpiece"],
             trip:       map["pattern"],
@@ -31,7 +37,16 @@ alias TrainLoc.Vehicles.Vehicle.GPS
         }
     end
 
+    def active_vehicle?(%__MODULE__{operator: "0"}), do: false
+    def active_vehicle?(%__MODULE__{block: "0"}), do: false
+    def active_vehicle?(%__MODULE__{trip: "0"}), do: false
+    def active_vehicle?(%__MODULE__{trip: "9999"}), do: false
+    def active_vehicle?(%__MODULE__{}), do: true
+
     defmodule GPS do
+        @moduledoc """
+        Struct for holding vehicle GPS data
+        """
 
         defstruct [
             time: 0,
@@ -55,14 +70,20 @@ alias TrainLoc.Vehicles.Vehicle.GPS
 
         def from_map(map) do
             %__MODULE__{
-                time:    map["time"] |> String.to_integer,
-                lat:    (map["lat"] |> Float.parse |> elem(0)) / 100000,
-                long:   (map["long"] |> Float.parse |> elem(0)) / 100000,
-                speed:   map["speed"] |> String.to_integer,
-                heading: map["heading"] |> String.to_integer,
-                source:  map["source"] |> String.to_integer,
-                age:     map["age"] |> String.to_integer
+                time:    to_integer(map["time"]),
+                lat:     to_float(map["lat"]) / 100000,
+                long:    to_float(map["long"]) / 100000,
+                speed:   to_integer(map["speed"]),
+                heading: to_integer(map["heading"]),
+                source:  to_integer(map["source"]),
+                age:     to_integer(map["age"])
             }
+        end
+
+        defp to_float(string) do
+            string
+            |> Float.parse()
+            |> elem(0)
         end
     end
 end

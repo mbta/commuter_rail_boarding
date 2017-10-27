@@ -1,11 +1,15 @@
 defmodule TrainLoc do
     @moduledoc """
-    Documentation for TrainLoc.
+    Core module for TrainLoc; it supervises the non-State GenServers, and other core
+    persistence modules.
     """
-use Application
-require Logger
+    
+    use Application
+
+    require Logger
 
     @env Mix.env
+
     def env, do: @env
 
     def start(_type, _args) do
@@ -18,7 +22,7 @@ require Logger
             worker(Logger.Backend.Logentries.Output.SslKeepOpen.Server, [])
         ]
 
-        Logger.info("Starting main TrainLoc supervisor...")
+        Logger.info(fn -> "Starting main TrainLoc supervisor..." end)
         opts = [strategy: :one_for_all, name: __MODULE__]
         Supervisor.start_link(children, opts)
     end

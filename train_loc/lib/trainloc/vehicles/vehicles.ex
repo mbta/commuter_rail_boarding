@@ -1,4 +1,8 @@
 defmodule TrainLoc.Vehicles.Vehicles do
+    @moduledoc """
+    Module for performing vehicle-related functions for TrainLoc.Vehicles.State
+    """
+
     alias TrainLoc.Vehicles.Vehicle
     alias TrainLoc.Conflicts.Conflict
 
@@ -16,8 +20,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
     def update(vehicles, vehicle) do
         vehicle_id = vehicle.vehicle_id
         vehicles = if Map.has_key?(vehicles, vehicle_id) do
-            existing_vehicle = vehicles[vehicle_id]
-            existing_timestamp = existing_vehicle.timestamp
+            existing_timestamp = vehicles[vehicle_id].timestamp
             if vehicle.timestamp > existing_timestamp do
                 Map.put(vehicles, vehicle_id, vehicle)
             else
@@ -40,22 +43,46 @@ defmodule TrainLoc.Vehicles.Vehicles do
         if Enum.empty?(vehicles) do
             {:ok, vehicles, []}
         else
-            newest = vehicles |> Map.values |> Enum.map(& &1.timestamp) |> Enum.max
-            vehicles_to_purge = vehicles |> Map.values |> Enum.split_with(& Timex.diff(newest, &1.timestamp, :duration) < duration) |> elem(1)
-            vehicles = vehicles_to_purge |> Enum.reduce(vehicles, fn(x, acc) -> Map.delete(acc, x.vehicle_id) end)
+            newest =
+                vehicles
+                |> Map.values()
+                |> Enum.map(& &1.timestamp)
+                |> Enum.max
+
+            vehicles_to_purge =
+                vehicles
+                |> Map.values()
+                |> Enum.split_with(& Timex.diff(newest, &1.timestamp, :duration) < duration)
+                |> elem(1)
+
+            vehicles = Enum.reduce(vehicles_to_purge, vehicles, fn(x, acc) -> Map.delete(acc, x.vehicle_id) end)
+
             {:ok, vehicles, vehicles_to_purge}
         end
     end
 
     @spec find_duplicate_logons(map) :: [Conflict.t]
     def find_duplicate_logons(vehicles) do
-        same_trip = vehicles |> Map.values |> Enum.group_by(& &1.trip) |> Enum.reject(&reject_group?(&1)) |> Enum.map(&Conflict.from_tuple(&1, :trip))
-        same_block = vehicles |> Map.values |> Enum.group_by(& &1.block) |> Enum.reject(&reject_group?(&1)) |> Enum.map(&Conflict.from_tuple(&1, :block))
+        same_trip =
+            vehicles
+            |> Map.values()
+            |> Enum.group_by(& &1.trip)
+            |> Enum.reject(&reject_group?/1)
+            |> Enum.map(&Conflict.from_tuple(&1, :trip))
+
+        same_block =
+            vehicles
+            |> Map.values()
+            |> Enum.group_by(& &1.block)
+            |> Enum.reject(&reject_group?/1)
+            |> Enum.map(&Conflict.from_tuple(&1, :block))
+
         Enum.concat(same_trip, same_block)
     end
 
     @spec reject_group?({String.t, [Vehicle.t]}) :: boolean
-    defp reject_group?(grouping) do
-        match?({_,[_]}, grouping) or elem(grouping, 0) == "0" or elem(grouping, 0) == "9999"
-    end
+    defp reject_group?({_,[_]}), do: true
+    defp reject_group?({"0", _}), do: true
+    defp reject_group?({"9999", _}), do: true
+    defp reject_group?({_,_}), do: false
 end

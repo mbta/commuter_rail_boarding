@@ -1,5 +1,10 @@
 defmodule TrainLoc.Supervisor do
+    @moduledoc """
+    Supervisor for the vehicle and conflict State GenServers
+    """
+
     use Supervisor
+
     require Logger
 
     def start_link do
@@ -12,7 +17,7 @@ defmodule TrainLoc.Supervisor do
             worker(TrainLoc.Vehicles.State, [[name: TrainLoc.Vehicles.State]])
         ]
 
-        Logger.debug("Starting State supervisor...")
+        Logger.debug(fn -> "Starting State supervisor..." end)
         supervise(children, strategy: :one_for_one)
     end
 end

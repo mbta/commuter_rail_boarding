@@ -1,5 +1,11 @@
 defmodule TrainLoc.Input.FTP do
+    @moduledoc """
+    A GenServer that monitors an FTP server for updates to a file,
+    and sends the contents of that file to TrainLoc.Manager
+    """
+
     use GenServer
+
     require Logger
     require Timex
 
@@ -13,7 +19,7 @@ defmodule TrainLoc.Input.FTP do
 
     @spec init(term) :: {:ok, state}
     def init(_) do
-        Logger.debug("Starting #{__MODULE__}...")
+        Logger.debug(fn -> "Starting #{__MODULE__}..." end)
         send(self(), :timeout)
         {:ok, Timex.epoch}
     end
@@ -22,11 +28,11 @@ defmodule TrainLoc.Input.FTP do
     def handle_info(:timeout, previous_timestamp) do
         new_state = case connect_ftp() do
             {:ok, pid} -> current_timestamp = get_file_last_updated(pid)
-                          Logger.debug("#{__MODULE__}: Remote file last updated: #{current_timestamp}")
+                          Logger.debug(fn -> "#{__MODULE__}: Remote file last updated: #{current_timestamp}" end)
                           try do
                               if current_timestamp > previous_timestamp do
-                                  new_file = pid |> fetch_file()
-                                  Logger.debug("#{__MODULE__}: Sending message to TrainLoc.Manager...")
+                                  new_file = fetch_file(pid)
+                                  Logger.debug(fn -> "#{__MODULE__}: Sending message to TrainLoc.Manager..." end)
                                   send(TrainLoc.Manager, {:new_file, new_file})
                               end
                           after
@@ -42,15 +48,27 @@ defmodule TrainLoc.Input.FTP do
 
     @spec handle_info(any, state) :: {:noreply, state}
     def handle_info(_msg, state) do
-        Logger.debug("#{__MODULE__}: Unknown message received.")
+        Logger.debug(fn -> "#{__MODULE__}: Unknown message received." end)
         {:noreply, state}
     end
 
     @spec connect_ftp() :: {:ok, pid} | {:error, term}
     def connect_ftp() do
-        ftp_host = :trainloc |> Application.get_env(:input_ftp_host) |> to_charlist
-        ftp_user = :trainloc |> Application.get_env(:input_ftp_user) |> to_charlist
-        ftp_password = :trainloc |> Application.get_env(:input_ftp_password) |> to_charlist
+        ftp_host =
+            :trainloc
+            |> Application.get_env(:input_ftp_host)
+            |> to_charlist()
+
+        ftp_user =
+            :trainloc
+            |> Application.get_env(:input_ftp_user)
+            |> to_charlist()
+
+        ftp_password =
+            :trainloc
+            |> Application.get_env(:input_ftp_password)
+            |> to_charlist()
+
         case :inets.start(:ftpc, [{:host, ftp_host}], :stand_alone) do
             {:ok, pid} -> :ftp.user(pid, ftp_user, ftp_password)
                           :ftp.lcd(pid, to_charlist(Application.app_dir(:trainloc)))
@@ -72,10 +90,19 @@ defmodule TrainLoc.Input.FTP do
     def get_file_last_updated(pid) do
         {:ok, ls} = :ftp.ls(pid)
         file_name = Application.get_env(:trainloc, :input_ftp_file_name)
-        {_,last_updated} = ls |> to_string |> String.split(" "<>file_name) |> Enum.at(0) |> String.split_at(-12)
+
+        {_,last_updated} =
+            ls
+            |> to_string
+            |> String.split(" "<>file_name)
+            |> Enum.at(0)
+            |> String.split_at(-12)
+
         case Timex.parse(last_updated, "{Mshort} {_D} {h24}:{m}") do
             {:ok, result} -> Timex.set(result, [year: Timex.today.year])
-            {:error, _} -> last_updated |> Timex.parse("{Mshort} {_D}  {YYYY}") |> elem(1)
+            {:error, _} -> last_updated
+                           |> Timex.parse("{Mshort} {_D}  {YYYY}")
+                           |> elem(1)
         end
     end
 end
