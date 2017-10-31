@@ -23,6 +23,7 @@ config :logger, :console,
     level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "info")
 
 config :trainloc,
+    file_check_delay: String.to_integer(System.get_env("DELAY") || "120000"),
     time_zone: "America/New_York",
     input_ftp_file_name: "AVLData.txt"
 

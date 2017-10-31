@@ -11,7 +11,7 @@ defmodule TrainLoc.Input.FTP do
 
     @type state :: DateTime.t
 
-    @check_delay 2*60*1000
+    @check_delay Application.get_env(:trainloc, :file_check_delay)
 
     def start_link(opts) do
         GenServer.start_link(__MODULE__, :ok, opts)
