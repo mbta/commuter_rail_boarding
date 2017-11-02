@@ -6,6 +6,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
     import String, only: [to_integer: 1]
 
     alias TrainLoc.Vehicles.Vehicle.GPS
+    alias TrainLoc.Utilities.Time
 
     @enforce_keys [:vehicle_id]
     defstruct [
@@ -35,6 +36,11 @@ defmodule TrainLoc.Vehicles.Vehicle do
             trip:       map["pattern"],
             gps:        GPS.from_map(map)
         }
+    end
+
+    @spec log_string(t) :: String.t
+    def log_string(v) do
+        Time.format_datetime(v.timestamp) <> " - id:" <> v.vehicle_id <> ", block:" <> v.block <> ", trip:" <> v.trip
     end
 
     def active_vehicle?(%__MODULE__{operator: "0"}), do: false

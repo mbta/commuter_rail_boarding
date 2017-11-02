@@ -12,6 +12,7 @@ defmodule TrainLoc.Manager do
     alias TrainLoc.Conflicts.Conflict
     alias TrainLoc.Vehicles.State, as: VState
     alias TrainLoc.Conflicts.State, as: CState
+    alias TrainLoc.Assignments.State, as: AState
 
     require Logger
 
@@ -25,10 +26,13 @@ defmodule TrainLoc.Manager do
     end
 
     def handle_info({:new_file, file}, is_first_message?) do
-        #Get all "Location" messages, convert them to Vehicle objects, and store them in Vehicles.State
+        # Parse all Vehicles from the file, and store them in Vehicles.State and Assignments.State 
         file
         |> Parser.parse
-        |> Enum.each(&VState.update_vehicle/1)
+        |> Enum.each(fn v ->
+            :ok = VState.update_vehicle(v)
+            :ok = AState.add_assignment(v)
+        end)
 
         VState.purge_vehicles(Duration.from_minutes(30))
         |> Enum.each(&Logger.info(fn -> "#{__MODULE__}: Vehicle #{&1.vehicle_id} removed due to stale data." end))

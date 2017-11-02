@@ -5,6 +5,9 @@ defmodule TrainLoc.Vehicles.Vehicles do
 
     alias TrainLoc.Vehicles.Vehicle
     alias TrainLoc.Conflicts.Conflict
+    alias TrainLoc.Utilities.Time
+
+    require Logger
 
     @spec get(map, Vehicle.t) :: Vehicle.t | nil
     def get(vehicles, vehicle_id) do
@@ -22,6 +25,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
         vehicles = if Map.has_key?(vehicles, vehicle_id) do
             existing_timestamp = vehicles[vehicle_id].timestamp
             if vehicle.timestamp > existing_timestamp do
+                log_if_changed_assign(vehicles[vehicle_id], vehicle)
                 Map.put(vehicles, vehicle_id, vehicle)
             else
                 vehicles
@@ -85,4 +89,13 @@ defmodule TrainLoc.Vehicles.Vehicles do
     defp reject_group?({"0", _}), do: true
     defp reject_group?({"9999", _}), do: true
     defp reject_group?({_,_}), do: false
+
+    defp log_if_changed_assign(old, new) do
+        if old.block != new.block do
+            Logger.debug("BLOCK CHANGE " <> Time.format_datetime(new.timestamp) <> " - " <> new.vehicle_id <> ": " <> old.block <> "->" <> new.block)
+        end
+        if old.trip != new.trip do
+            Logger.debug("TRIP CHANGE " <> Time.format_datetime(new.timestamp) <> " - " <> new.vehicle_id <> ": " <> old.trip <> "->" <> new.trip)
+        end
+    end
 end
