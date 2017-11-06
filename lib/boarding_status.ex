@@ -67,9 +67,9 @@ defmodule BoardingStatus do
         "status" => status,
         "track" => track} = map) do
     with {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
-         {:ok, stop_id} <- stop_id(stop_name),
          {:ok, trip_id, route_id, direction_id, added?} <-
            trip_route_direction_id(map) do
+      stop_id = stop_id(stop_name)
       {:ok, %__MODULE__{
           scheduled_time: scheduled_time,
           predicted_time: predicted_time(
@@ -165,8 +165,9 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
   end
 
   def stop_id(stop_name) do
-    Map.fetch(
+    Map.get(
       config(:stop_ids),
+      stop_name,
       stop_name)
   end
 
