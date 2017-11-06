@@ -20,20 +20,10 @@ defmodule TrainLoc.Vehicles.Vehicles do
     end
 
     @spec update(map, Vehicle.t) :: {:ok, map}
-    def update(vehicles, vehicle) do
-        vehicle_id = vehicle.vehicle_id
-        vehicles = if Map.has_key?(vehicles, vehicle_id) do
-            existing_timestamp = vehicles[vehicle_id].timestamp
-            if vehicle.timestamp > existing_timestamp do
-                log_if_changed_assign(vehicles[vehicle_id], vehicle)
-                Map.put(vehicles, vehicle_id, vehicle)
-            else
-                vehicles
-            end
-        else
-            Map.put(vehicles, vehicle_id, vehicle)
-        end
-        {:ok, vehicles}
+    def update(all_vehicles, %Vehicle{vehicle_id: vehicle_id} = new_vehicle) do
+        all_vehicles
+            |> Map.get(vehicle_id)
+            |> do_update(all_vehicles, new_vehicle)
     end
 
     @spec delete(map, String.t) :: {:ok, map}
@@ -51,7 +41,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
                 vehicles
                 |> Map.values()
                 |> Enum.map(& &1.timestamp)
-                |> Enum.max
+                |> Enum.max_by(&Timex.to_unix/1)
 
             vehicles_to_purge =
                 vehicles
@@ -89,6 +79,23 @@ defmodule TrainLoc.Vehicles.Vehicles do
     defp reject_group?({"0", _}), do: true
     defp reject_group?({"9999", _}), do: true
     defp reject_group?({_,_}), do: false
+
+    defp do_update(nil, all_vehicles, new_vehicle) do
+        {:ok, Map.put(all_vehicles, new_vehicle.vehicle_id, new_vehicle)}
+    end
+    defp do_update(old_vehicle, all_vehicles, new_vehicle) do
+        new_vehicle.timestamp
+        |> Timex.after?(old_vehicle.timestamp)
+        |> do_replace(old_vehicle, new_vehicle, all_vehicles)
+    end
+
+    defp do_replace(true, old_vehicle, %Vehicle{vehicle_id: vehicle_id} = new_vehicle, all_vehicles) do
+        log_if_changed_assign(old_vehicle, new_vehicle)
+        {:ok, Map.put(all_vehicles, vehicle_id, new_vehicle)}
+    end
+    defp do_replace(false, _old_vehicle, _new_vehicle, all_vehicles) do
+        {:ok, all_vehicles}
+    end
 
     defp log_if_changed_assign(old, new) do
         if old.block != new.block do
