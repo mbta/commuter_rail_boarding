@@ -33,7 +33,7 @@ defmodule BoardingStatusTest do
       result = List.first(@results)
       assert {:ok, status} = from_firebase(result)
       assert status.scheduled_time == DateTime.from_naive!(
-        ~N[2017-08-02T20:15:00], "Etc/UTC")
+        ~N[2017-11-06T16:15:00], "Etc/UTC")
       assert status.scheduled_time == status.predicted_time
     end
 
@@ -61,7 +61,7 @@ defmodule BoardingStatusTest do
           "gtfs_trip_short_name" => ""})
       assert {:ok, status} = from_firebase(result)
       refute status.trip_id == ""
-      assert status.route_id == "CR-Newburyport"
+      assert status.route_id == "CR-Fitchburg"
       assert status.stop_sequence == :unknown
       assert status.added?
     end
@@ -81,7 +81,7 @@ defmodule BoardingStatusTest do
         from_firebase(result)
       end
       assert message =~ "unexpected missing GTFS trip ID"
-      assert message =~ "CR-Newburyport"
+      assert message =~ "CR-Fitchburg"
       assert message =~ result["gtfs_trip_short_name"]
       assert message =~ result["trip_id"]
     end
