@@ -85,5 +85,24 @@ defmodule BoardingStatusTest do
       assert message =~ result["gtfs_trip_short_name"]
       assert message =~ result["trip_id"]
     end
+
+    test "logs a warning if there's an error parsing" do
+      original = List.first(@results)
+      result = Map.put(original, "gtfs_departure_time", "not a time")
+      message = capture_log fn ->
+        assert from_firebase(result) == :error
+      end
+      assert message =~ "unable to parse"
+      assert message =~ "{:error, "
+      assert message =~ inspect(result)
+    end
+
+    test "logs a warning if the map doesn't match" do
+      message = capture_log fn ->
+        assert from_firebase(%{}) == :error
+      end
+      assert message =~ "unable to match"
+      assert message =~ "%{}"
+    end
   end
 end

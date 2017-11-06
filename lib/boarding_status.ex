@@ -86,9 +86,17 @@ defmodule BoardingStatus do
       }
     else
       error ->
-        _ = Logger.warn(fn -> "unable to parse firebase map: #{inspect map}: #{inspect error}" end)
+        _ = Logger.warn fn ->
+          "unable to parse firebase map: #{inspect map}: #{inspect error}"
+        end
         :error
     end
+  end
+  def from_firebase(%{} = map) do
+    _ = Logger.warn fn ->
+      "unable to match firebase map: #{inspect map}"
+    end
+    :error
   end
 
   defp trip_route_direction_id(%{
