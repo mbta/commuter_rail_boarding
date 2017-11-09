@@ -67,9 +67,9 @@ defmodule BoardingStatus do
         "status" => status,
         "track" => track} = map) do
     with {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
-         {:ok, stop_id} <- stop_id(stop_name),
          {:ok, trip_id, route_id, direction_id, added?} <-
            trip_route_direction_id(map) do
+      stop_id = stop_id(stop_name)
       {:ok, %__MODULE__{
           scheduled_time: scheduled_time,
           predicted_time: predicted_time(
@@ -85,10 +85,18 @@ defmodule BoardingStatus do
        }
       }
     else
-      _ ->
-        _ = Logger.warn(fn -> "unable to parse firebase map: #{inspect map}" end)
+      error ->
+        _ = Logger.warn fn ->
+          "unable to parse firebase map: #{inspect map}: #{inspect error}"
+        end
         :error
     end
+  end
+  def from_firebase(%{} = map) do
+    _ = Logger.warn fn ->
+      "unable to match firebase map: #{inspect map}"
+    end
+    :error
   end
 
   defp trip_route_direction_id(%{
@@ -111,18 +119,24 @@ defmodule BoardingStatus do
     end
   end
 
-  defp create_trip_id(_route_id, "", keolis_trip_id) do
+  defp create_trip_id(route_id, "", keolis_trip_id) do
     # no trip name, build a new trip_id
+    _ = Logger.warn(fn ->
+      "creating trip for Keolis trip #{route_id} (#{keolis_trip_id})"
+    end)
     {:ok, "CRB_" <> keolis_trip_id, :unknown, true}
   end
   defp create_trip_id(route_id, trip_name, keolis_trip_id) do
     case TripCache.route_trip_name_to_id(route_id, trip_name) do
       {:ok, trip_id, direction_id} ->
+        _ = Logger.warn(fn ->
+          "matched trip #{trip_id} based on #{route_id} #{trip_name}"
+        end)
         {:ok, trip_id, direction_id, false}
       :error ->
         # couldn't match the trip name: log a warning but build a trip ID
         # anyways.
-        Logger.warn(fn ->
+        _ = Logger.warn(fn ->
           "unexpected missing GTFS trip ID: \
 route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
         end)
@@ -159,8 +173,9 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
   end
 
   def stop_id(stop_name) do
-    Map.fetch(
+    Map.get(
       config(:stop_ids),
+      stop_name,
       stop_name)
   end
 

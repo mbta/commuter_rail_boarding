@@ -6,8 +6,7 @@ config :commuter_rail_boarding,
   firebase_url: "https://keolis-api-production.firebaseio.com/departureData.json",
   stop_ids: %{
     "Boston" => "South Station",
-    "Boston North Station" => "North Station",
-    "Back Bay" => "Back Bay"
+    "Boston North Station" => "North Station"
   },
   statuses: %{
     "AA" => :all_aboard,
