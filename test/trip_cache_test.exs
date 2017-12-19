@@ -17,8 +17,8 @@ defmodule TripCacheTest do
 
   describe "route_trip_name_to_id/2" do
     @route_id "CR-Lowell"
-    @trip_name "392"
-    @trip_id "CR-Weekday-Spring-17-392"
+    @trip_name "348"
+    @trip_id "CR-Weekday-Fall-17-348"
     @direction_id 1
 
     test "returns {:ok, trip_id, direction_id} for a value route + name" do
