@@ -6,6 +6,11 @@ defmodule CommuterRailBoarding.Application do
   use Application
 
   def start(_type, _args) do
+    Application.put_env(
+      :commuter_rail_boarding,
+      :v3_api_key,
+      System.get_env("V3_API_KEY"))
+
     # List all child processes to be supervised
     children = [
       TripCache,
