@@ -6,8 +6,13 @@ defmodule CommuterRailBoarding.Application do
   use Application
 
   def start(_type, _args) do
+    Application.put_env(
+      :commuter_rail_boarding,
+      :v3_api_key,
+      System.get_env("V3_API_KEY"))
+
     # List all child processes to be supervised
-    children = env_children(System.get_env("MIX_ENV")) ++ [
+    children = [
       TripCache,
       RouteCache,
       ScheduleCache,
@@ -33,14 +38,5 @@ defmodule CommuterRailBoarding.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: CommuterRailBoarding.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  defp env_children("prod") do
-    [
-      Logger.Backend.Logentries.Output.SslKeepOpen.Server
-    ]
-  end
-  defp env_children(_) do
-    []
   end
 end

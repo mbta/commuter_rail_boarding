@@ -29,7 +29,8 @@ config :commuter_rail_boarding,
     "SL" => :not_stopping_here, # :silver_line,
     "SUB" => :not_stopping_here # :subway
   },
-  uploader: Uploader.Console
+  uploader: Uploader.Console,
+  v3_api_key: System.get_env("V3_API_KEY") # also overriden by CommuterRailBoarding.Application
 
 config :goth,
   json: {:system, "GCS_CREDENTIAL_JSON"}
