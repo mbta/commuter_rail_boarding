@@ -12,3 +12,5 @@ aws
 .git
 .gitignore
 .dockerignore
+Dockerfile
+semaphore
