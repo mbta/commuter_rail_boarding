@@ -9,6 +9,7 @@ config :commuter_rail_boarding,
     "Boston North Station" => "North Station"
   },
   statuses: %{
+    "" => :on_time,
     "AA" => :all_aboard,
     "AR" => :arrived,
     "ARVG" => :arriving,

@@ -179,9 +179,6 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
       stop_name)
   end
 
-  def status_atom("") do
-    :unknown
-  end
   for {status, atom} <- Application.get_env(
         :commuter_rail_boarding, :statuses) do
       # build a function for each status in the map
