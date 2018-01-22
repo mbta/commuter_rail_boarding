@@ -5,7 +5,7 @@ defmodule TripCacheTest do
   import TripCache
 
   describe "route_direction_id/1" do
-    @route_1_trip_id "35242760"
+    @route_1_trip_id "35795189"
     test "returns {:ok, route_id, direction_id} for a valid trip" do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
     end
