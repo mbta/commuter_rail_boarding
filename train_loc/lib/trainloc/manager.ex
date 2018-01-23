@@ -35,18 +35,18 @@ defmodule TrainLoc.Manager do
           is_nil(data) -> []
           first_message? -> Vehicle.from_json_map(data["results"])
           true ->
-            if vehicle = Vehicle.from_json_object(data) do
-              [vehicle]
+            if vehicles = Vehicle.from_json_object(data) do
+              vehicles
             else
               []
             end
         end
 
-      all_conflicts = updated_vehicles
+      updated_vehicles
         |> Enum.reject(fn v -> Time.unix_now() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
-        |> VState.set_vehicles()
         |> AState.add_assignment()
-        |> VState.get_duplicate_logons()
+        |> VState.set_vehicles()
+      all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
       if not is_nil(data) and Map.has_key?(data, "date") do

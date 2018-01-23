@@ -93,9 +93,9 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
   end
 
   test "sets vehicle state", %{vehicles: test_vehicles} do
-    vehicles = test_vehicles
-      |> Map.values()
-      |> Vehicles.new()
+    vehicles_list = Map.values(test_vehicles)
+
+    vehicles = Vehicles.set(Vehicles.new(), vehicles_list)
 
     assert Vehicles.get(vehicles, test_vehicles.vehicle1.vehicle_id) == test_vehicles.vehicle1
     assert Vehicles.get(vehicles, test_vehicles.vehicle2.vehicle_id) == test_vehicles.vehicle2
