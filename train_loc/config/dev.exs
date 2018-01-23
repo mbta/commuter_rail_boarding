@@ -1,12 +1,13 @@
 use Mix.Config
 
 config :logger,
-    backends: [:console]
+  backends: [:console]
 
 config :logger, :console,
-    level: :debug
+  level: :debug
+
+config :trainloc, TrainLoc.Utilities.ConflictMailer,
+  adapter: Bamboo.LocalAdapter
 
 config :trainloc,
-    input_ftp_host: 'localhost',
-    input_ftp_user: System.get_env("FTP_USERNAME"),
-    input_ftp_password: System.get_env("FTP_PASSWORD")
+  email_queue_delay: 5000

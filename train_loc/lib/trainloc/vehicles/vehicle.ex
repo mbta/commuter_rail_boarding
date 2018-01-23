@@ -1,95 +1,74 @@
 defmodule TrainLoc.Vehicles.Vehicle do
-    @moduledoc """
-    Struct for storing general Vehicle information
-    """
+  @moduledoc """
+  Struct for storing general Vehicle information
+  """
 
-    import String, only: [to_integer: 1]
+  alias TrainLoc.Utilities.Time
 
-    alias TrainLoc.Vehicles.Vehicle.GPS
-    alias TrainLoc.Utilities.Time
+  @enforce_keys [:vehicle_id]
+  defstruct [
+    :vehicle_id,
+    timestamp: 0,
+    block: 0,
+    trip: "0",
+    latitude: 0.0,
+    longitude: 0.0,
+    heading: 0,
+    speed: 0,
+    fix: 0
+  ]
 
-    @enforce_keys [:vehicle_id]
-    defstruct [
-        :vehicle_id,
-        timestamp: ~N[1970-01-01 00:00:00],
-        operator: "910",
-        block: "0",
-        trip: "0",
-        gps: nil
-    ]
+  @type t :: %__MODULE__{
+    vehicle_id: non_neg_integer,
+    timestamp: NaiveDateTime.t,
+    block: non_neg_integer,
+    trip: String.t,
+    latitude: float,
+    longitude: float,
+    heading: 0..359,
+    speed: non_neg_integer,
+    fix: 1..9
+  }
 
-    @type t :: %__MODULE__{
-        vehicle_id: String.t,
-        timestamp: DateTime.t,
-        operator: String.t,
-        block: String.t,
-        trip: String.t,
-        gps: GPS.t | nil
-    }
+  def from_json_object(obj) do
+    from_json_elem({nil, obj})
+  end
 
-    def from_map(map) do
-        %__MODULE__{
-            vehicle_id: map["vehicle_id"],
-            timestamp:  Timex.parse!(map["timestamp"], "{0M}-{0D}-{YYYY} {0h12}:{0m}:{0s} {AM}"),
-            operator:   map["operator"],
-            block:      map["workpiece"],
-            trip:       map["pattern"],
-            gps:        GPS.from_map(map)
-        }
-    end
+  @spec from_json_map(map) :: [t]
+  def from_json_map(map) do
+    Enum.flat_map(map, &from_json_elem/1)
+  end
 
-    @spec log_string(t) :: String.t
-    def log_string(v) do
-        Time.format_datetime(v.timestamp) <> " - id:" <> v.vehicle_id <> ", block:" <> v.block <> ", trip:" <> v.trip
-    end
+  @spec from_json_elem({String.t, map}) :: t
+  defp from_json_elem({_, veh_data = %{"vehicleid" => vehicle_id}}) do
+    [%__MODULE__{
+      vehicle_id: vehicle_id,
+      timestamp:  Time.parse_improper_unix(veh_data["updatetime"]),
+      block:      to_string(veh_data["workid"]),
+      trip:       process_trip(veh_data["routename"]),
+      latitude:   veh_data["latitude"] / 100000,
+      longitude:  veh_data["longitude"] / 100000,
+      heading:    veh_data["heading"],
+      speed:      veh_data["speed"],
+      fix:        veh_data["fix"]
+    }]
+  end
+  defp from_json_elem({_, _}), do: []
 
-    def active_vehicle?(%__MODULE__{operator: "0"}), do: false
-    def active_vehicle?(%__MODULE__{block: "0"}), do: false
-    def active_vehicle?(%__MODULE__{trip: "0"}), do: false
-    def active_vehicle?(%__MODULE__{trip: "9999"}), do: false
-    def active_vehicle?(%__MODULE__{}), do: true
 
-    defmodule GPS do
-        @moduledoc """
-        Struct for holding vehicle GPS data
-        """
+  @spec process_trip(String.t) :: String.t
+  defp process_trip("NO TRAIN SELECTED"), do: "0"
+  defp process_trip(""), do: "0"
+  defp process_trip(" "), do: "0"
+  defp process_trip(routename), do: routename
 
-        defstruct [
-            time: 0,
-            lat: 0.0,
-            long: 0.0,
-            speed: 0,
-            heading: 0,
-            source: 0,
-            age: 0
-        ]
+  @spec log_string(t) :: String.t
+  def log_string(v) do
+    "#{Time.format_datetime(v.timestamp)} - id:#{v.vehicle_id}, block:#{v.block}, trip:#{v.trip}"
+  end
 
-        @type t :: %__MODULE__{
-            time: non_neg_integer,
-            lat: float,
-            long: float,
-            speed: non_neg_integer,
-            heading: 0..359,
-            source: 0..9,
-            age: 0..2
-        }
-
-        def from_map(map) do
-            %__MODULE__{
-                time:    to_integer(map["time"]),
-                lat:     to_float(map["lat"]) / 100000,
-                long:    to_float(map["long"]) / 100000,
-                speed:   to_integer(map["speed"]),
-                heading: to_integer(map["heading"]),
-                source:  to_integer(map["source"]),
-                age:     to_integer(map["age"])
-            }
-        end
-
-        defp to_float(string) do
-            string
-            |> Float.parse()
-            |> elem(0)
-        end
-    end
+  def active_vehicle?(%__MODULE__{block: "0"}), do: false
+  def active_vehicle?(%__MODULE__{trip: "0"}), do: false
+  def active_vehicle?(%__MODULE__{trip: "9999"}), do: false
+  def active_vehicle?(%__MODULE__{}), do: true
 end

@@ -18,14 +18,31 @@ use Mix.Config
 #
 
 config :logger, :console,
-    format: "$date $time $metadata[$level] $message\n",
-    metadata: [:request_id],
-    level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "info")
+  format: "$date $time $metadata[$level] $message\n",
+  metadata: [:request_id],
+  level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "info")
+
+config :goth,
+  json: {:system, "CREDENTIALS_JSON"}
+
+config :trainloc, TrainLoc.Utilities.ConflictMailer,
+  adapter: Bamboo.SMTPAdapter,
+  server: "smtprelay.mbta.com",
+  port: 25,
+  username: Application.get_env(:trainloc, :mailer_username),
+  password: Application.get_env(:trainloc, :mailer_password),
+  tls: :never,
+  ssl: false,
+  retries: 1
 
 config :trainloc,
-    file_check_delay: String.to_integer(System.get_env("DELAY") || "120000"),
-    time_zone: "America/New_York",
-    input_ftp_file_name: "AVLData.txt"
+  time_zone: "America/New_York",
+  firebase_url: {:system, "FIREBASE_URL"},
+  mailer_username: {:system, "MAILER_USERNAME"},
+  mailer_password: {:system, "MAILER_PASSWORD"},
+  email_to: {:system, "MAILER_TO"},
+  email_from: {"Developer", "developer@mbta.com"},
+  email_queue_delay: 5*60*1000
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

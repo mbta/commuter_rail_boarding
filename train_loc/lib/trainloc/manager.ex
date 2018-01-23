@@ -1,58 +1,74 @@
 defmodule TrainLoc.Manager do
-    @moduledoc """
-    Manager module for coordinating the flow of data between the various GenServers
-    in the application
-    """
+  @moduledoc """
+  Manager module for coordinating the flow of data between the various GenServers
+  in the application
+  """
 
-    use GenServer
+  use GenServer
+  use Timex
 
-    alias Timex.Duration
-    alias TrainLoc.Input.Parser
-    alias TrainLoc.Vehicles.Vehicle
-    alias TrainLoc.Conflicts.Conflict
-    alias TrainLoc.Vehicles.State, as: VState
-    alias TrainLoc.Conflicts.State, as: CState
-    alias TrainLoc.Assignments.State, as: AState
+  alias TrainLoc.Vehicles.Vehicle
+  alias TrainLoc.Conflicts.Conflict
+  alias TrainLoc.Utilities.Time
+  alias TrainLoc.Vehicles.State, as: VState
+  alias TrainLoc.Conflicts.State, as: CState
+  alias TrainLoc.Assignments.State, as: AState
 
-    require Logger
+  require Logger
 
-    def start_link(opts) do
-        GenServer.start_link(__MODULE__, :ok, opts)
-    end
+  @stale_data_seconds 30 |> Duration.from_minutes() |> Duration.to_seconds()
 
-    def init(_) do
-        Logger.debug(fn -> "Starting #{__MODULE__}..." end)
-        {:ok, true}
-    end
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, :ok, opts)
+  end
 
-    def handle_info({:new_file, file}, is_first_message?) do
-        # Parse all Vehicles from the file, and store them in Vehicles.State and Assignments.State 
-        file
-        |> Parser.parse
-        |> Enum.each(fn v ->
-            :ok = VState.update_vehicle(v)
-            :ok = AState.add_assignment(v)
-        end)
+  def init(_) do
+    Logger.debug(fn -> "Starting #{__MODULE__}..." end)
+    {:ok, true}
+  end
 
-        VState.purge_vehicles(Duration.from_minutes(30))
-        |> Enum.each(&Logger.info(fn -> "#{__MODULE__}: Vehicle #{&1.vehicle_id} removed due to stale data." end))
-
-        Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
-        Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(VState.all_vehicles(), &Vehicle.active_vehicle?/1)} vehicles active." end)
-
-        all_conflicts = VState.get_duplicate_logons()
-        Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
-        {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
-
-        if !is_first_message? do
-            Enum.each(new_conflicts, &Logger.warn(fn -> "New Conflict - #{Conflict.conflict_string(&1)}" end))
-            Enum.each(removed_conflicts, &Logger.info(fn -> "Resolved Conflict - #{Conflict.conflict_string(&1)}" end))
+  def handle_info({:events, events}, first_message?) do
+    for event <- events, event.event == "put" do
+      data = Poison.decode!(event.data)["data"]
+      updated_vehicles =
+        cond do
+          is_nil(data) -> []
+          first_message? -> Vehicle.from_json_map(data["results"])
+          true ->
+            if vehicle = Vehicle.from_json_object(data) do
+              [vehicle]
+            else
+              []
+            end
         end
 
-        {:noreply, false}
+      all_conflicts = updated_vehicles
+        |> Enum.reject(fn v -> Time.unix_now() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
+        |> VState.set_vehicles()
+        |> AState.add_assignment()
+        |> VState.get_duplicate_logons()
+      {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
+
+      if not is_nil(data) and Map.has_key?(data, "date") do
+        Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
+        Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(VState.all_vehicles(), &Vehicle.active_vehicle?/1)} vehicles active." end)
+        Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
+      end
+
+      if not first_message? do
+        Enum.each(new_conflicts, fn c ->
+          Logger.warn(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
+        end)
+        Enum.each(removed_conflicts, fn c ->
+          Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
+        end)
+      end
     end
 
-    def handle_info(_msg, state) do
-        {:noreply, state}
-    end
+    {:noreply, false}
+  end
+
+  def handle_info(_msg, state) do
+    {:noreply, state}
+  end
 end

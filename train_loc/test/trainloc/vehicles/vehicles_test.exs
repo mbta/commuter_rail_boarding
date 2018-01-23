@@ -1,242 +1,115 @@
 defmodule TrainLoc.Vehicles.VehiclesTest do
-    use ExUnit.Case, async: true
-    alias Timex.Duration
-    alias TrainLoc.Vehicles.Vehicles
-    alias TrainLoc.Vehicles.Vehicle
-    alias TrainLoc.Vehicles.Vehicle.GPS
-    alias TrainLoc.Conflicts.Conflict
-    doctest Vehicles
 
-    test "Stores and deletes train vehicles" do
-        vehicles = %{}
-        assert Vehicles.get(vehicles, "1712") == nil
+  use ExUnit.Case, async: true
 
-        test_vehicle = %Vehicle{
-            vehicle_id: "1712",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "802",
-            trip: "509",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 0,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
+  alias TrainLoc.Vehicles.Vehicles
+  alias TrainLoc.Vehicles.Vehicle
+  alias TrainLoc.Conflicts.Conflict
 
-        {:ok, vehicles} = Vehicles.put(vehicles, test_vehicle)
-        assert Vehicles.get(vehicles, "1712") == test_vehicle
+  require Logger
 
-        {:ok, vehicles} = Vehicles.delete(vehicles, "1712")
-        assert Vehicles.get(vehicles, "1712") == nil
-    end
+  setup do
+    vehicles = %{
+      vehicle1: %Vehicle{
+        vehicle_id: 1712,
+        timestamp: ~N[2017-08-04 11:01:51],
+        block: "802",
+        trip: "509",
+        latitude: 42.24023,
+        longitude: -71.12890,
+        speed: 0,
+        heading: 188,
+        fix: 1
+      },
+      vehicle2: %Vehicle{
+        vehicle_id: 1713,
+        timestamp: ~N[2017-08-04 11:01:51],
+        block: "803",
+        trip: "508",
+        latitude: 42.24023,
+        longitude: -71.12890,
+        speed: 7,
+        heading: 188,
+        fix: 1
+      },
+      vehicle3: %Vehicle{
+        vehicle_id: 1714,
+        timestamp: ~N[2017-08-04 11:01:51],
+        block: "803",
+        trip: "508",
+        latitude: 42.24023,
+        longitude: -71.12890,
+        speed: 000,
+        heading: 188,
+        fix: 1
+      },
+      vehicle4: %Vehicle{
+        vehicle_id: 1715,
+        timestamp: ~N[2017-08-04 11:01:51],
+        block: "802",
+        trip: "510",
+        latitude: 42.24023,
+        longitude: -071.12890,
+        speed: 000,
+        heading: 188,
+        fix: 1
+      }
+    }
+    conflicts = [
+        %Conflict{
+            assign_type: :trip,
+            assign_id: "508",
+            vehicles: [1713, 1714],
+            service_date: ~D[2017-08-04]
+        },
+        %Conflict{
+            assign_type: :block,
+            assign_id: "802",
+            vehicles: [1712, 1715],
+            service_date: ~D[2017-08-04]
+        },
+        %Conflict{
+            assign_type: :block,
+            assign_id: "803",
+            vehicles: [1713, 1714],
+            service_date: ~D[2017-08-04]
+        }
+    ]
+    %{vehicles: vehicles, conflicts: conflicts}
+  end
 
-    test "overwrites older data on update" do
-        test_vehicle = %Vehicle{
-            vehicle_id: "1712",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "802",
-            trip: "509",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 0,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        new_vehicle = %Vehicle{
-            vehicle_id: "1712",
-            timestamp: ~N[2017-08-04 11:02:51],
-            operator: "910",
-            block: "802",
-            trip: "509",
-            gps: %GPS{
-                time: 54169,
-                lat: 42.24123,
-                long: -71.11890,
-                speed: 0,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        #"Update" vehicle with no prior state -> should store new state
-        {:ok, vehicles} = Vehicles.update(%{}, test_vehicle)
-        assert Vehicles.get(vehicles, "1712") == test_vehicle
+  test "Stores and deletes train vehicles", %{vehicles: test_vehicles} do
+    test_vehicle = test_vehicles.vehicle1
+    test_id = test_vehicle.vehicle_id
 
-        #Update vehicle using more recent timestamp -> should overwrite old value
-        {:ok, vehicles} = Vehicles.update(vehicles, new_vehicle)
-        assert Vehicles.get(vehicles, "1712") == new_vehicle
+    vehicles = Vehicles.new()
+    assert Vehicles.get(vehicles, test_id) == nil
 
-        #Try to update vehicle using older timestamp -> shouldn't overwrite
-        {:ok, vehicles} = Vehicles.update(vehicles, test_vehicle)
-        assert Vehicles.get(vehicles, "1712") == new_vehicle
-    end
+    vehicles = Vehicles.put(vehicles, test_vehicle)
+    assert Vehicles.get(vehicles, test_id) == test_vehicle
 
-    test "Identifies duplicate logins" do
-        vehicle_one = %Vehicle{
-            vehicle_id: "1712",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "802",
-            trip: "509",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 0,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        vehicle_two = %Vehicle{
-            vehicle_id: "1713",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "803",
-            trip: "508",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 0,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        vehicle_three = %Vehicle{
-            vehicle_id: "1714",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "803",
-            trip: "508",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 000,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        vehicle_four = %Vehicle{
-            vehicle_id: "1715",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "802",
-            trip: "510",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -071.12890,
-                speed: 000,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        #Same Pattern: vehicle_two & vehicle_three
-        #Same Workpiece: vehicle_one & vehicle_four; vehicle_two & vehicle_three
-        vehicles = %{
-            "1712" => vehicle_one,
-            "1713" => vehicle_two,
-            "1714" => vehicle_three,
-            "1715" => vehicle_four
-        }
+    vehicles = Vehicles.delete(vehicles, test_id)
+    assert Vehicles.get(vehicles, test_id) == nil
+  end
 
-        assert Vehicles.find_duplicate_logons(vehicles) == [
-            %Conflict{
-                assign_type: :trip,
-                assign_id: "508",
-                vehicles: ["1713", "1714"],
-                service_date: ~D[2017-08-04]
-            },
-            %Conflict{
-                assign_type: :block,
-                assign_id: "802",
-                vehicles: ["1712", "1715"],
-                service_date: ~D[2017-08-04]
-            },
-            %Conflict{
-                assign_type: :block,
-                assign_id: "803",
-                vehicles: ["1713", "1714"],
-                service_date: ~D[2017-08-04]
-            }
-        ]
-    end
+  test "sets vehicle state", %{vehicles: test_vehicles} do
+    vehicles = test_vehicles
+      |> Map.values()
+      |> Vehicles.new()
 
-    test "purges vehicles older than a given age" do
-        vehicle_one = %Vehicle{
-            vehicle_id: "1712",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "802",
-            trip: "509",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 0,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        vehicle_two = %Vehicle{
-            vehicle_id: "1713",
-            timestamp: ~N[2017-08-03 11:01:50],
-            operator: "910",
-            block: "803",
-            trip: "507",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 0,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
-        vehicle_three = %Vehicle{
-            vehicle_id: "1714",
-            timestamp: ~N[2017-08-04 11:01:51],
-            operator: "910",
-            block: "804",
-            trip: "508",
-            gps: %GPS{
-                time: 54109,
-                lat: 42.24023,
-                long: -71.12890,
-                speed: 000,
-                heading: 188,
-                source: 1,
-                age: 2
-            }
-        }
+    assert Vehicles.get(vehicles, test_vehicles.vehicle1.vehicle_id) == test_vehicles.vehicle1
+    assert Vehicles.get(vehicles, test_vehicles.vehicle2.vehicle_id) == test_vehicles.vehicle2
+    assert Vehicles.get(vehicles, test_vehicles.vehicle3.vehicle_id) == test_vehicles.vehicle3
+    assert Vehicles.get(vehicles, test_vehicles.vehicle4.vehicle_id) == test_vehicles.vehicle4
+  end
 
-        vehicles = %{
-            "1712" => vehicle_one,
-            "1713" => vehicle_two,
-            "1714" => vehicle_three
-        }
+  test "Identifies duplicate logins", %{vehicles: test_vehicles, conflicts: test_conflicts} do
+      #Same Trip: vehicle_two & vehicle_three
+      #Same Block: vehicle_one & vehicle_four; vehicle_two & vehicle_three
+      vehicles = test_vehicles
+        |> Map.values()
+        |> Vehicles.new()
 
-        assert Vehicles.purge_old_vehicles(vehicles, Duration.from_days(1)) == {
-            :ok,
-            %{"1712" => vehicle_one, "1714" => vehicle_three},
-            [vehicle_two]
-        }
-    end
+      assert Vehicles.find_duplicate_logons(vehicles) == test_conflicts
+  end
 end

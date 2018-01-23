@@ -1,29 +1,34 @@
 defmodule TrainLoc do
-    @moduledoc """
-    Core module for TrainLoc; it supervises the non-State GenServers, and other core
-    persistence modules.
-    """
-    
-    use Application
+  @moduledoc """
+  Core module for TrainLoc; it supervises the non-State GenServers, and other core
+  persistence modules.
+  """
 
-    require Logger
+  use Application
 
-    @env Mix.env
+  require Logger
 
-    def env, do: @env
+  @env Mix.env
 
-    def start(_type, _args) do
-        import Supervisor.Spec, warn: false
+  def env, do: @env
 
-        children = [
-            supervisor(TrainLoc.Supervisor, []),
-            worker(TrainLoc.Manager, [[name: TrainLoc.Manager]]),
-            worker(TrainLoc.Input.FTP, [[name: TrainLoc.Input.FTP]]),
-            worker(Logger.Backend.Logentries.Output.SslKeepOpen.Server, [])
-        ]
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
 
-        Logger.info(fn -> "Starting main TrainLoc supervisor..." end)
-        opts = [strategy: :one_for_all, name: __MODULE__]
-        Supervisor.start_link(children, opts)
-    end
+    children = [
+      supervisor(TrainLoc.Supervisor, []),
+      worker(TrainLoc.Manager, [[
+        name: TrainLoc.Manager
+        ]]),
+      worker(TrainLoc.Input.APIFetcher, [[
+        name: TrainLoc.Input.APIFetcher,
+        url: {TrainLoc.Utilities.FirebaseUrl, :url, []}
+        ]]),
+      worker(Logger.Backend.Logentries.Output.SslKeepOpen.Server, [])
+    ]
+
+    Logger.info(fn -> "Starting main TrainLoc supervisor..." end)
+    opts = [strategy: :one_for_all, name: __MODULE__]
+    Supervisor.start_link(children, opts)
+  end
 end

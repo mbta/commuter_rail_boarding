@@ -1,12 +1,19 @@
 use Mix.Config
 
 config :logger,
-    backends: [:console]
+  backends: [:console]
 
 config :logger, :console,
-    level: :info
+  level: :warn
+
+# test-credentials.json comes from the goth repo
+config :goth, json: File.read!("test/test-credentials.json")
+
+config :bamboo,
+  refute_timeout: 10
+
+config :trainloc, TrainLoc.Utilities.ConflictMailer,
+  adapter: Bamboo.TestAdapter
 
 config :trainloc,
-    input_ftp_host: 'localhost',
-    input_ftp_user: 'ftpuser',
-    input_ftp_password: 'password'
+  email_queue_delay: 100
