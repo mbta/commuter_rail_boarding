@@ -23,8 +23,7 @@ defmodule TrainLoc do
       worker(TrainLoc.Input.APIFetcher, [[
         name: TrainLoc.Input.APIFetcher,
         url: {TrainLoc.Utilities.FirebaseUrl, :url, []}
-        ]]),
-      worker(Logger.Backend.Logentries.Output.SslKeepOpen.Server, [])
+        ]])
     ]
 
     Logger.info(fn -> "Starting main TrainLoc supervisor..." end)

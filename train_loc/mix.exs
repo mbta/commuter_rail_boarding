@@ -20,7 +20,7 @@ defmodule Trainloc.Mixfile do
       :goth,
       :inets,
       :logger,
-      :logger_logentries_backend
+      :logger_splunk_backend
       ],
     mod: {TrainLoc, []}]
   end
@@ -38,11 +38,12 @@ defmodule Trainloc.Mixfile do
     [
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4"},
-      {:timex, "~> 3.1.24"},
-      {:httpoison, "~> 0.12"},
-      {:goth, "~> 0.7"},
       {:ehmon, git: "https://github.com/heroku/ehmon.git", tag: "v4", only: :prod},
-      {:logger_logentries_backend, github: "paulswartz/logger_logentries_backend"}
+      {:goth, "~> 0.7"},
+      {:hackney, "== 1.10.1"},
+      {:httpoison, "~> 1.0", override: true},
+      {:logger_splunk_backend, github: "mbta/logger_splunk_backend"},
+      {:timex, "~> 3.1.24"}
     ]
   end
 end
