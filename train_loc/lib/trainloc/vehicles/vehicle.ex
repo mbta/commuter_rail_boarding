@@ -18,6 +18,24 @@ defmodule TrainLoc.Vehicles.Vehicle do
     fix: 0
   ]
 
+  @typedoc """
+  Vehicle data throughout the app is represented by vehicle structs.
+
+  A vehicle struct includes:
+
+  * `vehicle_id`: unique vehicle identifier
+  * `timestamp`: datetime when data was received
+  * `block`: represents a series of trips made by a single vehicle in a day
+  * `trip`: represents a scheduled commuter rail trip
+  * `latitude`: geographic coordinate that specifies the north–south position
+    of the vehicle
+  * `longitude`: geographic coordinate that specifies the east–west position
+    of the vehicle
+  * `heading`: compass direction to which the "nose" of the vehicle is pointing,
+    its orientation
+  * `speed`: the vehicle's speed
+  * `fix`: ID that represents the source of the data.
+  """
   @type t :: %__MODULE__{
     vehicle_id: non_neg_integer,
     timestamp: NaiveDateTime.t,
@@ -27,8 +45,21 @@ defmodule TrainLoc.Vehicles.Vehicle do
     longitude: float,
     heading: 0..359,
     speed: non_neg_integer,
-    fix: 1..9
+    fix: fix_id
   }
+
+  @typedoc """
+  Represents the source of the data:
+
+  * `0`: 2D GPS
+  * `1`: 3D GPS
+  * `2`: 2D DGPS
+  * `3`: 3D DGPS
+  * `6`: DR (Dead Reckoning)
+  * `8`: Degraded DR
+  * `9`: Unknown
+  """
+  @type fix_id :: 1..9
 
   def from_json_object(obj) do
     from_json_elem({nil, obj})
