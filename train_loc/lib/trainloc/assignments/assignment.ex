@@ -1,6 +1,6 @@
 defmodule TrainLoc.Assignments.Assignment do
   @moduledoc """
-  Struct for storing historical vehicle assignment data
+  Functions for working with individual assignments.
   """
 
   alias TrainLoc.Vehicles.Vehicle

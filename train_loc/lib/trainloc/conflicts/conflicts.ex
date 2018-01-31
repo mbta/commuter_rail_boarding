@@ -1,4 +1,7 @@
 defmodule TrainLoc.Conflicts.Conflicts do
+  @moduledoc """
+  Functions for working with collections of conflicts.
+  """
 
   alias TrainLoc.Conflicts.Conflict
 
@@ -16,6 +19,18 @@ defmodule TrainLoc.Conflicts.Conflicts do
     end
   end
 
+  @doc """
+  Accepts a list of conflicts the application has previously detected and a
+  list of conflicts we want to continue to monitor moving forward.
+
+  Returns a tuple with removed conflicts, new conflicts and all current
+  conflicts:
+
+  1. `removed conflicts`: conflicts we no longer care about
+  2. `new conflicts`: conflicts TrainLoc has detected for the first time
+  3. `current conflicts`: conflicts we'd like to continue to monitor within
+     TrainLoc
+  """
   @spec set([Conflict.t], [Conflict.t]) :: {[Conflict.t], [Conflict.t], [Conflict.t]}
   def set(conflicts, conflicts_to_set) do
     new_conflicts = filter_only_unknown(conflicts, conflicts_to_set)

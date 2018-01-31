@@ -1,6 +1,6 @@
 defmodule TrainLoc.Vehicles.Vehicle do
   @moduledoc """
-  Struct for storing general Vehicle information
+  Functions for working with individual vehicles.
   """
 
   alias TrainLoc.Utilities.Time

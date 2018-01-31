@@ -1,7 +1,7 @@
 defmodule TrainLoc.Manager do
   @moduledoc """
-  Manager module for coordinating the flow of data between the various GenServers
-  in the application
+  Consults the application's state, determines conflicting assignments, updates
+  the application's state, and reports conflicts to Splunk Cloud (via Logger).
   """
 
   use GenServer

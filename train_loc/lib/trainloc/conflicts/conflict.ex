@@ -1,4 +1,9 @@
 defmodule TrainLoc.Conflicts.Conflict do
+  @moduledoc """
+  Functions for working with individual conflicts.
+
+  A conflict is when multiple vehicles are assigned to the same trip or block.
+  """
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Utilities.Time
 

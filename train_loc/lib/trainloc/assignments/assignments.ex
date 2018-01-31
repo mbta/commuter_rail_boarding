@@ -1,6 +1,6 @@
 defmodule TrainLoc.Assignments.Assignments do
   @moduledoc """
-  Module for performing assignment-related functions for TrainLoc.Assignments.State
+  Functions for working with collections of assignments.
   """
 
   alias TrainLoc.Assignments.Assignment

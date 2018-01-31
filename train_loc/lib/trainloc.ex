@@ -1,7 +1,6 @@
 defmodule TrainLoc do
   @moduledoc """
-  Core module for TrainLoc; it supervises the non-State GenServers, and other core
-  persistence modules.
+  Starts the top level supervisor for the application.
   """
 
   use Application

@@ -1,6 +1,7 @@
 defmodule TrainLoc.Assignments.State do
   @moduledoc """
-  GenServer for storing historical vehicle assignment data
+  GenServer for tracking and querying the assignments in the system. Each assignment
+  is represented by a `TrainLoc.Assignments.Assignment` struct.
   """
 
   use GenServer

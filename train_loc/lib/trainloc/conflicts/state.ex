@@ -1,4 +1,9 @@
 defmodule TrainLoc.Conflicts.State do
+  @moduledoc """
+  GenServer for tracking and querying the conflicting assignments in the
+  system. Each conflict is represented by a `TrainLoc.Conflicts.Conflict`
+  struct.
+  """
 
   alias TrainLoc.Conflicts.Conflicts
 

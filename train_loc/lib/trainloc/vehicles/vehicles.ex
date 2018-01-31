@@ -1,6 +1,6 @@
 defmodule TrainLoc.Vehicles.Vehicles do
   @moduledoc """
-  Back-end logic module, performing vehicle-related functions for TrainLoc.Vehicles.State
+  Functions for working with collections of vehicles.
   """
 
   alias TrainLoc.Vehicles.Vehicle
@@ -52,6 +52,12 @@ defmodule TrainLoc.Vehicles.Vehicles do
     Map.delete(vehicles, vehicle_id)
   end
 
+  @doc """
+  Detects conflicting assignments. Returns a list of
+  `TrainLoc.Conflicts.Conflict` structs.
+
+  A conflict is when multiple vehicles are assigned to the same trip or block.
+  """
   @spec find_duplicate_logons(map) :: [Conflict.t]
   def find_duplicate_logons(vehicles) do
     same_trip =
