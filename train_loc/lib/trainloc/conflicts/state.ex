@@ -68,9 +68,9 @@ defmodule TrainLoc.Conflicts.State do
     {:reply, Conflicts.filter_by(known_conflicts, field, value), known_conflicts}
   end
 
-  def handle_call({:set, new_conflicts}, _from, known_conflicts) do
-    {removed, added, known_conflicts} = Conflicts.set(known_conflicts, new_conflicts)
-    {:reply, {removed, added}, known_conflicts}
+  def handle_call({:set, current_conflicts}, _from, known_conflicts) do
+    {removed, added} = Conflicts.diff(known_conflicts, current_conflicts)
+    {:reply, {removed, added}, current_conflicts}
   end
 
   #Catchalls

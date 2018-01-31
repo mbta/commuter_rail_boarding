@@ -20,22 +20,19 @@ defmodule TrainLoc.Conflicts.Conflicts do
   end
 
   @doc """
-  Accepts a list of conflicts the application has previously detected and a
-  list of conflicts we want to continue to monitor moving forward.
+  Accepts a list of pre-existing conflicts and a list of what we've determined
+  to be the current conflicts.
 
-  Returns a tuple with removed conflicts, new conflicts and all current
-  conflicts:
+  Returns a tuple with removed conflicts and new conflicts.
 
-  1. `removed conflicts`: conflicts we no longer care about
-  2. `new conflicts`: conflicts TrainLoc has detected for the first time
-  3. `current conflicts`: conflicts we'd like to continue to monitor within
-     TrainLoc
+  1. `removed_conflicts`: conflicts we no longer care about
+  2. `new_conflicts`: conflicts TrainLoc has detected for the first time
   """
-  @spec set([Conflict.t], [Conflict.t]) :: {[Conflict.t], [Conflict.t], [Conflict.t]}
-  def set(conflicts, conflicts_to_set) do
-    new_conflicts = filter_only_unknown(conflicts, conflicts_to_set)
-    removed_conflicts = filter_only_removed(conflicts, conflicts_to_set)
-    {removed_conflicts, new_conflicts, conflicts_to_set}
+  @spec diff([Conflict.t], [Conflict.t]) :: {[Conflict.t], [Conflict.t]}
+  def diff(pre_existing_conflicts, current_conflicts) do
+    new_conflicts = filter_only_unknown(pre_existing_conflicts, current_conflicts)
+    removed_conflicts = filter_only_removed(pre_existing_conflicts, current_conflicts)
+    {removed_conflicts, new_conflicts}
   end
 
   @spec remove([Conflict.t], Conflict.t) :: {:ok, [Conflict.t]}
