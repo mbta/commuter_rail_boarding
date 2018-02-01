@@ -1,4 +1,9 @@
 defmodule TrainLoc.Conflicts.Conflict do
+  @moduledoc """
+  Functions for working with individual conflicts.
+
+  A conflict is when multiple vehicles are assigned to the same trip or block.
+  """
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Utilities.Time
 
@@ -9,6 +14,14 @@ defmodule TrainLoc.Conflicts.Conflict do
     :service_date
   ]
 
+  @typedoc """
+  Represents a conflicting assignment.
+
+  * `assign_type`: indicates whether the conflict is for a trip or a block
+  * `assign_id`: unique ID for assignment
+  * `vehicles`: vehicle IDs in conflict
+  * `service_date`: date of conflict
+  """
   @type t :: %__MODULE__{
     assign_type: :trip | :block,
     assign_id: String.t,

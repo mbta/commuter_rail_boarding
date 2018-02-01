@@ -98,4 +98,33 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
     assert Conflicts.contains_conflict?(filtered_by_date, conflict2)
     refute Conflicts.contains_conflict?(filtered_by_date, conflict3)
   end
+
+  test "diffs the pre-existing and current conflicts" do
+
+    conflict1 = %Conflict{
+      assign_type: :trip,
+      assign_id: "123",
+      vehicles: [1111, 2222],
+      service_date: ~D[2017-09-02]
+    }
+    conflict2 = %Conflict{
+      assign_type: :block,
+      assign_id: "456",
+      vehicles: [3333, 4444],
+      service_date: ~D[2017-09-02]
+    }
+    conflict3 = %Conflict {
+      assign_type: :block,
+      assign_id: "789",
+      vehicles: [5555, 6666],
+      service_date: ~D[2017-09-01]
+    }
+
+    pre_existing = [conflict1, conflict2]
+    current = [conflict2, conflict3]
+
+    {removed, new} = Conflicts.diff(pre_existing, current)
+    assert removed == [conflict1]
+    assert new == [conflict3]
+  end
 end

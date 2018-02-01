@@ -1,6 +1,6 @@
 defmodule TrainLoc.Supervisor do
   @moduledoc """
-  Supervisor for the vehicle and conflict State GenServers
+  Supervises processes which track our knowledge of assignment conflicts.
   """
 
   use Supervisor

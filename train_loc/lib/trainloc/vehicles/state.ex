@@ -1,6 +1,7 @@
 defmodule TrainLoc.Vehicles.State do
   @moduledoc """
-  GenServer for storing current Vehicle data
+  GenServer for tracking and querying the vehicles in the system. Each vehicle
+  is represented by a `TrainLoc.Vehicles.Vehicle` struct.
   """
 
   use GenServer

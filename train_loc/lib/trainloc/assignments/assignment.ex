@@ -1,6 +1,6 @@
 defmodule TrainLoc.Assignments.Assignment do
   @moduledoc """
-  Struct for storing historical vehicle assignment data
+  Functions for working with individual assignments.
   """
 
   alias TrainLoc.Vehicles.Vehicle
@@ -13,6 +13,14 @@ defmodule TrainLoc.Assignments.Assignment do
     :trip
   ]
 
+  @typedoc """
+  Represents a vehicle assignment.
+
+  * `service_date`: assignment date
+  * `vehicle_id`: unique ID for the assigned vehicle
+  * `block`: represents a series of trips made by a single vehicle in a day
+  * `trip`: represents a scheduled commuter rail trip
+  """
   @type t :: %__MODULE__{
     service_date: Date.t,
     vehicle_id: integer,

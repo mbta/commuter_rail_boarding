@@ -1,4 +1,9 @@
 defmodule TrainLoc.Input.APIFetcher do
+  @moduledoc """
+  Starts and maintains a connection to the Keolis event stream, which reports
+  vehicle assignment information. The events are sent to `TrainLoc.Manager` for
+  processing.
+  """
 
   alias TrainLoc.Input.ServerSentEvent
 
