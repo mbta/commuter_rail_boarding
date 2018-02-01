@@ -16,7 +16,6 @@ defmodule Trainloc.Mixfile do
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
     [extra_applications: [
-      :bamboo,
       :goth,
       :inets,
       :logger,
@@ -36,8 +35,6 @@ defmodule Trainloc.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:bamboo, "~> 0.8"},
-      {:bamboo_smtp, "~> 1.4"},
       {:ehmon, git: "https://github.com/heroku/ehmon.git", tag: "v4", only: :prod},
       {:goth, "~> 0.7"},
       {:hackney, "== 1.10.1"},
