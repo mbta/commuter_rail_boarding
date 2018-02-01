@@ -17,7 +17,7 @@ defmodule TrainLoc.Conflicts.Conflict do
   @typedoc """
   Represents a conflicting assignment.
 
-  * `assign_type`: assignment type
+  * `assign_type`: indicates whether the conflict is for a trip or a block
   * `assign_id`: unique ID for assignment
   * `vehicles`: vehicle IDs in conflict
   * `service_date`: date of conflict
