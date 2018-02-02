@@ -1,8 +1,3 @@
 export SPLUNK_TOKEN=SOME_TOKEN
 export FIREBASE_URL=https://someurl.json
 export CREDENTIALS_JSON='{}'
-
-# These don't appear to be used.
-export MAILER_USERNAME=someusername
-export MAILER_PASSWORD=somepassword
-export MAILER_TO=someemail

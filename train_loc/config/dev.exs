@@ -5,9 +5,3 @@ config :logger,
 
 config :logger, :console,
   level: :debug
-
-config :trainloc, TrainLoc.Utilities.ConflictMailer,
-  adapter: Bamboo.LocalAdapter
-
-config :trainloc,
-  email_queue_delay: 5000
