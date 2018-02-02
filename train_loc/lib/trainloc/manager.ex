@@ -8,6 +8,7 @@ defmodule TrainLoc.Manager do
   use Timex
 
   alias TrainLoc.Vehicles.Vehicle
+  alias TrainLoc.Vehicles.Vehicles
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Utilities.Time
   alias TrainLoc.Vehicles.State, as: VState
@@ -43,6 +44,7 @@ defmodule TrainLoc.Manager do
 
       updated_vehicles
         |> Enum.reject(fn v -> Time.unix_now() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
+        |> Vehicles.log_assignments()
         |> VState.set_vehicles()
       all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)

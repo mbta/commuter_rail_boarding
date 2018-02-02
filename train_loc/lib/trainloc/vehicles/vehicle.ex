@@ -5,6 +5,8 @@ defmodule TrainLoc.Vehicles.Vehicle do
 
   alias TrainLoc.Utilities.Time
 
+  require Logger
+
   @enforce_keys [:vehicle_id]
   defstruct [
     :vehicle_id,
@@ -102,4 +104,23 @@ defmodule TrainLoc.Vehicles.Vehicle do
   def active_vehicle?(%__MODULE__{trip: "0"}), do: false
   def active_vehicle?(%__MODULE__{trip: "9999"}), do: false
   def active_vehicle?(%__MODULE__{}), do: true
+
+  @doc """
+  Accepts an individual vehicle, logs assignment information for it, and
+  returns the vehicle without modifying it.
+
+  Assignment information includes the vehicle ID, the trip, and block the
+  vehicle was assigned to.
+  """
+  @spec log_assignment(Vehicle.t) :: Vehicle.t
+  def log_assignment(%{vehicle_id: id, trip: trip, block: block} = vehicle) do
+    Logger.info(fn ->
+      "Vehicle Assignment - "
+      <> "id=#{inspect id} "
+      <> "trip=#{inspect trip} "
+      <> "block=#{inspect block}"
+    end)
+    vehicle
+  end
+
 end
