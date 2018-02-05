@@ -26,6 +26,10 @@ defmodule TrainLoc.Manager do
     GenServer.call(pid, :reset)
   end
 
+  def empty_message_queue?(pid \\ __MODULE__) do
+    GenServer.call(pid, :empty_message_queue?)
+  end
+
   def init(_) do
     Logger.debug(fn -> "Starting #{__MODULE__}..." end)
     {:ok, {true, config(:time_baseline_fn)}}
@@ -33,6 +37,10 @@ defmodule TrainLoc.Manager do
 
   def handle_call(:reset, _from, {_, fun}) do
     {:reply, :ok, {true, fun}}
+  end
+
+  def handle_call(:empty_message_queue?, _from, state) do
+    {:reply, true, state}
   end
 
   def handle_info({:events, events}, {first_message?, time_baseline_fn}) do
