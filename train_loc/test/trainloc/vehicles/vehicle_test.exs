@@ -3,9 +3,13 @@ defmodule TrainLoc.Vehicles.VehicleTest do
   use ExUnit.Case, async: true
   use Timex
 
+  import TrainLoc.Utilities.ConfigHelpers
+
   alias TrainLoc.Vehicles.Vehicle
 
-  @time_format "{YYYY}-{0M}-{0D} {0h24}:{0m}:{0s} {Zname}"
+  defp time_format do
+    config(:time_format)
+  end
 
   test "converts single JSON object to Vehicle struct" do
     json_obj = %{
@@ -21,7 +25,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
 
     assert Vehicle.from_json_object(json_obj) == [%Vehicle{
       vehicle_id: 1827,
-      timestamp: Timex.parse!("2018-01-05 11:38:50 America/New_York", @time_format),
+      timestamp: Timex.parse!("2018-01-05 11:38:50 America/New_York", time_format()),
       block: "602",
       trip: "612",
       latitude: 42.28179,
@@ -72,7 +76,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
     assert Vehicle.from_json_map(json_map) == [
       %Vehicle{
         vehicle_id: 1633,
-        timestamp: Timex.parse!("2018-01-16 15:03:27 America/New_York", @time_format),
+        timestamp: Timex.parse!("2018-01-16 15:03:27 America/New_York", time_format()),
         block: "0",
         trip: "0",
         latitude: 42.37405,
@@ -83,7 +87,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
       },
       %Vehicle{
         vehicle_id: 1643,
-        timestamp: Timex.parse!("2018-01-16 15:03:17 America/New_York", @time_format),
+        timestamp: Timex.parse!("2018-01-16 15:03:17 America/New_York", time_format()),
         block: "202",
         trip: "170",
         latitude: 42.72570,
@@ -94,7 +98,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
       },
       %Vehicle{
         vehicle_id: 1652,
-        timestamp: Timex.parse!("2018-01-16 15:03:23 America/New_York", @time_format),
+        timestamp: Timex.parse!("2018-01-16 15:03:23 America/New_York", time_format()),
         block: "306",
         trip: "326",
         latitude: 42.36698,

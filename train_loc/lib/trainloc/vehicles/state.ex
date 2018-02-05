@@ -44,6 +44,10 @@ defmodule TrainLoc.Vehicles.State do
     GenServer.call(pid, :get_duplicates)
   end
 
+  def reset(pid \\ __MODULE__) do
+    GenServer.call(pid, :reset)
+  end
+
   #Server Callbacks
 
   def init(_) do
@@ -72,6 +76,9 @@ defmodule TrainLoc.Vehicles.State do
   end
   def handle_call(:get_duplicates, _from, vehicles) do
     {:reply, Vehicles.find_duplicate_logons(vehicles), vehicles}
+  end
+  def handle_call(:reset, _from, _vehicles) do
+    {:reply, :ok, Vehicles.new()}
   end
 
   #Catchalls

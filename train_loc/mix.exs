@@ -5,6 +5,7 @@ defmodule Trainloc.Mixfile do
     [app: :trainloc,
      version: "0.1.0",
      elixir: "~> 1.5.1",
+     elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
@@ -23,6 +24,9 @@ defmodule Trainloc.Mixfile do
       ],
     mod: {TrainLoc, []}]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/integration"]
+  defp elixirc_paths(_),     do: ["lib"]
 
   # Dependencies can be Hex packages:
   #

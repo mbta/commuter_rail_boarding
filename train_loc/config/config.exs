@@ -25,8 +25,12 @@ config :logger, :console,
 config :goth,
   json: {:system, "CREDENTIALS_JSON"}
 
+config :trainloc, APIFetcher,
+  connect_at_startup?: true
+
 config :trainloc,
   time_zone: "America/New_York",
+  time_baseline_fn: &TrainLoc.Utilities.Time.unix_now/0,
   firebase_url: {:system, "FIREBASE_URL"}
 
 # It is also possible to import configuration files, relative to this
