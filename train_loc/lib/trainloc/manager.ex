@@ -7,10 +7,11 @@ defmodule TrainLoc.Manager do
   use GenServer
   use Timex
 
+  import TrainLoc.Utilities.ConfigHelpers
+
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Vehicles.Vehicles
   alias TrainLoc.Conflicts.Conflict
-  alias TrainLoc.Utilities.Time
   alias TrainLoc.Vehicles.State, as: VState
   alias TrainLoc.Conflicts.State, as: CState
 
@@ -22,13 +23,30 @@ defmodule TrainLoc.Manager do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  def init(_) do
-    Logger.debug(fn -> "Starting #{__MODULE__}..." end)
-    {:ok, true}
+  def reset(pid \\ __MODULE__) do
+    GenServer.call(pid, :reset)
   end
 
-  def handle_info({:events, events}, first_message?) do
+  def empty_message_queue?(pid \\ __MODULE__) do
+    GenServer.call(pid, :empty_message_queue?)
+  end
+
+  def init(_) do
+    Logger.debug(fn -> "Starting #{__MODULE__}..." end)
+    {:ok, {true, config(:time_baseline_fn)}}
+  end
+
+  def handle_call(:reset, _from, {_, fun}) do
+    {:reply, :ok, {true, fun}}
+  end
+
+  def handle_call(:empty_message_queue?, _from, state) do
+    {:reply, true, state}
+  end
+
+  def handle_info({:events, events}, {first_message?, time_baseline_fn}) do
     for event <- events, event.event == "put" do
+      Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
       data = Poison.decode!(event.data)["data"]
       updated_vehicles =
         cond do
@@ -43,7 +61,7 @@ defmodule TrainLoc.Manager do
         end
 
       updated_vehicles
-        |> Enum.reject(fn v -> Time.unix_now() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
+        |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
         |> Vehicles.log_assignments()
         |> VState.set_vehicles()
       all_conflicts = VState.get_duplicate_logons()
@@ -65,10 +83,11 @@ defmodule TrainLoc.Manager do
       end
     end
 
-    {:noreply, false}
+    {:noreply, {false, time_baseline_fn}}
   end
 
   def handle_info(_msg, state) do
+    Logger.warn(fn -> "#{__MODULE__}: Unknown message received." end)
     {:noreply, state}
   end
 end
