@@ -7,6 +7,8 @@ defmodule TrainLoc.Vehicles.VehicleTest do
 
   alias TrainLoc.Vehicles.Vehicle
 
+  import ExUnit.CaptureLog
+
   defp time_format do
     config(:time_format)
   end
@@ -108,5 +110,24 @@ defmodule TrainLoc.Vehicles.VehicleTest do
         fix: 6
       }
     ]
+  end
+
+  describe "log_assignment/1" do
+    test "with valid vehicle" do
+      vehicle = %Vehicle{
+        vehicle_id: 1712,
+        block: "802",
+        trip: "509",
+      }
+      fun = fn -> Vehicle.log_assignment(vehicle) end
+
+      expected_logger_message =
+        "Vehicle Assignment - "
+        <> "id=#{inspect vehicle.vehicle_id} "
+        <> "trip=#{inspect vehicle.trip} "
+        <> "block=#{inspect vehicle.block}"
+
+      assert capture_log(fun) =~ expected_logger_message
+    end
   end
 end

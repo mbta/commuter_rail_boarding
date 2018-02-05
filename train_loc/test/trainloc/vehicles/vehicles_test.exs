@@ -6,6 +6,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Conflicts.Conflict
 
+  import ExUnit.CaptureLog
   require Logger
 
   setup do
@@ -111,5 +112,25 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         |> Vehicles.new()
 
       assert Vehicles.find_duplicate_logons(vehicles) == test_conflicts
+  end
+
+  describe "log_assignments/1" do
+    test "with list of valid vehicles", %{vehicles: test_vehicles} do
+      vehicles = Map.values(test_vehicles)
+      fun = fn -> Vehicles.log_assignments(vehicles) end
+
+      expected_logger_messages =
+        for vehicle <- vehicles do
+            "Vehicle Assignment - "
+            <> "id=#{inspect vehicle.vehicle_id} "
+            <> "trip=#{inspect vehicle.trip} "
+            <> "block=#{inspect vehicle.block}"
+        end
+
+      captured_logger_messages = capture_log(fun)
+      for expected_logger_message <- expected_logger_messages do
+        assert captured_logger_messages =~ expected_logger_message
+      end
+    end
   end
 end

@@ -77,6 +77,18 @@ defmodule TrainLoc.Vehicles.Vehicles do
     Enum.concat(same_trip, same_block)
   end
 
+  @doc """
+  Accepts a list of vehicles, logs assignment information for each vehicle, and
+  returns the list of vehicles without modifying it.
+  """
+  @spec log_assignments([Vehicle.t]) :: [Vehicle.t]
+  def log_assignments(vehicles) do
+    for vehicle <- vehicles do
+      Vehicle.log_assignment(vehicle)
+    end
+    vehicles
+  end
+
   @spec reject_group?({String.t, [Vehicle.t]}) :: boolean
   defp reject_group?({_,[_]}), do: true
   defp reject_group?({"0", _}), do: true

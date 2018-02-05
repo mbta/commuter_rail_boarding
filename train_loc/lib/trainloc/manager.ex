@@ -10,6 +10,7 @@ defmodule TrainLoc.Manager do
   import TrainLoc.Utilities.ConfigHelpers
 
   alias TrainLoc.Vehicles.Vehicle
+  alias TrainLoc.Vehicles.Vehicles
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
   alias TrainLoc.Conflicts.State, as: CState
@@ -61,6 +62,7 @@ defmodule TrainLoc.Manager do
 
       updated_vehicles
         |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
+        |> Vehicles.log_assignments()
         |> VState.set_vehicles()
       all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
