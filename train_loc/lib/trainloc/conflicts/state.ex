@@ -45,6 +45,10 @@ defmodule TrainLoc.Conflicts.State do
     GenServer.call(pid, :reset)
   end
 
+  def empty_message_queue?(pid \\ __MODULE__) do
+    GenServer.call(pid, :empty_message_queue?)
+  end
+
   #Server Callbacks
 
   def init(_) do
@@ -79,6 +83,10 @@ defmodule TrainLoc.Conflicts.State do
 
   def handle_call(:reset, _from, _known_conflicts) do
     {:reply, :ok, Conflicts.new()}
+  end
+
+  def handle_call(:empty_message_queue?, _from, state) do
+      {:reply, true, state}
   end
 
   #Catchalls

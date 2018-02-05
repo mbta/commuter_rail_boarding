@@ -29,8 +29,13 @@ defmodule TrainLoc.IntegrationTest do
         send(TrainLoc.Input.APIFetcher, %HTTPoison.AsyncChunk{chunk: msg})
       end)
       Logger.debug(fn -> "Batch sent." end)
-      :timer.sleep(5000)
     end
+
+    # waits for the messages sent above to be processed
+    TrainLoc.Input.APIFetcher.empty_message_queue?()
+    TrainLoc.Manager.empty_message_queue?()
+    TrainLoc.Vehicles.State.empty_message_queue?()
+    TrainLoc.Conflicts.State.empty_message_queue?()
   end
 
   @tag :integration

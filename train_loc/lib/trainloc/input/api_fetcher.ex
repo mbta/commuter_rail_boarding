@@ -19,6 +19,10 @@ defmodule TrainLoc.Input.APIFetcher do
     GenServer.start_link(__MODULE__, url, args)
   end
 
+  def empty_message_queue?(pid \\ __MODULE__) do
+    GenServer.call(pid, :empty_message_queue?)
+  end
+
   # Server functions
   defstruct [:url, send_to: TrainLoc.Manager, buffer: "", connected?: false]
 
@@ -80,6 +84,10 @@ defmodule TrainLoc.Input.APIFetcher do
     state = %{state | buffer: ""}
     send self(), :connect
     {:noreply, state}
+  end
+
+  def handle_call(:empty_message_queue?, _from, state) do
+    {:reply, true, state}
   end
 
   def handle_call(_msg, _from, state) do
