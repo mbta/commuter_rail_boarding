@@ -32,10 +32,10 @@ defmodule TrainLoc.IntegrationTest do
     end
 
     # waits for the messages sent above to be processed
-    TrainLoc.Input.APIFetcher.empty_message_queue?()
-    TrainLoc.Manager.empty_message_queue?()
-    TrainLoc.Vehicles.State.empty_message_queue?()
-    TrainLoc.Conflicts.State.empty_message_queue?()
+    TrainLoc.Input.APIFetcher.await()
+    TrainLoc.Manager.await()
+    TrainLoc.Vehicles.State.await()
+    TrainLoc.Conflicts.State.await()
   end
 
   @tag :integration
