@@ -36,18 +36,20 @@ defmodule TrainLoc.Manager do
 
   def init(_) do
     Logger.debug(fn -> "Starting #{__MODULE__}..." end)
-    {:ok, {true, config(:time_baseline_fn)}}
+    {time_mod, time_fn} = config(:time_baseline_fn)
+    time_baseline_fn = fn -> apply(time_mod, time_fn, []) end
+    {:ok, %{first_message?: true, time_baseline: time_baseline_fn}}
   end
 
-  def handle_call(:reset, _from, {_, fun}) do
-    {:reply, :ok, {true, fun}}
+  def handle_call(:reset, _from, state) do
+    {:reply, :ok, %{state | first_message?: true}}
   end
 
   def handle_call(:await, _from, state) do
     {:reply, true, state}
   end
 
-  def handle_info({:events, events}, {first_message?, time_baseline_fn}) do
+  def handle_info({:events, events}, %{first_message?: first_message?, time_baseline: time_baseline_fn} = state) do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
       data = Poison.decode!(event.data)["data"]
@@ -86,7 +88,7 @@ defmodule TrainLoc.Manager do
       end
     end
 
-    {:noreply, {false, time_baseline_fn}}
+    {:noreply, %{state | first_message?: false}}
   end
 
   def handle_info(_msg, state) do

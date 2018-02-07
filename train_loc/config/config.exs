@@ -30,7 +30,7 @@ config :trainloc, APIFetcher,
 
 config :trainloc,
   time_zone: "America/New_York",
-  time_baseline_fn: &TrainLoc.Utilities.Time.unix_now/0,
+  time_baseline_fn: {TrainLoc.Utilities.Time, :unix_now},
   firebase_url: {:system, "FIREBASE_URL"}
 
 # It is also possible to import configuration files, relative to this

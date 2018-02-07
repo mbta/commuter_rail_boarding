@@ -13,7 +13,5 @@ config :trainloc, APIFetcher,
   connect_at_startup?: false
 
 config :trainloc,
-  # This is the timestamp from the end of the OneMinute integration test scenario, used to ensure
-  # that the test messages aren't discarded as stale.
-  time_baseline_fn: fn -> 1517253825 end,
+  time_baseline_fn: {TrainLoc.IntegrationTest.TimeHelper, :test_time},
   time_format: "{YYYY}-{0M}-{0D} {0h24}:{0m}:{0s} {Zname}"
