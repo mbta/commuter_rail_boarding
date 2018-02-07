@@ -19,5 +19,12 @@ erl_crash.dump
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
 
+# Virtualenv for AWS CLI
+/aws
+
+# Release files (except the ones we need
+/rel
+!/rel/Dockerfile
+!/rel/config.exs
+
 .DS_Store
-AVLData.txt

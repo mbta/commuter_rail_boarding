@@ -4,7 +4,7 @@ defmodule Trainloc.Mixfile do
   def project do
     [app: :trainloc,
      version: "0.1.0",
-     elixir: "~> 1.5.1",
+     elixir: "~> 1.5",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -39,6 +39,7 @@ defmodule Trainloc.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:distillery, "~> 1.5", runtime: false},
       {:ehmon, git: "https://github.com/heroku/ehmon.git", tag: "v4", only: :prod},
       {:goth, "~> 0.7"},
       {:hackney, "== 1.10.1"},
