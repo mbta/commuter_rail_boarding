@@ -31,7 +31,8 @@ config :trainloc, APIFetcher,
 config :trainloc,
   time_zone: "America/New_York",
   time_baseline_fn: {TrainLoc.Utilities.Time, :unix_now},
-  firebase_url: {:system, "FIREBASE_URL"}
+  firebase_url: {:system, "FIREBASE_URL"},
+  s3_api: TrainLoc.S3.InMemory
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

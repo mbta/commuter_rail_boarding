@@ -12,3 +12,7 @@ config :logger, :splunk,
   level: :debug,
   format: "$dateT$time [$level]$levelpad node=$node $metadata$message\n",
   metadata: [:request_id]
+
+config :trainloc,
+  s3_api: TrainLoc.S3.HTTPClient,
+  s3_bucket: {:system, "S3_BUCKET"}

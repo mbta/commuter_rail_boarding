@@ -9,10 +9,10 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the overall architecture of the syste
 This application monitors MBTA Commuter Rail data regarding locations and assignments of CR trains.
 It detects any instances of multiple trainsets logged into the same trip or block.
 It reports these conflicts and other related data to Splunk Cloud.
+It also keeps a `VehiclePositions_enhanced.json` file up to date on S3 for the CR prediction provider to consume.
 
 Future functionality will include tracking the relationship between trips and blocks, so the blocks
-can be added to the MBTA's GTFS feed, and potentially replacing existing processes that transfer the
-real-time location and assignment data to the CR prediction provider.
+can be added to the MBTA's GTFS feed.
 
 ## Development Setup
 

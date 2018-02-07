@@ -14,10 +14,12 @@ defmodule TrainLoc.Manager do
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
   alias TrainLoc.Conflicts.State, as: CState
+  alias TrainLoc.Encoder.VehiclePositionsEnhanced
 
   require Logger
 
   @stale_data_seconds 30 |> Duration.from_minutes() |> Duration.to_seconds()
+  @s3_api Application.get_env(:trainloc, :s3_api)
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, :ok, opts)
@@ -88,11 +90,19 @@ defmodule TrainLoc.Manager do
       end
     end
 
+    upload_vehicles_to_s3()
+
     {:noreply, %{state | first_message?: false}}
   end
 
   def handle_info(_msg, state) do
     Logger.warn(fn -> "#{__MODULE__}: Unknown message received." end)
     {:noreply, state}
+  end
+
+  defp upload_vehicles_to_s3() do
+    vehicles = VState.all_vehicles()
+    json = VehiclePositionsEnhanced.encode(vehicles)
+    @s3_api.put_object("VehiclePositions_enhanced.json", json)
   end
 end
