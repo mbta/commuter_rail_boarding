@@ -3,4 +3,4 @@ set -e
 set -x
 
 mix compile --force --warnings-as-errors
-mix test
+mix coveralls.json
