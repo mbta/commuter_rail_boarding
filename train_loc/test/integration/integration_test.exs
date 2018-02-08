@@ -20,6 +20,7 @@ defmodule TrainLoc.IntegrationTest do
 
     assert TrainLoc.Vehicles.State.all_vehicles() == test_module.expected_vehicle_state
     assert TrainLoc.Conflicts.State.all_conflicts() == test_module.expected_conflict_state
+    assert Map.size(TrainLoc.S3.InMemory.list_objects()) == 1
   end
 
   @spec send_data([[String.t]]) :: any

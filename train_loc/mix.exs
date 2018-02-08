@@ -45,7 +45,9 @@ defmodule Trainloc.Mixfile do
       {:hackney, "== 1.10.1"},
       {:httpoison, "~> 1.0", override: true},
       {:logger_splunk_backend, github: "mbta/logger_splunk_backend"},
-      {:timex, "~> 3.1.24"}
+      {:timex, "~> 3.1.24"},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
     ]
   end
 end

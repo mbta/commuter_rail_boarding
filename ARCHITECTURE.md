@@ -1,62 +1,63 @@
 # TrainLoc Architecture
 
-`Keolis -> TrainLoc -> Splunk Cloud`
+`Keolis -> TrainLoc -> Splunk Cloud & S3`
 
-Overall, TrainLoc is made up of a few GenServers that fetch vehicle assignment
-events from [Keolis](http://www.keoliscs.com/about-us/), detect conflicting assignment related data, and report it
-to [Splunk Cloud](https://www.splunk.com/en_us/products/splunk-cloud.html).
+Overall, TrainLoc is made up of a few GenServers that fetch vehicle
+position/assignment events from [Keolis](http://www.keoliscs.com/about-us/),
+reports conflicting assignment data to [Splunk
+Cloud](https://www.splunk.com/en_us/products/splunk-cloud.html), and vehicle
+positions to [S3](https://aws.amazon.com/s3/).
 
 
       ┌────────────────────────────┐
       │TrainLoc.Input.APIFetcher   │
       │                            │
       │                            │
-      │                            │                ┌────────────────────────────┐
-      └────────────────────────────┘                │TrainLoc.Conflicts.State    │
-                     │                              │                            │
-                     │                     ┌───────▶│                            │
-                   Events                  │        │                            │
-                     │                     │        └────────────────────────────┘
-                     ▼                     │
-      ┌────────────────────────────┐       │        ┌────────────────────────────┐
-      │TrainLoc.Manager            │       │        │TrainLoc.Assignments.State  │
-      │                            │    Consults    │                            │
-      │                            │◀─────and──────▶│                            │
-      │                            │    Updates     │                            │
-      └────────────────────────────┘       │        └────────────────────────────┘
-                     │                     │
-                Conflicting                │        ┌────────────────────────────┐
-                Assignments                │        │TrainLoc.Vehicles.State     │
-                     &                     │        │                            │
-               Related Data                └───────▶│                            │
-                     │                              │                            │
-                     │                              └────────────────────────────┘
-    ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
-                     │          Application Boundary
-                     ▼
-      ┌────────────────────────────┐
-      │Splunk Cloud                │
       │                            │
-      │                            │
-      │                            │
-      └────────────────────────────┘
+      └────────────────────────────┘            ┌────────────────────────────┐
+                     │                          │TrainLoc.Conflicts.State    │
+                     │                          │                            │
+                   Events                ┌─────▶│                            │
+                     │                   │      │                            │
+                     ▼                   │      └────────────────────────────┘
+      ┌────────────────────────────┐     │      ┌────────────────────────────┐
+      │TrainLoc.Manager            │     │      │TrainLoc.Vehicles.State     │
+      │                            │  Consults  │                            │
+      │                            │◀───and────▶│                            │
+      │                            │  Updates   │                            │
+      └────────────────────────────┘            └────────────────────────────┘
+                     │         │
+                     │         │
+                Conflicting    │
+                Assignment     │
+                   Data        └VehiclePositions_enhanced.json┐
+                     │                                        │
+                     │                                        │
+    ─ ─ ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+                     │        Application Boundary            │
+                     ▼                                        ▼
+      ┌────────────────────────────┐           ┌────────────────────────────┐
+      │Splunk Cloud                │           │S3                          │
+      │                            │           │                            │
+      │                            │           │                            │
+      │                            │           │                            │
+      └────────────────────────────┘           └────────────────────────────┘
 
 
 ## Data
 
-Throughout the application, data is represented as one of three structs:
+Throughout the application, data is represented as one of two structs:
 
-* `Vehicle`: location, trajectory, and trip/block assignment
-* `Assignment`: historical vehicle assignment
+* `Vehicle`: position and trip/block assignment
 * `Conflict`: conflicting assignment and vehicles involved
 
 ## TrainLoc.Input.APIFetcher
 
 Starts and maintains a connection to the Keolis event stream, which reports
-vehicle assignment information. The events are sent to `TrainLoc.Manager` for
-processing.
+vehicle positions and assignment information. The events are sent to
+`TrainLoc.Manager` for processing.
 
 ## TrainLoc.Manager
 
-Consults the application's state, determines conflicting assignments, updates
-the application's state, and reports conflict related data to Splunk Cloud.
+Updates application's state, determines conflicting assignments, reports
+conflict related data to Splunk Cloud, and vehicle positions to S3.
