@@ -55,17 +55,7 @@ defmodule TrainLoc.Manager do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
       data = Poison.decode!(event.data)["data"]
-      updated_vehicles =
-        cond do
-          is_nil(data) -> []
-          first_message? -> Vehicle.from_json_map(data["results"])
-          true ->
-            if vehicles = Vehicle.from_json_object(data) do
-              vehicles
-            else
-              []
-            end
-        end
+      updated_vehicles = vehicles_from_data(data, first_message?)
 
       updated_vehicles
         |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
@@ -98,6 +88,14 @@ defmodule TrainLoc.Manager do
   def handle_info(_msg, state) do
     Logger.warn(fn -> "#{__MODULE__}: Unknown message received." end)
     {:noreply, state}
+  end
+
+  defp vehicles_from_data(nil, _), do: []
+  defp vehicles_from_data(data, true) do
+    Vehicle.from_json_map(data["results"])
+  end
+  defp vehicles_from_data(data, _) do
+    Vehicle.from_json_object(data)
   end
 
   defp upload_vehicles_to_s3() do

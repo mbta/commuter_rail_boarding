@@ -39,7 +39,7 @@ defmodule TrainLoc.Utilities.Time do
       |> Timex.to_naive_datetime()
   end
 
-  @spec end_of_service_date(Datetime.t) :: Datetime.t
+  @spec end_of_service_date(DateTime.t) :: DateTime.t
   def end_of_service_date(current_time \\ local_now()) do
     datetime =
       current_time
@@ -53,7 +53,7 @@ defmodule TrainLoc.Utilities.Time do
     end
   end
 
-  @spec end_of_week(Datetime.t) :: Datetime.t
+  @spec end_of_week(DateTime.t) :: DateTime.t
   def end_of_week(current_time \\ local_now()) do
     week_end =
       current_time
@@ -67,19 +67,19 @@ defmodule TrainLoc.Utilities.Time do
     end
   end
 
-  @spec first_day_of_week(Datetime.t) :: Date.t
+  @spec first_day_of_week(DateTime.t) :: Date.t
   def first_day_of_week(current_time \\ local_now()) do
     current_time
     |> get_service_date()
     |> Timex.beginning_of_week(@week_start)
   end
 
-  @spec time_until(Datetime.t, Datetime.t, Timex.Comparable.granularity) :: integer
+  @spec time_until(DateTime.t, DateTime.t, Timex.Comparable.granularity) :: integer
   def time_until(time, from, units \\ :milliseconds) do
     Timex.diff(time, from, units)
   end
 
-  @spec get_service_date(Datetime.t) :: Date.t
+  @spec get_service_date(DateTime.t) :: Date.t
   def get_service_date(current_time \\ local_now()) do
     datetime = Timex.beginning_of_day(current_time)
     service_datetime =
@@ -104,7 +104,7 @@ defmodule TrainLoc.Utilities.Time do
     end
   end
 
-  @spec format_datetime(Datetime.t) :: String.t
+  @spec format_datetime(DateTime.t) :: String.t
   def format_datetime(datetime) do
     Timex.format!(datetime, "{YYYY}-{0M}-{0D} {0h24}:{0m}:{0s}")
   end
