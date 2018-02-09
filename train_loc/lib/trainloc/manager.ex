@@ -65,6 +65,8 @@ defmodule TrainLoc.Manager do
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
       if not is_nil(data) and Map.has_key?(data, "date") do
+        upload_vehicles_to_s3()
+
         Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
         Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(VState.all_vehicles(), &Vehicle.active_vehicle?/1)} vehicles active." end)
         Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
@@ -79,8 +81,6 @@ defmodule TrainLoc.Manager do
         end)
       end
     end
-
-    upload_vehicles_to_s3()
 
     {:noreply, %{state | first_message?: false}}
   end
