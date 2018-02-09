@@ -8,7 +8,14 @@ defmodule Trainloc.Mixfile do
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: [
+       "coveralls": :test,
+       "coveralls.html": :test,
+       "coveralls.json": :test
+     ],
+    ]
   end
 
   # Configuration for the OTP application
@@ -48,6 +55,7 @@ defmodule Trainloc.Mixfile do
       {:timex, "~> 3.1.24"},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
+      {:excoveralls, "~> 0.8", only: :test}
     ]
   end
 end
