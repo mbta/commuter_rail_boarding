@@ -10,7 +10,7 @@ defmodule TrainLoc.Conflicts.Conflicts do
     []
   end
 
-  @spec add([Conflict.t], Conflict.t) :: {:ok, [Conflict.t]}
+  @spec add([Conflict.t], Conflict.t) :: [Conflict.t]
   def add(conflicts, to_add) do
     if not contains_conflict?(conflicts, to_add) do
       [to_add | conflicts]
@@ -35,7 +35,7 @@ defmodule TrainLoc.Conflicts.Conflicts do
     {removed_conflicts, new_conflicts}
   end
 
-  @spec remove([Conflict.t], Conflict.t) :: {:ok, [Conflict.t]}
+  @spec remove([Conflict.t], Conflict.t) :: [Conflict.t]
   def remove(conflicts, to_remove) do
     List.delete(conflicts, to_remove)
   end

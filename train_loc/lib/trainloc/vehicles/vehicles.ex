@@ -95,7 +95,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
   defp reject_group?({"9999", _}), do: true
   defp reject_group?({_,_}), do: false
 
-  @spec log_changed_assigns(map, [Vehicle.t]) :: :ok | nil
+  @spec log_changed_assigns(map, [Vehicle.t]) :: any
   defp log_changed_assigns(old_vehicles, new_vehicles) do
     for new <- new_vehicles do
       old = Map.get(old_vehicles, new.vehicle_id, new)
