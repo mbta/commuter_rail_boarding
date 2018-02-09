@@ -51,22 +51,12 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   end
   defp build_entity(_), do: []
 
-  defp start_date(%NaiveDateTime{} = timestamp) do
-    timestamp
-    |> NaiveDateTime.to_date()
-    |> Date.to_iso8601(:basic)
-  end
   defp start_date(%DateTime{} = timestamp) do
     timestamp
     |> DateTime.to_date()
     |> Date.to_iso8601(:basic)
   end
 
-  defp format_timestamp(%NaiveDateTime{} = timestamp) do
-    timestamp
-    |> DateTime.from_naive!("Etc/UTC")
-    |> format_timestamp()
-  end
   defp format_timestamp(%DateTime{} = timestamp) do
     DateTime.to_unix(timestamp)
   end

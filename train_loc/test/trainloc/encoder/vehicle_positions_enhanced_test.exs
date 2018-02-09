@@ -6,10 +6,13 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
 
   describe "encode/1" do
     test "produces valid GTFS-realtime enhanced JSON from list of vehicles" do
+      unix_timestamp = 1501844511
+      datetime_timestamp = DateTime.from_unix!(unix_timestamp)
+
       vehicles = [
         %Vehicle{
           vehicle_id: 1712,
-          timestamp: ~N[2017-08-04 11:01:51],
+          timestamp: datetime_timestamp,
           trip: "509",
           latitude: 49.24023,
           longitude: -76.12890,
@@ -19,7 +22,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         },
         %Vehicle{
           vehicle_id: 1713,
-          timestamp: ~N[2017-08-04 11:01:51],
+          timestamp: datetime_timestamp,
           trip: "508",
           latitude: 42.24023,
           longitude: -71.12890,
@@ -29,7 +32,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         },
         %Vehicle{
           vehicle_id: 1714,
-          timestamp: ~N[2017-08-04 11:01:51],
+          timestamp: datetime_timestamp,
           trip: "507",
           latitude: 52.24023,
           longitude: -61.12890,
@@ -65,14 +68,8 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         assert json_position_data["bearing"] == vehicle.heading
         assert json_position_data["speed"] == vehicle.speed
         assert json_position_data["fix"] == vehicle.fix
-        assert json_vehicle_data["timestamp"] == to_unix(vehicle.timestamp)
+        assert json_vehicle_data["timestamp"] == unix_timestamp
       end
-    end
-
-    defp to_unix(naivedatetime) do
-      naivedatetime
-      |> DateTime.from_naive!("Etc/UTC")
-      |> DateTime.to_unix()
     end
   end
 end

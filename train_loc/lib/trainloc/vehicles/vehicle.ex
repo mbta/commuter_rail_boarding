@@ -41,7 +41,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
   """
   @type t :: %__MODULE__{
     vehicle_id: non_neg_integer,
-    timestamp: NaiveDateTime.t,
+    timestamp: DateTime.t,
     block: non_neg_integer,
     trip: String.t,
     latitude: float,
