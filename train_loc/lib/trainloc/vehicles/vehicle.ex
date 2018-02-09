@@ -3,6 +3,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
   Functions for working with individual vehicles.
   """
 
+  alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Utilities.Time
 
   require Logger
@@ -72,7 +73,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
     Enum.flat_map(map, &from_json_elem/1)
   end
 
-  @spec from_json_elem({String.t, map}) :: t
+  @spec from_json_elem({any, map}) :: [%Vehicle{}]
   defp from_json_elem({_, veh_data = %{"vehicleid" => vehicle_id}}) do
     [%__MODULE__{
       vehicle_id: vehicle_id,
@@ -95,7 +96,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
   defp process_trip(" "), do: "0"
   defp process_trip(routename), do: routename
 
-  @spec log_string(t) :: String.t
+  @spec log_string(%Vehicle{}) :: String.t
   def log_string(v) do
     "#{Time.format_datetime(v.timestamp)} - id:#{v.vehicle_id}, block:#{v.block}, trip:#{v.trip}"
   end
