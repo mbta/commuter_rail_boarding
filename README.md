@@ -1,5 +1,8 @@
 # Trainloc
 
+[![Build Status](https://semaphoreci.com/api/v1/projects/5cf9d2cb-6d4a-4281-a3cd-24607ac5ed02/1769861/badge.svg)](https://semaphoreci.com/mbta/train_loc)
+[![codecov](https://codecov.io/gh/mbta/train_loc/branch/master/graph/badge.svg?token=aYAhtOpcCw)](https://codecov.io/gh/mbta/train_loc)
+
 ## Architecture
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the overall architecture of the system.
