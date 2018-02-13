@@ -10,10 +10,20 @@ defmodule TrainLoc.Input.ServerSentEvent do
     data: ""
   ]
 
+  # @type event_type :: "put" | "message" | "keep-alive" | "auth_revoked" | "cancel"
+
   @type t :: %__MODULE__{
     event: String.t,
     data: String.t
   }
+
+  @event_types [
+    "put",
+    "message",
+    "keep-alive",
+    "auth_revoked",
+    "cancel"
+  ]
 
   @doc """
   Parse a UTF-8 string into a struct.
@@ -29,7 +39,8 @@ defmodule TrainLoc.Input.ServerSentEvent do
   def from_string(string) do
     string
     |> String.split(~r/\r|\r\n|\n/, trim: true)
-    |> Enum.reduce(%__MODULE__{}, &include_line/2)
+    |> Enum.reduce(%{event: "", data: ""}, &include_line/2)
+    |> parse_line()
   end
 
   defp include_line(":" <> _, acc) do
@@ -48,6 +59,22 @@ defmodule TrainLoc.Input.ServerSentEvent do
     # ignored
     acc
   end
+
+  def parse_line(line) do
+    with \
+         {:ok, event} <- parse_event(line.event),
+         {:ok, data} <- parse_data(line.data)
+    do
+      {:ok, %__MODULE__{event: event, data: data}}
+    else
+      {:error, _} = error -> error
+    end
+  end
+
+  def parse_event(event) when event in @event_types, do: {:ok, event}
+  def parse_event(event), do: {:error, "Unexpected event: #{event}"}
+
+  def parse_data(data), do: Poison.decode(data)
 
   defp trim_one_space(" " <> rest), do: rest
   defp trim_one_space(data), do: data

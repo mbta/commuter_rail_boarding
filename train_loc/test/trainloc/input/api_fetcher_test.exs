@@ -3,6 +3,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
   use ExUnit.Case
 
   import TrainLoc.Input.APIFetcher
+  import ExUnit.CaptureLog
 
   alias TrainLoc.Input.ServerSentEvent
 
@@ -47,11 +48,12 @@ defmodule TrainLoc.Input.APIFetcherTest do
     end
 
     test "with a full chunk, returns an event" do
+      chunk = "event: put\ndata: {}"
       state = %TrainLoc.Input.APIFetcher{send_to: self()}
-      assert {:noreply, state} = handle_info(%HTTPoison.AsyncChunk{chunk: "data:"}, state)
-      handle_info(%HTTPoison.AsyncChunk{chunk: "data\n\n"}, state)
+      assert {:noreply, state} = handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state)
+      handle_info(%HTTPoison.AsyncChunk{chunk: "\n\n"}, state)
       assert_receive {:events, [event] = [%ServerSentEvent{}]}
-      assert event.data == "data\n"
+      assert event.data == %{}
     end
 
     test "doesn't crash on unknown call" do
@@ -64,4 +66,31 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert {:noreply, ^state} = handle_cast(:unknown_cast, state)
     end
   end
+
+  test "log empty events error" do
+    url = "some_url"
+    state = %TrainLoc.Input.APIFetcher{url: url}
+
+    fun = fn -> log_empty_events_error(state) end
+
+    expected_log_error =
+      "Keolis API Failure - url=#{inspect url} error_type=\"No events parsed\""
+    assert capture_log(fun) =~ expected_log_error
+  end
+
+  test "log parsing errors" do
+    url = "some_url"
+    state = %TrainLoc.Input.APIFetcher{url: url}
+    errors = ["Unexpected event: \"some event\""]
+
+    fun = fn -> log_parsing_errors(state, errors) end
+
+    expected_log_error =
+      "Keolis API Failure - url=#{inspect url} error_type=\"Parsing errors []\""
+    assert capture_log(fun) =~ expected_log_error
+  end
+
+  test "send events for processing"
+  test "log keolis error"
+
 end

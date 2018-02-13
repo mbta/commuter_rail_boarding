@@ -62,16 +62,46 @@ defmodule TrainLoc.Input.APIFetcher do
     buffer = state.buffer <> chunk
     event_binaries = String.split(buffer, "\n\n")
     {event_binaries, [buffer]} = Enum.split(event_binaries, -1)
-    events = Enum.map(event_binaries, &ServerSentEvent.from_string/1)
-    unless events == [] do
-      Logger.info fn -> "#{__MODULE__} received #{length events} events" end
-      for event <- events do
-        Logger.debug(fn ->
-          inspect(event, limit: :infinity, printable_limit: :infinity)
-        end)
-      end
-      send(state.send_to, {:events, events})
+    # IO.inspect events = Enum.map(event_binaries, &ServerSentEvent.from_string/1)
+    events =
+      event_binaries
+      |> Enum.map(&ServerSentEvent.from_string/1)
+      |> Enum.group_by(&(elem(&1, 0)), &(elem(&1, 1)))
+
+      # if we have both errors and oks we want to:
+      #   log the errors
+      #   pass the oks for procvessing
+      #
+      # if we have no oks and we have errors:
+      #   we want to log the errors
+      #
+      # if we have no errors and only oks
+      #   we want to pass the oks for processing
+      #
+      # if we have an empty map:
+      #   log as error
+      #
+    case events do
+      x when is_map(x) and map_size(x) == 0 ->
+        log_empty_events_error(state)
+      %{:error => errors, :ok => events} ->
+        log_parsing_errors(state, errors)
+        send_events_for_processing(state, events)
+      %{:error => errors} ->
+        log_parsing_errors(state, errors)
+      %{:ok => events} ->
+        send_events_for_processing(state, events)
     end
+
+    # unless events == [] do
+    #   Logger.info fn -> "#{__MODULE__} received #{length events} events" end
+    #   for event <- events do
+    #     Logger.debug(fn ->
+    #       inspect(event, limit: :infinity, printable_limit: :infinity)
+    #     end)
+    #   end
+    #   send(state.send_to, {:events, events})
+    # end
 
     state = %{state | buffer: buffer}
     {:noreply, state}
@@ -107,5 +137,39 @@ defmodule TrainLoc.Input.APIFetcher do
   end
   defp compute_url(%{url: url}) when is_binary(url) do
     url
+  end
+
+  def log_empty_events_error(state) do
+    reason = "No events parsed"
+    log_keolis_error(state, reason)
+  end
+
+  def log_parsing_errors(state, errors) do
+    for error <- errors do
+      log_parsing_error(state, error)
+    end
+  end
+
+  def log_parsing_error(state, error) do
+    reason = "Parsing error: #{inspect error}"
+    log_keolis_error(state, reason)
+  end
+
+  def send_events_for_processing(state, events) do
+    Logger.info fn -> "#{__MODULE__} received #{length events} events" end
+    for event <- events do
+      Logger.debug(fn ->
+        inspect(event, limit: :infinity, printable_limit: :infinity)
+      end)
+    end
+    send(state.send_to, {:events, events})
+  end
+
+  def log_keolis_error(state, reason) do
+    Logger.error fn ->
+      "#{__MODULE__} Keolis API Failure - "
+      <> "url=#{inspect state.url} "
+      <> "error_type=#{inspect reason}"
+    end
   end
 end
