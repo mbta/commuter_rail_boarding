@@ -55,6 +55,10 @@ defmodule TrainLoc.Input.APIFetcher do
     Logger.debug(fn -> "#{__MODULE__} connected" end)
     {:noreply, state}
   end
+  def handle_info(%HTTPoison.AsyncStatus{code: code}, state) when code != 200 do
+    log_keolis_error state, fn -> "HTTP status #{code}" end
+    {:stop, :shutdown, state}
+  end
   def handle_info(%HTTPoison.AsyncHeaders{}, state) do
     {:noreply, state}
   end
@@ -77,13 +81,13 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
   def handle_info(%HTTPoison.Error{reason: reason}, state) do
-    Logger.error fn -> "#{__MODULE__} HTTP error: #{inspect reason}" end
+    log_keolis_error state, fn -> "HTTPoison.Error #{reason}" end
     state = %{state | buffer: ""}
     send self(), :connect
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncEnd{}, state) do
-    Logger.info fn -> "#{__MODULE__} disconnected, reconnecting..." end
+    log_keolis_error state, fn -> "HTTPoison.AsyncEnd" end
     state = %{state | buffer: ""}
     send self(), :connect
     {:noreply, state}
@@ -101,11 +105,16 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
 
-
   defp compute_url(%{url: {m, f, a}}) do
     apply(m, f, a)
   end
   defp compute_url(%{url: url}) when is_binary(url) do
     url
+  end
+
+  defp log_keolis_error(state, message_fn) do
+    Logger.error fn ->
+      "#{__MODULE__} Keolis API Failure - url=#{inspect state.url} error_type=#{inspect message_fn.()}"
+    end
   end
 end

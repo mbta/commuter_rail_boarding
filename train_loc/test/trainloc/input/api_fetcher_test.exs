@@ -3,6 +3,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
   use ExUnit.Case
 
   import TrainLoc.Input.APIFetcher
+  import ExUnit.CaptureLog
 
   alias TrainLoc.Input.ServerSentEvent
 
@@ -30,10 +31,47 @@ defmodule TrainLoc.Input.APIFetcherTest do
     end
 
     test "crashes on a non-200 status" do
-      state = %TrainLoc.Input.APIFetcher{}
-      assert_raise FunctionClauseError, fn ->
-        handle_info(%HTTPoison.AsyncStatus{code: 401}, state)
-      end
+      pid = Process.whereis(TrainLoc.Input.APIFetcher)
+      ref = Process.monitor(pid)
+      send(pid, %HTTPoison.AsyncStatus{code: 401})
+      assert_receive {:DOWN, ^ref, :process, _, :shutdown}
+    end
+
+    test "logs error on a non-200 status" do
+      state = %TrainLoc.Input.APIFetcher{url: "expected_url"}
+      fun = fn -> handle_info(%HTTPoison.AsyncStatus{code: 500}, state) end
+
+      expected_logger_message =
+        "Keolis API Failure - "
+        <> "url=\"#{state.url}\" "
+        <> "error_type=\"HTTP status 500\""
+
+      assert capture_log(fun) =~ expected_logger_message
+    end
+
+    test "logs error with %HTTPoison.Error{}" do
+      state = %TrainLoc.Input.APIFetcher{url: "expected_url"}
+      reason = "some reson"
+      fun = fn -> handle_info(%HTTPoison.Error{reason: reason}, state) end
+
+      expected_logger_message =
+        "Keolis API Failure - "
+        <> "url=\"#{state.url}\" "
+        <> "error_type=\"HTTPoison.Error #{reason}\""
+
+      assert capture_log(fun) =~ expected_logger_message
+    end
+
+    test "logs error with %HTTPoison.AsyncEnd{}" do
+      state = %TrainLoc.Input.APIFetcher{url: "expected_url"}
+      fun = fn -> handle_info(%HTTPoison.AsyncEnd{}, state) end
+
+      expected_logger_message =
+        "Keolis API Failure - "
+        <> "url=\"#{state.url}\" "
+        <> "error_type=\"HTTPoison.AsyncEnd\""
+
+      assert capture_log(fun) =~ expected_logger_message
     end
 
     test "ignores headers" do
