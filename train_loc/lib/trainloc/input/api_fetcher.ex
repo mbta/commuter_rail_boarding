@@ -6,7 +6,7 @@ defmodule TrainLoc.Input.APIFetcher do
   """
 
   alias TrainLoc.Input.ServerSentEvent
-
+  alias TrainLoc.Logging
   use GenServer
 
   require Logger
@@ -27,7 +27,12 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   # Server functions
-  defstruct [:url, send_to: TrainLoc.Manager, buffer: "", connected?: false]
+  defstruct [
+    url:        nil,
+    send_to:    TrainLoc.Manager,
+    buffer:     "",
+    connected?: false,
+  ]
 
   def init(url) do
     state = %__MODULE__{
@@ -150,9 +155,11 @@ defmodule TrainLoc.Input.APIFetcher do
     end
   end
 
-  def log_parsing_error(state, error) do
-    reason = "Parsing error: #{inspect error}"
-    log_keolis_error(state, reason)
+  def log_parsing_error(state, error) when is_map(error) do
+    error =
+      error 
+      |> Map.put(:error_type, "Parsing Error")
+    log_keolis_error(state, error)
   end
 
   def send_events_for_processing(state, events) do
@@ -165,11 +172,21 @@ defmodule TrainLoc.Input.APIFetcher do
     send(state.send_to, {:events, events})
   end
 
-  def log_keolis_error(state, reason) do
-    Logger.error fn ->
-      "#{__MODULE__} Keolis API Failure - "
-      <> "url=#{inspect state.url} "
-      <> "error_type=#{inspect reason}"
-    end
+  def log_keolis_error(state, fields) when is_map(fields) do
+    fields
+    |> Map.put(:title, "Keolis API Failure")
+    |> Map.put(:url, state.url)
+    |> Logging.error
   end
+  def log_keolis_error(state, reason) when is_binary(reason) do
+    log_keolis_error(state, %{error_type: reason})
+  end
+
+  defp vehicles_from_data(%{"data" => %{"results" => results}} ) do
+    Vehicle.from_json_map(results)
+  end
+  defp vehicles_from_data(%{"data" => data}) do
+    Vehicle.from_json_object(data)
+  end
+
 end

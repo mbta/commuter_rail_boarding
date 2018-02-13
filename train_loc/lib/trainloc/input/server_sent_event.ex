@@ -62,19 +62,42 @@ defmodule TrainLoc.Input.ServerSentEvent do
 
   def parse_line(line) do
     with \
-         {:ok, event} <- parse_event(line.event),
-         {:ok, data} <- parse_data(line.data)
+      {:ok, event} <- parse_event(line.event),
+      {:ok, data} <- parse_data(line.data)
     do
-      {:ok, %__MODULE__{event: event, data: data}}
+      {:ok, %__MODULE__{
+        event: event,
+        data: data,
+      }}
     else
       {:error, _} = error -> error
     end
   end
 
   def parse_event(event) when event in @event_types, do: {:ok, event}
-  def parse_event(event), do: {:error, "Unexpected event: #{event}"}
+  def parse_event(event) do
+    err = %{
+      reason: "Unexpected event",
+      content: event,
+    }
+    {:error, err}
+  end
 
-  def parse_data(data), do: Poison.decode(data)
+  def parse_data(data) when is_binary(data) do
+    case Poison.decode(data) do
+      {:ok, json} ->
+        # parse_json(json)
+        {:ok, json}
+      _ ->
+        {:error, :invalid_json}
+    end
+  end
+
+  def parse_json(%{"data" => data}) do
+    parse_json(data)
+  end
+  def parse_json(%{"vehicleid" => _} = vehicle) do
+  end
 
   defp trim_one_space(" " <> rest), do: rest
   defp trim_one_space(data), do: data

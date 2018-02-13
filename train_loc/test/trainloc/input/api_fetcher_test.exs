@@ -81,16 +81,62 @@ defmodule TrainLoc.Input.APIFetcherTest do
   test "log parsing errors" do
     url = "some_url"
     state = %TrainLoc.Input.APIFetcher{url: url}
-    errors = ["Unexpected event: \"some event\""]
-
+    errors = [%{content: "some event", reason: "Unexpected event"}]
     fun = fn -> log_parsing_errors(state, errors) end
+    captured = capture_log(fun)
 
-    expected_log_error =
-      "Keolis API Failure - url=#{inspect url} error_type=\"Parsing errors []\""
-    assert capture_log(fun) =~ expected_log_error
+    assert captured =~ "Keolis API Failure -"
+    assert captured =~ " url=#{inspect url}"
+    assert captured =~ " error_type=\"Parsing Error\""
+    assert captured =~ " content=\"some event\""
+    assert captured =~ " reason=\"Unexpected event\""
+
   end
 
-  test "send events for processing"
-  test "log keolis error"
+  describe "send_events_for_processing/2" do
+    test "logs length of events" do
+      state = %TrainLoc.Input.APIFetcher{}
+      captured = capture_log(fn ->
+        send_events_for_processing(state, [])
+      end)
+      assert captured =~ "received 0 events"
+    end
+
+    test "logs each of the events" do
+      state = %TrainLoc.Input.APIFetcher{}
+      events = [
+        %TrainLoc.Input.ServerSentEvent{
+          event: "put",
+          data: %{"stuff" => true}
+        }
+      ]
+      captured = capture_log(fn ->
+        send_events_for_processing(state, events)
+      end)
+      assert captured =~ ~s(%TrainLoc.Input.ServerSentEvent{)
+      assert captured =~ ~s(data: %{"stuff" => true})
+      assert captured =~ ~s(event: "put")
+    end
+
+  end
+  describe "log_keolis_error/1" do
+    test "can handle a map" do
+      state = %TrainLoc.Input.APIFetcher{url: "the_url"}
+      
+      payload = %{field1: "value1"}
+      captured = capture_log(fn -> log_keolis_error(state, payload) end)
+      assert captured =~ ~s(field1="value1")
+      assert captured =~ "Keolis API Failure - "
+      assert captured =~ ~s(url="the_url")
+    end
+    test "can handle a string" do
+      state = %TrainLoc.Input.APIFetcher{url: "the_url"}      
+      payload = "Some Payload"
+      captured = capture_log(fn -> log_keolis_error(state, payload) end)
+      assert captured =~ ~s(Some Payload)
+      assert captured =~ "Keolis API Failure - "
+      assert captured =~ ~s(url="the_url")
+    end
+  end
 
 end

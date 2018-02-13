@@ -54,6 +54,7 @@ defmodule TrainLoc.Manager do
   def handle_info({:events, events}, %{first_message?: first_message?, time_baseline: time_baseline_fn} = state) do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
+
       data = event.data["data"]
       updated_vehicles = vehicles_from_data(data, first_message?)
 
