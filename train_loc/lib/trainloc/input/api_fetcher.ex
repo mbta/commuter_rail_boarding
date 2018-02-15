@@ -66,16 +66,14 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state) do
-    buffer = state.buffer <> chunk
-    event_binaries = String.split(buffer, "\n\n")
-    case Enum.split(event_binaries, -1) do
-      {[], [buffer]} -> 
-        state = %{state | buffer: buffer}
+    {event_binaries, buffer} = extract_event_binaries_from_buffer(state.buffer <> chunk)
+    state = %{state | buffer: buffer}
+    case event_binaries do
+      [] -> 
         {:noreply, state}
-      {event_binaries, [buffer]} when length(event_binaries) > 0 ->
+      _ ->
         {events, errors} = extract_events(event_binaries)
         handle_events_groups(state, events, errors)
-        state = %{state | buffer: buffer}
         {:noreply, state}
     end
   end
@@ -102,6 +100,15 @@ defmodule TrainLoc.Input.APIFetcher do
 
   def handle_cast(_msg, state) do
     {:noreply, state}
+  end
+
+  def extract_event_binaries_from_buffer(buffer) do
+    buffer
+    |> String.split("\n\n") # separate events
+    |> Enum.split(-1) # last one is new_buffer
+    |> case do
+      {events, [new_buffer]} -> {events, new_buffer}
+    end
   end
 
   defp compute_url(%{url: url} = state) when is_binary(url) do

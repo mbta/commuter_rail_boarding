@@ -47,7 +47,6 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert {:noreply, _state} = handle_info(%HTTPoison.AsyncChunk{chunk: "data:"}, state)
     end
 
-    @tag current: true
     test "with a full chunk, returns an event" do
       event_line = "event: put"
       data_line = ~s(data: {"1533":{"fix":1,"heading":0,"latitude":4224005,"longitude":-7113007,"routename":"","speed":0,"updatetime":1516338396,"vehicleid":1533,"workid":0}})
@@ -142,6 +141,33 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert captured =~ ~s(Some Payload)
       assert captured =~ "Keolis API Failure - "
       assert captured =~ ~s(url="the_url")
+    end
+  end
+
+  describe "extract_event_binaries_from_buffer/1" do
+
+    test "returns the same buffer and no events when no double newlines are present" do
+      buffer = "this some content in the buffer"
+      assert {[], buffer} == extract_event_binaries_from_buffer(buffer)
+    end
+
+    test "splits buffer event binaries and remaining buffer" do
+      buffer = """
+      event: put
+      data: datum_one
+
+      event: put
+      data: datum_two
+
+      event: incomplete_event_here
+      """
+      {event_binaries, new_buffer} = extract_event_binaries_from_buffer(buffer)
+      first = "event: put\ndata: datum_one"
+      second = "event: put\ndata: datum_two"
+      remaining = "event: incomplete_event_here\n"
+
+      assert event_binaries == [first, second]
+      assert new_buffer == remaining
     end
   end
 
