@@ -60,9 +60,14 @@ defmodule TrainLoc.Logging do
     Logger.log(level, func)
   end
 
-
   defp to_value(str) when is_binary(str) do
     inspect(str) # add quotes
+  end
+  defp to_value(list) when is_list(list) do
+    Poison.encode!(list)
+  end
+  defp to_value(tuple) when is_tuple(tuple) do
+    inspect(tuple)
   end
   defp to_value(x) do
     to_string(x) # safe for iolist

@@ -55,8 +55,9 @@ defmodule TrainLoc.Manager do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
 
-      data = event.data["data"]
-      updated_vehicles = vehicles_from_data(data, first_message?)
+      data = event.data
+      # updated_vehicles = vehicles_from_data(data, first_message?)
+      updated_vehicles = event.vehicles
 
       updated_vehicles
         |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
@@ -65,7 +66,7 @@ defmodule TrainLoc.Manager do
       all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
-      if not is_nil(data) and Map.has_key?(data, "date") do
+      if event.date do
         upload_vehicles_to_s3()
 
         Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)

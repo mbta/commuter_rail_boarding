@@ -43,4 +43,5 @@ defmodule TrainLoc.IntegrationTest do
   test "one minute of messages with 11 up-to-date vehicles and one conflict" do
     run_test(TrainLoc.IntegrationTest.Scenarios.OneMinute)
   end
+
 end

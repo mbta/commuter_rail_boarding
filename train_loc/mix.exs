@@ -1,4 +1,4 @@
-defmodule Trainloc.Mixfile do
+defmodule TrainLoc.Mixfile do
   use Mix.Project
 
   def project do
@@ -56,7 +56,8 @@ defmodule Trainloc.Mixfile do
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:excoveralls, "~> 0.8", only: :test},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:ecto, "~> 2.1"},
     ]
   end
 end

@@ -1,4 +1,5 @@
 defmodule TrainLoc.Input.ServerSentEvent do
+  alias TrainLoc.Input.ServerSentEvent
   @moduledoc """
   A single ServerSentEvent (SSE) from a server.
 
@@ -6,8 +7,13 @@ defmodule TrainLoc.Input.ServerSentEvent do
   https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream
   """
   defstruct [
-    event: "message",
-    data: ""
+    event:    "message",
+    data:     "",
+    binary:   "",
+    json:     nil,
+    vehicles: [],
+    errors:   [], #if everything is successful this is an empty list.
+    date:     nil,
   ]
 
   # @type event_type :: "put" | "message" | "keep-alive" | "auth_revoked" | "cancel"
@@ -31,46 +37,54 @@ defmodule TrainLoc.Input.ServerSentEvent do
   Expects a full SSE block.
 
   iex> ServerSentEvent.from_string("event: put\\rdata:123\\r\\ndata: 456\\n")
-  %ServerSentEvent{event: "put", data: "123\\n456\\n"}
+  %ServerSentEvent{event: "put", binary: "123\\n456\\n"}
 
   iex> ServerSentEvent.from_string(":comment\\ndata:  short\\nignored: field")
-  %ServerSentEvent{event: "message", data: " short\\n"}
+  %ServerSentEvent{event: "message", binary: " short\\n"}
   """
   def from_string(string) do
-    string
-    |> String.split(~r/\r|\r\n|\n/, trim: true)
-    |> Enum.reduce(%{event: "", data: ""}, &include_line/2)
-    |> parse_line()
+    line = ServerSentEvent.LineParser.parse(string)
+    %ServerSentEvent{
+      event: line.event,
+      binary: line.binary,
+    }
+    |> validate_event
+    |> parse_json
+    |> parse_vehicle
+    |> remove_MEEEEE
   end
 
-  defp include_line(":" <> _, acc) do
-    # comment
-    acc
-  end
-  defp include_line("event:" <> rest, acc) do
-    # event, can only be one
-    %{acc | event: trim_one_space(rest)}
-  end
-  defp include_line("data:" <> rest, acc) do
-    # data, gets accumulated separated by newlines
-    %{acc | data: add_data(acc.data, trim_one_space(rest))}
-  end
-  defp include_line(_, acc) do
-    # ignored
-    acc
+  def remove_MEEEEE(sse) do
+    %{ sse | data: sse.json }
   end
 
-  def parse_line(line) do
-    with \
-      {:ok, event} <- parse_event(line.event),
-      {:ok, data} <- parse_data(line.data)
-    do
-      {:ok, %__MODULE__{
-        event: event,
-        data: data,
-      }}
-    else
-      {:error, _} = error -> error
+  defp add_error(%ServerSentEvent{} = sse, errors) when is_list(errors) do
+    %{ sse | errors: sse.errors ++ errors}
+  end
+  defp add_error(%ServerSentEvent{} = sse, err) do
+    add_error(sse, [err])
+  end
+
+  def validate_event(%ServerSentEvent{} = sse) do
+    case sse.event do
+      type when type in @event_types ->
+        sse
+      invalid_type ->
+        err = %{
+          expected: @event_types,
+          got: invalid_type,
+          reason: "Unexpected event type",
+        }
+        add_error(sse, err)
+    end
+  end
+
+  def parse_json(%ServerSentEvent{} = sse) do
+    case ServerSentEvent.JsonParser.parse(sse.binary) do
+      {:ok, %{date: date, vehicles_json: vehicles_json}} ->
+        %{ sse | json: vehicles_json, date: date }
+      {:error, reason} ->
+        add_error(sse, %{reason: reason})
     end
   end
 
@@ -83,26 +97,13 @@ defmodule TrainLoc.Input.ServerSentEvent do
     {:error, err}
   end
 
-  def parse_data(data) when is_binary(data) do
-    case Poison.decode(data) do
-      {:ok, json} ->
-        # parse_json(json)
-        {:ok, json}
-      _ ->
-        {:error, :invalid_json}
-    end
+  def parse_vehicle(%ServerSentEvent{} = sse) do
+    {vehicles, errors} = ServerSentEvent.VehicleParser.parse(sse.json)
+    %{ sse |
+      vehicles: sse.vehicles ++ vehicles,
+      errors: sse.errors ++ errors,
+    }
   end
 
-  def parse_json(%{"data" => data}) do
-    parse_json(data)
-  end
-  def parse_json(%{"vehicleid" => _} = vehicle) do
-  end
 
-  defp trim_one_space(" " <> rest), do: rest
-  defp trim_one_space(data), do: data
-
-  defp add_data(first, second) do
-    first <> second <> "\n"
-  end
 end

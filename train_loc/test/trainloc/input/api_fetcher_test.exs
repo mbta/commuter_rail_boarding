@@ -47,13 +47,19 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert {:noreply, _state} = handle_info(%HTTPoison.AsyncChunk{chunk: "data:"}, state)
     end
 
+    @tag current: true
     test "with a full chunk, returns an event" do
-      chunk = "event: put\ndata: {}"
+      event_line = "event: put"
+      data_line = ~s(data: {"1533":{"fix":1,"heading":0,"latitude":4224005,"longitude":-7113007,"routename":"","speed":0,"updatetime":1516338396,"vehicleid":1533,"workid":0}})
+      chunk = event_line <> "\n" <> data_line
       state = %TrainLoc.Input.APIFetcher{send_to: self()}
+      
       assert {:noreply, state} = handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state)
       handle_info(%HTTPoison.AsyncChunk{chunk: "\n\n"}, state)
-      assert_receive {:events, [event] = [%ServerSentEvent{}]}
-      assert event.data == %{}
+      assert_receive {:events, [event = %ServerSentEvent{}]}
+      assert event.data == [%{"fix" => 1, "heading" => 0, "latitude" => 4224005,
+      "longitude" => -7113007, "routename" => "", "speed" => 0,
+      "updatetime" => 1516338396, "vehicleid" => 1533, "workid" => 0}]
     end
 
     test "doesn't crash on unknown call" do

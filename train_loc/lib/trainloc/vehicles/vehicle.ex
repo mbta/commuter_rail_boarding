@@ -74,21 +74,31 @@ defmodule TrainLoc.Vehicles.Vehicle do
   end
 
   @spec from_json_elem({any, map}) :: [%Vehicle{}]
-  defp from_json_elem({_, veh_data = %{"vehicleid" => vehicle_id}}) do
-    [%__MODULE__{
-      vehicle_id: vehicle_id,
-      timestamp:  Time.parse_improper_unix(veh_data["updatetime"]),
-      block:      to_string(veh_data["workid"]),
-      trip:       process_trip(veh_data["routename"]),
-      latitude:   veh_data["latitude"] / 100000,
-      longitude:  veh_data["longitude"] / 100000,
-      heading:    veh_data["heading"],
-      speed:      veh_data["speed"],
-      fix:        veh_data["fix"]
-    }]
+  defp from_json_elem({_, veh_data = %{"vehicleid" => _vehicle_id}}) do
+    [struct(__MODULE__, to_changes(veh_data))]
   end
   defp from_json_elem({_, _}), do: []
 
+  def to_changes(veh_data) do
+    %{
+      vehicle_id: veh_data["vehicleid"],
+      timestamp:  Time.parse_improper_unix(veh_data["updatetime"]),
+      block:      to_string(veh_data["workid"]),
+      trip:       process_trip(veh_data["routename"]),
+      latitude:   safe_div(veh_data["latitude"], 100000),
+      longitude:  safe_div(veh_data["longitude"], 100000),
+      heading:    veh_data["heading"],
+      speed:      veh_data["speed"],
+      fix:        veh_data["fix"],
+    }
+  end
+
+  defp safe_div(numerator, divisor) when is_number(numerator) and is_number(divisor) do
+    numerator / divisor
+  end
+  defp safe_div(_, _) do
+    nil
+  end
 
   @spec process_trip(String.t) :: String.t
   defp process_trip("NO TRAIN SELECTED"), do: "0"

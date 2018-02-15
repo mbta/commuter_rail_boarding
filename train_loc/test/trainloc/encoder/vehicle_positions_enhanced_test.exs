@@ -49,7 +49,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       header = decoded_json["header"]
       assert header["gtfs_realtime_version"] == "1.0"
       assert header["incrementality"] == 0
-      assert_in_delta(header["timestamp"], System.system_time(:seconds), 1)
+      assert_in_delta(header["timestamp"], System.system_time(:seconds), 2)
 
       json_contents = decoded_json["entity"]
       assert length(json_contents) == 3
