@@ -1,12 +1,11 @@
 defmodule TrainLoc.Vehicles.Schema do
+  @moduledoc """
+  This schema is for validating the Vehicle parameters.
+  """
   use Ecto.Schema
   alias Ecto.Changeset
   alias TrainLoc.Vehicles.{Schema, Vehicle}
-  # alias TrainLoc.Utilities.Time
-  @moduledoc """
-  This schema is for validating the Vehicle parameters.
 
-  """
 
   schema "abstract vehicle" do
     field :vehicle_id, :integer # non_neg_integer,
