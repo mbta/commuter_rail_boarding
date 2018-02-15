@@ -8,15 +8,7 @@ config :sasl,
 config :logger,
   truncate: :infinity,
   handle_sasl_reports: true,
-  backends: [{Logger.Backend.Splunk, :splunk}, :console]
-
-config :logger, :splunk,
-  connector: Logger.Backend.Splunk.Output.Http,
-  host: 'https://http-inputs-mbta.splunkcloud.com/services/collector/event',
-  token: {:system, "SPLUNK_TOKEN"},
-  level: :debug,
-  format: "$dateT$time [$level]$levelpad node=$node $metadata$message\n",
-  metadata: [:request_id]
+  backends: [:console]
 
 config :trainloc,
   s3_api: TrainLoc.S3.HTTPClient,
