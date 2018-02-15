@@ -35,9 +35,9 @@ defmodule TrainLoc.Vehicles.Schema do
   def changeset(model, params \\ %{}) do
     model
     |> Changeset.cast(params, @allowed_fields)
+    |> ensure_new_york_datetime
     |> Changeset.validate_required(@allowed_fields)
     |> Changeset.validate_number(:vehicle_id, greater_than_or_equal_to: 0)
-    # |> validate_datetime(:timestamp)
     |> Changeset.validate_number(:block, greater_than_or_equal_to: 0)
     |> Changeset.validate_inclusion(:heading, 0..359)
     |> Changeset.validate_number(:speed, greater_than_or_equal_to: 0)
@@ -65,6 +65,14 @@ defmodule TrainLoc.Vehicles.Schema do
       %{valid?: false} = cs ->
         {:error, process_errors(cs)}
     end
+  end
+
+  def ensure_new_york_datetime(%Changeset{changes: %{timestamp: %DateTime{} = utc_timestamp}} = cs) do
+    new_york_datetime = Timex.Timezone.convert(utc_timestamp, "America/New_York")
+    Changeset.put_change(cs, :timestamp, new_york_datetime)
+  end
+  def ensure_new_york_datetime(cs) do
+    cs
   end
 
   def to_vehicle_struct(%Schema{} = valid_schema) do

@@ -7,7 +7,7 @@ defmodule TrainLoc.Input.APIFetcher do
 
   alias TrainLoc.Input.ServerSentEvent
   alias TrainLoc.Logging
-  alias TrainLoc.Vehicles.Vehicle
+  # alias TrainLoc.Vehicles.Vehicle
   use GenServer
 
   require Logger
@@ -47,7 +47,6 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, Enum.reduce(Map.keys(new_state), state, &Map.put(&2, &1, new_state[&1]))}
   end
   def handle_info(:connect, state) do
-    # 1 / 0
     state = compute_url(state)
     Logger.debug(fn -> "#{__MODULE__} requesting #{state.url}" end)
     headers = [
@@ -68,7 +67,6 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state) do
-    IO.inspect(chunk, label: :raw_chunk)
     buffer = state.buffer <> chunk
     event_binaries = String.split(buffer, "\n\n")
     case Enum.split(event_binaries, -1) do
@@ -120,7 +118,7 @@ defmodule TrainLoc.Input.APIFetcher do
     log_keolis_error(state, reason)
   end
 
-  def log_parsing_errors(state, []) do
+  def log_parsing_errors(_state, []) do
     # this is a no_op clause
     nil
   end
@@ -169,13 +167,6 @@ defmodule TrainLoc.Input.APIFetcher do
   end
   def log_keolis_error(state, reason) when is_binary(reason) do
     log_keolis_error(state, %{error_type: reason})
-  end
-
-  defp vehicles_from_data(%{"data" => %{"results" => results}} ) do
-    Vehicle.from_json_map(results)
-  end
-  defp vehicles_from_data(%{"data" => data}) do
-    Vehicle.from_json_object(data)
   end
 
   @doc """

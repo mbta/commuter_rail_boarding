@@ -3,7 +3,7 @@ defmodule TrainLoc.Vehicles.SchemaTest do
   use Timex
 
   alias TrainLoc.Vehicles.Schema
-  import TrainLoc.Utilities.ConfigHelpers
+  # import TrainLoc.Utilities.ConfigHelpers
 
   @valid_timestamp DateTime.utc_now() 
   @valid_changes %{

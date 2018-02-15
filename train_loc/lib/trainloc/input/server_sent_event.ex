@@ -7,13 +7,13 @@ defmodule TrainLoc.Input.ServerSentEvent do
   https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream
   """
   defstruct [
-    event:    "message",
-    data:     "",
-    binary:   "",
-    json:     nil,
-    vehicles: [],
-    errors:   [], #if everything is successful this is an empty list.
-    date:     nil,
+    event:            "message",
+    data:             "",
+    binary:           "",
+    json:             nil,
+    vehicles:         [],
+    errors:           [], #if everything is successful this is an empty list.
+    date:             nil,
   ]
 
   # @type event_type :: "put" | "message" | "keep-alive" | "auth_revoked" | "cancel"
@@ -51,12 +51,11 @@ defmodule TrainLoc.Input.ServerSentEvent do
     |> validate_event
     |> parse_json
     |> parse_vehicle
-    |> remove_MEEEEE
   end
 
-  def remove_MEEEEE(sse) do
-    %{ sse | data: sse.json }
-  end
+  # def remove_MEEEEE(sse) do
+  #   %{ sse | data: sse.json }
+  # end
 
   defp add_error(%ServerSentEvent{} = sse, errors) when is_list(errors) do
     %{ sse | errors: sse.errors ++ errors}

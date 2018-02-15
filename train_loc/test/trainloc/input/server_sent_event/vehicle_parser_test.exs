@@ -1,7 +1,7 @@
 defmodule TrainLoc.Input.ServerSentEvent.VehicleParserTest do
   use ExUnit.Case, async: true
   import TrainLoc.Input.ServerSentEvent.VehicleParser
-  alias TrainLoc.Vehicles.{Schema, Vehicle}
+  alias TrainLoc.Vehicles.Vehicle
 
   test "parse/1 works with a valid vehicle json map" do
     vehicle_json_map = %{

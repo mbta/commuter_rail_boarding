@@ -13,6 +13,9 @@ defmodule TrainLoc.Input.ServerSentEvent.JsonParser do
     end
   end
 
+  def extract_vehicles_json(%{"data" => %{"results" => json}}) when is_map(json) do
+    extract_vehicles_json(json)
+  end
   def extract_vehicles_json(%{"vehicleid" => _} = json) do
     [json]
   end
@@ -24,6 +27,9 @@ defmodule TrainLoc.Input.ServerSentEvent.JsonParser do
       (_, acc) -> 
         acc
     end)
+  end
+  def extract_vehicles_json(_) do
+    nil
   end
 
   def extract_date(%{"data" => json}) do

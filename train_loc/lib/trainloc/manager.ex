@@ -58,14 +58,13 @@ defmodule TrainLoc.Manager do
       data = event.data
       # updated_vehicles = vehicles_from_data(data, first_message?)
 
-      #TODO: Fix updated vehicles for first message case
-
-      updated_vehicles = event.vehicles
-      
-      updated_vehicles
-        |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
-        |> Vehicles.log_assignments()
-        |> VState.set_vehicles()
+      # TODO: Fix updated vehicles for first message case
+      # TODO: Talk to paul or chris about first_message cases with regards to where to get vehicles from the JSON
+      event.vehicles
+      # TODO: Talk to paul or chris about keeping only the most current data in state.
+      |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
+      |> Vehicles.log_assignments()
+      |> VState.set_vehicles()
       all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 

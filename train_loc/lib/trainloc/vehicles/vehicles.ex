@@ -44,6 +44,9 @@ defmodule TrainLoc.Vehicles.Vehicles do
   def set(old_vehicles, new_vehicles) do
     log_changed_assigns(old_vehicles, new_vehicles)
     # Convert the incoming list of vehicles to a map
+
+    #TODO: talk to chris or paul about rejecting incoming vehicle data that is older than what is currently in state.
+
     Enum.reduce(new_vehicles, old_vehicles, fn(x, acc) -> Map.put(acc, x.vehicle_id, x) end)
   end
 

@@ -30,10 +30,8 @@ defmodule TrainLoc.Input.ServerSentEvent.JsonParserTest do
     })
     assert {:ok, %{vehicles_json: result, date: nil}} = parse(raw_vehicle_json)
     assert length(result) == 2
-    ids = Enum.map(result, fn %{"vehicleid" => id} -> id end)
     assert TestHelpers.match_any?(%{"vehicleid" => 1633}, result)
     assert TestHelpers.match_any?(%{"vehicleid" => 1632}, result)
-
   end
 
   test "extract_vehicles_json/1 can handle a vehicle json map" do
