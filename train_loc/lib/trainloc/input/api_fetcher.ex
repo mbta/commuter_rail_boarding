@@ -7,7 +7,6 @@ defmodule TrainLoc.Input.APIFetcher do
 
   alias TrainLoc.Input.ServerSentEvent
   alias TrainLoc.Logging
-  # alias TrainLoc.Vehicles.Vehicle
   use GenServer
 
   require Logger
@@ -105,7 +104,6 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
 
-  #NO NO NO. This is not a url.
   defp compute_url(%{url: url} = state) when is_binary(url) do
     state
   end
@@ -123,18 +121,11 @@ defmodule TrainLoc.Input.APIFetcher do
     nil
   end
   def log_parsing_errors(state, errored_events) do
-    # IO.inspect(errors, label: "LOG_PARSING_ERRORS ERRORS")
     for sse <- errored_events do
       log_parsing_error(state, sse)
     end
   end
 
-  # def log_parsing_error(state, error) when is_map(error) do
-  #   error =
-  #     error
-  #     |> Map.put(:error_type, "Parsing Error")
-  #   log_keolis_error(state, error)
-  # end
   def log_parsing_error(state, %ServerSentEvent{} = sse) do
     error = %{
       error_type: "Parsing Error",
@@ -175,22 +166,11 @@ defmodule TrainLoc.Input.APIFetcher do
     if we have both errors and oks we want to:
         log the errors
         pass the oks for procvessing
-    if we have no oks and we have errors:
-      we want to log the errors
-    
-    if we have no errors and only oks
-      we want to pass the oks for processing
-    
   """
   def handle_events_groups(state, [], []) do
     log_empty_events_error(state)
   end
-  # def handle_events_groups(state, [], errors) do
-  #   log_parsing_errors(state, errors)
-  # end
-  # def handle_events_groups(state, events, []) do
-  #   send_events_for_processing(state, events)
-  # end
+
   def handle_events_groups(state, events, errors) do
     log_parsing_errors(state, errors)
     send_events_for_processing(state, events)
