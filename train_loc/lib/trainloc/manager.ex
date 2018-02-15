@@ -57,8 +57,11 @@ defmodule TrainLoc.Manager do
 
       data = event.data
       # updated_vehicles = vehicles_from_data(data, first_message?)
-      updated_vehicles = event.vehicles
 
+      #TODO: Fix updated vehicles for first message case
+
+      updated_vehicles = event.vehicles
+      
       updated_vehicles
         |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
         |> Vehicles.log_assignments()

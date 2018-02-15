@@ -21,6 +21,8 @@ defmodule TrainLoc.Vehicles.Vehicle do
     fix: 0
   ]
 
+  #TODO: Resolve typespec vs integration test issues
+
   @typedoc """
   Vehicle data throughout the app is represented by vehicle structs.
 
