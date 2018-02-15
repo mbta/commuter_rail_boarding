@@ -2,7 +2,12 @@ use Mix.Config
 
 config :ehmon, :report_mf, {:ehmon, :info_report}
 
+config :sasl,
+  errlog_type: :error
+
 config :logger,
+  truncate: :infinity,
+  handle_sasl_reports: true,
   backends: [{Logger.Backend.Splunk, :splunk}, :console]
 
 config :logger, :splunk,
