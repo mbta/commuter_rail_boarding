@@ -11,7 +11,7 @@ defmodule TrainLoc.Vehicles.Schema do
   schema "abstract vehicle" do
     field :vehicle_id, :integer # non_neg_integer,
     field :timestamp,  :utc_datetime # DateTime.t,
-    field :block,      :integer # non_neg_integer,
+    field :block,      :string  # non_neg_integer,
     field :trip,       :string  #String.t,
     field :latitude,   :float
     field :longitude,  :float
