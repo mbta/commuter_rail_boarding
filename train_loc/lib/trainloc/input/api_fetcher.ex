@@ -141,9 +141,7 @@ defmodule TrainLoc.Input.APIFetcher do
     log_keolis_error(state, error)
   end
   def log_parsing_error(state, error) when is_map(error) do
-    error = 
-      error
-      |> Map.put(:error_type, "Parsing Error")
+    error = Map.put(error, :error_type, "Parsing Error")
     log_keolis_error(state, error)
   end
 
