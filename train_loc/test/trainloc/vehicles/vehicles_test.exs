@@ -133,4 +133,83 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
       end
     end
   end
+
+  describe "set/2 logs if only old locations in new vehicles" do
+    test "logs error with same locations" do
+      vehicles = %{
+        1712 => %Vehicle{
+          vehicle_id: 1712,
+          latitude: 42.24023,
+          longitude: -71.12890,
+        },
+        1713 => %Vehicle{
+          vehicle_id: 1713,
+          latitude: 42.24023,
+          longitude: -71.12890,
+        }
+      }
+      new_vehicles = Map.values(vehicles)
+      fun = fn -> Vehicles.set(vehicles, new_vehicles) end
+      expected_logger_message =
+        "Keolis API Error - Only old locations in Keolis response"
+      captured_logger_message = capture_log(fun)
+      assert captured_logger_message =~ expected_logger_message
+    end
+
+    test "doesn't log with different locations" do
+      vehicles = %{
+        1712 => %Vehicle{
+          vehicle_id: 1712,
+          latitude: 42.24023,
+          longitude: -71.12890,
+        },
+        1713 => %Vehicle{
+          vehicle_id: 1713,
+          latitude: 42.24023,
+          longitude: -71.12890,
+        }
+      }
+      new_vehicles = Enum.map(Map.values(vehicles), &(%{&1 | latitude: 1}))
+      fun = fn -> Vehicles.set(vehicles, new_vehicles) end
+      unexpected_logger_message =
+        "Keolis API Error - Only old locations in Keolis response"
+      captured_logger_message = capture_log(fun)
+      refute captured_logger_message =~ unexpected_logger_message
+    end
+
+    test "doesn't log when old vehicles is an empty map" do
+      vehicle = %Vehicle{
+        vehicle_id: 1712,
+        latitude: 42.24023,
+        longitude: -71.12890,
+      }
+      fun = fn -> Vehicles.set(%{}, [vehicle]) end
+      expected_logger_message =
+        "Keolis API Error - Only old locations in Keolis response"
+      captured_logger_message= capture_log(fun)
+      refute captured_logger_message =~ expected_logger_message
+    end
+
+    test "doesn't log with new vehicles" do
+      vehicles = %{
+        1712 => %Vehicle{
+          vehicle_id: 1712,
+          latitude: 42.24023,
+          longitude: -71.12890,
+        },
+        1713 => %Vehicle{
+          vehicle_id: 1713,
+          latitude: 42.24023,
+          longitude: -71.12890,
+        }
+      }
+      new_vehicles = Map.values(vehicles)
+      {_, old_vehicles} = Map.pop(vehicles, 1712)
+      fun = fn -> Vehicles.set(old_vehicles, new_vehicles) end
+      expected_logger_message =
+        "Keolis API Error - Only old locations in Keolis response"
+      captured_logger_message= capture_log(fun)
+      refute captured_logger_message =~ expected_logger_message
+    end
+  end
 end
