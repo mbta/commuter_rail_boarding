@@ -9,7 +9,9 @@ defmodule DeparturesCSV do
       1518796775,"South Station","707","Forge Park / 495",1518796800,0,"2","All Aboard"
   """
 
-  @headers Enum.join(~w(TimeStamp Origin Trip Destination ScheduledTime Lateness Track Status), ",")
+  @headers Enum.join(
+    ~w(TimeStamp Origin Trip Destination ScheduledTime Lateness Track Status),
+    ",")
   @headsigns Application.get_env(:commuter_rail_boarding, :headsigns)
 
   def to_binary(statuses, unix_now \\ DateTime.to_unix(DateTime.utc_now())) do

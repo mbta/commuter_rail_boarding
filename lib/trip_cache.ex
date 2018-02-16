@@ -22,7 +22,11 @@ defmodule TripCache do
       [{_, route_id, direction_id, _, _}] ->
         {:ok, route_id, direction_id}
       [] ->
-        with {:ok, route_id, direction_id, _, _} <- insert_and_return_trip_info(trip_id) do
+        with {:ok,
+              route_id,
+              direction_id,
+              _,
+              _} <- insert_and_return_trip_info(trip_id) do
           {:ok, route_id, direction_id}
         end
     end
@@ -37,7 +41,11 @@ defmodule TripCache do
       [{_, _, _, name, headsign}] ->
         {:ok, name, headsign}
       [] ->
-        with {:ok, _, _, name, headsign} <- insert_and_return_trip_info(trip_id) do
+        with {:ok,
+              _,
+              _,
+              name,
+              headsign} <- insert_and_return_trip_info(trip_id) do
           {:ok, name, headsign}
         end
     end
@@ -63,8 +71,13 @@ defmodule TripCache do
     with {:ok, response} <- HTTPClient.get(
            "/trips/#{trip_id}", [], params: [{"fields[trip]", "direction_id,name,headsign"}]),
          %{status_code: 200, body: body} <- response,
-         {:ok, route_id, direction_id, trip_name, trip_headsign} <- decode_single_trip(body) do
-      _ = :ets.insert_new(@table, {{:trip, trip_id}, route_id, direction_id, trip_name, trip_headsign})
+         {:ok,
+          route_id,
+          direction_id,
+          trip_name,
+          trip_headsign} <- decode_single_trip(body) do
+      row = {{:trip, trip_id}, route_id, direction_id, trip_name, trip_headsign}
+      _ = :ets.insert_new(@table, row)
       {:ok, route_id, direction_id, trip_name, trip_headsign}
     else
       _ -> :error
