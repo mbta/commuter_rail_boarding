@@ -23,15 +23,22 @@ defmodule CommuterRailBoarding.Application do
 
       {BoardingStatus.ProducerConsumer,
        name: BoardingStatus.ProducerConsumer,
+       dispatcher: GenStage.BroadcastDispatcher,
        subscribe_to: [ServerSentEvent.Producer]},
 
       {TripUpdates.ProducerConsumer,
        name: TripUpdates.ProducerConsumer,
        subscribe_to: [BoardingStatus.ProducerConsumer]},
 
+      {DeparturesCSV.ProducerConsumer,
+       name: DeparturesCSV.ProducerConsumer,
+       subscribe_to: [BoardingStatus.ProducerConsumer],
+      },
+
       {Uploader.Consumer,
        name: Uploader.Consumer,
-       subscribe_to: [TripUpdates.ProducerConsumer]}
+       subscribe_to: [TripUpdates.ProducerConsumer, DeparturesCSV.ProducerConsumer]
+      }
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

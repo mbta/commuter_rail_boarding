@@ -3,10 +3,17 @@
 use Mix.Config
 
 config :commuter_rail_boarding,
-  firebase_url: "https://keolis-api-production.firebaseio.com/departureData.json",
+  firebase_url: "https://keolis-api-production.firebaseio.com/12001_departureData_nodejs.json",
   stop_ids: %{
     "Boston" => "South Station",
     "Boston North Station" => "North Station"
+  },
+  headsigns: %{
+    "Forge Park/495" => "Forge Park / 495",
+    "Anderson/Woburn" => "Anderson / Woburn",
+    "Worcester" => "Worcester / Union Station",
+    "Littleton/Rte 495" => "Littleton / Rte 495",
+    "Middleborough/Lakeville" => "Middleboro/Lakeville"
   },
   statuses: %{
     "" => :on_time,
