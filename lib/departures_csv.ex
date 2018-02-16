@@ -13,6 +13,7 @@ defmodule DeparturesCSV do
     ~w(TimeStamp Origin Trip Destination ScheduledTime Lateness Track Status),
     ",")
   @headsigns Application.get_env(:commuter_rail_boarding, :headsigns)
+  @line_break "\r\n"
 
   def to_binary(statuses, unix_now \\ DateTime.to_unix(DateTime.utc_now())) do
     rows = for status <- sort_filter(statuses, unix_now) do
@@ -55,7 +56,7 @@ defmodule DeparturesCSV do
       end
       Enum.join(item_strings, ",")
     end
-    Enum.join([@headers | row_strings], "\n") <> "\n"
+    Enum.join([@headers | row_strings], @line_break) <> @line_break
   end
 
   defp should_be_in_output?(%{stop_id: stop_id}, _) when stop_id not in ["North Station", "South Station"] do
