@@ -6,9 +6,9 @@ defmodule UploaderTest do
 
   describe "upload/1" do
     test "uploads a binary" do
-      assert :ok = upload("binary")
+      assert :ok = upload("filename", "binary")
       # message received from Uploader.Mock
-      assert_received {:upload, "binary"}
+      assert_received {:upload, "filename", "binary"}
     end
   end
 end

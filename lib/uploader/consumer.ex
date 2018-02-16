@@ -17,9 +17,9 @@ defmodule Uploader.Consumer do
   def handle_events(events, _from, state) do
     # Upload the last event.  Uploading any others would simply be overriden
     # by the previous ones.
-    events
-    |> List.last
-    |> Uploader.upload
+    for {filename, body} <- Map.new(events) do
+      Uploader.upload(filename, body)
+    end
 
     {:noreply, [], state}
   end
