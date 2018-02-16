@@ -3,6 +3,8 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   Encodes a list of vehicle structs into GTFS-realtime enhanced JSON format.
   """
 
+  import TrainLoc.Utilities.Time
+
   alias TrainLoc.Vehicles.Vehicle
 
   @spec encode([Vehicle.t]) :: String.t
@@ -51,9 +53,9 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   end
   defp build_entity(_), do: []
 
-  defp start_date(%DateTime{} = timestamp) do
+  def start_date(%DateTime{} = timestamp) do
     timestamp
-    |> DateTime.to_date()
+    |> get_service_date()
     |> Date.to_iso8601(:basic)
   end
 
