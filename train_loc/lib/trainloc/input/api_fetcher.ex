@@ -146,7 +146,7 @@ defmodule TrainLoc.Input.APIFetcher do
     end
 
     put_events = Enum.filter(events, fn
-      %ServerSer{event: "put"} -> true
+      %ServerSentEvent{event: "put"} -> true
       _ -> false
     end)
 

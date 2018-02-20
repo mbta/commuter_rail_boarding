@@ -122,7 +122,7 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
       assert Validator.validate(@valid_vehicle) == :ok
     end
     test "fails for non-structs" do
-      assert Validator.validate("other") == {:error, :invalid_vehicle}
+      assert Validator.validate("other") == {:error, :not_a_vehicle}
     end
     test "fails for invalid structs" do
       result =
