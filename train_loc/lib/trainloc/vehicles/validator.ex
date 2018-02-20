@@ -19,6 +19,9 @@ defmodule TrainLoc.Vehicles.Validator do
         error
     end
   end
+  def validate(_other) do
+    {:error, :not_a_vehicle}
+  end
 
   def must_be_non_neg_int(veh, field) do
     case Map.get(veh, field) do

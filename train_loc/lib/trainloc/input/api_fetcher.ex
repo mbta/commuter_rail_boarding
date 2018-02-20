@@ -144,7 +144,17 @@ defmodule TrainLoc.Input.APIFetcher do
         inspect(event, limit: :infinity, printable_limit: :infinity)
       end)
     end
-    send(send_to, {:events, events})
+
+    put_events = Enum.filter(events, fn
+      %ServerSer{event: "put"} -> true
+      _ -> false
+    end)
+
+    case put_events do
+      [] -> nil
+      _ -> send(send_to, {:events, put_events})
+    end
+
   end
 
   def log_keolis_error(fields) when is_map(fields) do
