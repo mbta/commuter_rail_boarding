@@ -44,7 +44,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
           latitude: vehicle.latitude,
           longitude: vehicle.longitude,
           bearing: vehicle.heading,
-          speed: vehicle.speed,
+          speed: miles_per_hour_to_meters_per_second(vehicle.speed),
           fix: vehicle.fix,
         },
         timestamp: format_timestamp(vehicle.timestamp),
@@ -57,6 +57,10 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     timestamp
     |> get_service_date()
     |> Date.to_iso8601(:basic)
+  end
+
+  defp miles_per_hour_to_meters_per_second(miles_per_hour) do
+    miles_per_hour * 0.447
   end
 
   defp format_timestamp(%DateTime{} = timestamp) do

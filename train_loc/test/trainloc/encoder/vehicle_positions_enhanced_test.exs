@@ -58,6 +58,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         json_vehicle_data = json_content["vehicle"]
         json_trip_data = json_vehicle_data["trip"]
         json_position_data = json_vehicle_data["position"]
+        expected_speed = miles_per_hour_to_meters_per_second(vehicle.speed)
 
         assert is_binary(json_content["id"])
         assert json_trip_data["start_date"] == "20170804"
@@ -66,7 +67,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         assert json_position_data["latitude"] == vehicle.latitude
         assert json_position_data["longitude"] == vehicle.longitude
         assert json_position_data["bearing"] == vehicle.heading
-        assert json_position_data["speed"] == vehicle.speed
+        assert json_position_data["speed"] == expected_speed
         assert json_position_data["fix"] == vehicle.fix
         assert json_vehicle_data["timestamp"] == unix_timestamp
       end
@@ -85,6 +86,9 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       early_datetime = %DateTime{test_datetime | hour: 0}
       assert VehiclePositionsEnhanced.start_date(early_datetime) == "20180201"
     end
+  end
 
+  defp miles_per_hour_to_meters_per_second(miles_per_hour) do
+    miles_per_hour * 0.447
   end
 end
