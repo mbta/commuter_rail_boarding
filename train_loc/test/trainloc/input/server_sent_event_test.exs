@@ -30,7 +30,9 @@ defmodule TrainLoc.Input.ServerSentEventTest do
   @tag current: true
   test "from_string/1 can parse vehicles in a \"results\" key" do
     raw_binary = "event: put\ndata: #{Poison.encode!(@first_message_json)}\n\n"
-    assert %ServerSentEvent{} = sse = from_string(raw_binary)
-    assert sse.json != nil
+    assert {:ok, %ServerSentEvent{} = sse} = from_string(raw_binary)
+    assert sse.date == nil
+    assert length(sse.data) == 16
+    assert sse.event == "put"
   end
 end

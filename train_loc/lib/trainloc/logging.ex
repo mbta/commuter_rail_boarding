@@ -1,63 +1,37 @@
 defmodule TrainLoc.Logging do
-  require Logger
-
-  @bare_levels [
-    :info,
-    :warn,
-    :error,
-    :debug,
-  ]
-  
-  def debug(message), do: log(:debug, message)
-  def info(message),  do: log(:info, message)
-  def warn(message),  do: log(:warn, message)
-  def error(message), do: log(:error, message)
-
-  # TODO: specs for log/2
 
   @doc """
-  log/2 takes as the first argument:
-    + a 0 arity function (see below for return types)
-    + a struct
-    + a map
-  log/2 takes as the second argument
-  and a level.
-
-
-  Functions must return an iolist (preferred for speed) or a binary.
+  Formats a title and map/keyword_list
+  intended to be logged to splunk
+  into an iolist.
   """
-  # def log(func, :debug) when is_function(func, 0) do
-  #   # special case for Logger.bare_log
-  #   Logger.debug(func)
-  # end
-  def log(level, %module{} = struct_thing) do
+  def log_string(title, %module{} = struct_thing) do
     message = 
       struct_thing
       |> Map.from_struct # removes :__struct__ field
-      |> Map.put(:_module, module |> pretty_module)
-    log(level, message)
+      |> Map.put(:_struct, module |> pretty_module)
+    log_string(title, message)
   end
-  def log(level, params) when is_map(params) do
-    message = 
-      fn ->
-        iolist = 
-          params
-          |> Map.drop([:title, :__struct__]) # handled in format_title
-          |> Enum.reduce([], fn ({key, value}, acc) ->
-            [to_string(key), "=", to_value(value), " " | acc ]
-          end)
-        [ format_title(params) | iolist ]
-      end
-    log(level, message)
+  def log_string(title, params) when is_binary(title) when is_atom(title) do
+    [ format_title(title) | do_splunk_format(params) ]
   end
-  def log(level, func) when is_function(func, 0) and level in @bare_levels do
-    # this is our base case.
-    # According to the Logger documents for increased speed,
-    # functions can be passed to the Logger module when
-    # an expensive computation is involved.
-    # this works because logger calls are marcos that might not
-    # get evaluated at runtime depending on the log level.
-    Logger.log(level, func)
+
+  defp do_splunk_format(params) when is_map(params) do
+    params
+    |> Enum.into([])
+    |> do_splunk_format
+  end
+  defp do_splunk_format([]) do
+    []
+  end
+  defp do_splunk_format([last]) do
+    do_splunk_format(last)
+  end
+  defp do_splunk_format([first | rest ]) do
+    [ do_splunk_format(first), " " | do_splunk_format(rest) ]
+  end
+  defp do_splunk_format({key, value}) do
+    [to_string(key), "=", to_value(value)]
   end
 
   defp to_value(str) when is_binary(str) do
@@ -73,11 +47,8 @@ defmodule TrainLoc.Logging do
     to_string(x) # safe for iolist
   end
 
-  defp format_title(%{title: title}) do
+  defp format_title(title) do
     [to_string(title), " - "]
-  end
-  defp format_title(_) do
-    ""
   end
 
   defp pretty_module(module) do

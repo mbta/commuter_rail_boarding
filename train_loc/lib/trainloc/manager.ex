@@ -9,8 +9,8 @@ defmodule TrainLoc.Manager do
 
   import TrainLoc.Utilities.ConfigHelpers
 
-  alias TrainLoc.Vehicles.Vehicle
-  alias TrainLoc.Vehicles.Vehicles
+  alias TrainLoc.Vehicles.{Vehicle, Vehicles, Validator}
+  alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
   alias TrainLoc.Conflicts.State, as: CState
@@ -55,13 +55,9 @@ defmodule TrainLoc.Manager do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
 
-      data = event.data
-      # updated_vehicles = vehicles_from_data(data, first_message?)
+      vehicles = vehicles_from_data(event.data)
 
-      # TODO: Fix updated vehicles for first message case
-      # TODO: Talk to paul or chris about first_message cases with regards to where to get vehicles from the JSON
-      event.vehicles
-      # TODO: Talk to paul or chris about keeping only the most current data in state.
+      vehicles
       |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
       |> Vehicles.log_assignments()
       |> VState.set_vehicles()
@@ -94,13 +90,33 @@ defmodule TrainLoc.Manager do
     {:noreply, state}
   end
 
-  defp vehicles_from_data(nil, _), do: []
-  defp vehicles_from_data(data, true) do
-    Vehicle.from_json_map(data["results"])
+  def vehicles_from_data(data) when is_list(data) do
+    Enum.reduce(data, [], fn (json, acc) when is_map(json) ->
+      [ vehicles_from_data(json) | acc ]
+    end)
   end
-  defp vehicles_from_data(data, _) do
-    Vehicle.from_json_object(data)
+  def vehicles_from_data(json) when is_map(json) do
+    vehicle = Vehicle.from_json(json)
+    case Validator.validate(vehicle) do
+      :ok ->
+        vehicle
+      {:error, reason} ->
+        log_and_raise_invalid_vehicle(reason)
+    end
   end
+
+  defp log_and_raise_invalid_vehicle(reasons) when is_map(reasons) do
+    message = "Manager Vehicle Validation Error"
+    Logger.error(fn ->
+      reasons = Map.put(reasons, :error_type, "Validation Error")
+      Logging.log_string(message, reasons)
+    end)
+    raise %RuntimeError{message: message}
+  end
+  defp log_and_raise_invalid_vehicle(reason) when is_atom(reason) when is_binary(reason) do
+    log_and_raise_invalid_vehicle(%{reason: reason})
+  end
+
 
   defp upload_vehicles_to_s3() do
     vehicles = VState.all_vehicles()

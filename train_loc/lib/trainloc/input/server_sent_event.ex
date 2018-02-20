@@ -1,5 +1,6 @@
 defmodule TrainLoc.Input.ServerSentEvent do
   alias TrainLoc.Input.ServerSentEvent
+  alias TrainLoc.Input.ServerSentEvent.Parser
   @moduledoc """
   A single ServerSentEvent (SSE) from a server.
 
@@ -8,11 +9,7 @@ defmodule TrainLoc.Input.ServerSentEvent do
   """
   defstruct [
     event:            "message",
-    data:             "",
-    binary:           "",
-    json:             nil,
-    vehicles:         [],
-    errors:           [], #if everything is successful this is an empty list.
+    data:             [],
     date:             nil,
   ]
 
@@ -20,16 +17,9 @@ defmodule TrainLoc.Input.ServerSentEvent do
 
   @type t :: %__MODULE__{
     event: String.t,
-    data: String.t
+    data: [map],
+    date: String.t | nil,
   }
-
-  @event_types [
-    "put",
-    "message",
-    "keep-alive",
-    "auth_revoked",
-    "cancel"
-  ]
 
   @doc """
   Parse a UTF-8 string into a struct.
@@ -43,66 +33,21 @@ defmodule TrainLoc.Input.ServerSentEvent do
   %ServerSentEvent{event: "message", binary: " short\\n"}
   """
   def from_string(string) do
-    line = ServerSentEvent.LineParser.parse(string)
+    parser_struct = Parser.parse(string)
+    case parser_struct.errors do
+      [] ->
+        {:ok, from_parser_struct(parser_struct)}
+      errors ->
+        {:error, errors}
+    end
+  end
+
+  def from_parser_struct(parser) do
     %ServerSentEvent{
-      event: line.event,
-      binary: line.binary,
-    }
-    |> validate_event
-    |> parse_json
-    |> parse_vehicle
-  end
-
-  # def remove_MEEEEE(sse) do
-  #   %{ sse | data: sse.json }
-  # end
-
-  defp add_error(%ServerSentEvent{} = sse, errors) when is_list(errors) do
-    %{ sse | errors: sse.errors ++ errors}
-  end
-  defp add_error(%ServerSentEvent{} = sse, err) do
-    add_error(sse, [err])
-  end
-
-  def validate_event(%ServerSentEvent{} = sse) do
-    case sse.event do
-      type when type in @event_types ->
-        sse
-      invalid_type ->
-        err = %{
-          expected: @event_types,
-          got: invalid_type,
-          reason: "Unexpected event type",
-        }
-        add_error(sse, err)
-    end
-  end
-
-  def parse_json(%ServerSentEvent{} = sse) do
-    case ServerSentEvent.JsonParser.parse(sse.binary) do
-      {:ok, %{date: date, vehicles_json: vehicles_json}} ->
-        %{ sse | json: vehicles_json, date: date }
-      {:error, reason} ->
-        add_error(sse, %{reason: reason})
-    end
-  end
-
-  def parse_event(event) when event in @event_types, do: {:ok, event}
-  def parse_event(event) do
-    err = %{
-      reason: "Unexpected event",
-      content: event,
-    }
-    {:error, err}
-  end
-
-  def parse_vehicle(%ServerSentEvent{} = sse) do
-    {vehicles, errors} = ServerSentEvent.VehicleParser.parse(sse.json)
-    %{ sse |
-      vehicles: sse.vehicles ++ vehicles,
-      errors: sse.errors ++ errors,
+      event:    parser.event,
+      date:     parser.date,
+      data:     parser.json,
     }
   end
-
 
 end

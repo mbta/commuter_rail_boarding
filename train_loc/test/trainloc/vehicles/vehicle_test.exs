@@ -142,7 +142,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
 
   describe "to_changes/1" do
     test "works on valid json" do
-      expected = %{
+      expected = %Vehicle{
         block: "602",
         fix: 1,
         heading: 48,
@@ -153,13 +153,13 @@ defmodule TrainLoc.Vehicles.VehicleTest do
         trip: "612",
         vehicle_id: 1827,
       }
-      got = Vehicle.to_changes(@valid_vehicle_json)
+      got = Vehicle.from_json(@valid_vehicle_json)
       assert got == expected
     end
 
     test "does not fail on invalid json" do
       invalid_json = %{"other" => nil}
-      expected = %{
+      expected = %Vehicle{
         block: "",
         fix: nil,
         heading: nil,
@@ -170,7 +170,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
         trip: nil,
         vehicle_id: nil,
       }
-      got = Vehicle.to_changes(invalid_json)
+      got = Vehicle.from_json(invalid_json)
       assert got == expected
     end
   end

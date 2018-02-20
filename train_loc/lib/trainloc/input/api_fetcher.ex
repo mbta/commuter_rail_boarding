@@ -46,7 +46,7 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, Enum.reduce(Map.keys(new_state), state, &Map.put(&2, &1, new_state[&1]))}
   end
   def handle_info(:connect, state) do
-    state = compute_url(state)
+    state = update_url(state)
     Logger.debug(fn -> "#{__MODULE__} requesting #{state.url}" end)
     headers = [
       {"Accept", "text/event-stream"}
@@ -66,16 +66,14 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state) do
-    {event_binaries, buffer} = extract_event_binaries_from_buffer(state.buffer <> chunk)
+    {event_blocks, buffer} = extract_event_blocks_from_buffer(state.buffer <> chunk)
     state = %{state | buffer: buffer}
-    case event_binaries do
-      [] -> 
-        {:noreply, state}
-      _ ->
-        {events, errors} = extract_events(event_binaries)
-        handle_events_groups(state, events, errors)
-        {:noreply, state}
-    end
+
+    event_blocks
+    |> parse_events_from_blocks
+    |> send_events_for_processing(state.send_to)
+
+    {:noreply, state}
   end
   def handle_info(%HTTPoison.Error{reason: reason}, state) do
     Logger.error fn -> "#{__MODULE__} HTTP error: #{inspect reason}" end
@@ -102,7 +100,7 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
 
-  def extract_event_binaries_from_buffer(buffer) do
+  def extract_event_blocks_from_buffer(buffer) do
     buffer
     |> String.split("\n\n") # separate events
     |> Enum.split(-1) # last one is new_buffer
@@ -111,94 +109,95 @@ defmodule TrainLoc.Input.APIFetcher do
     end
   end
 
-  defp compute_url(%{url: url} = state) when is_binary(url) do
+
+  defp update_url(%{url: url} = state) when is_binary(url) do
     state
   end
-  defp compute_url(%{url_getter: {m, f, a}} = state) do
+  defp update_url(%{url_getter: {m, f, a}} = state) do
     %{ state | url: apply(m, f, a) }
   end
   
-  def log_empty_events_error(state) do
-    reason = "No events parsed"
-    log_keolis_error(state, reason)
+  def log_empty_events_error() do
+    log_keolis_error("No events parsed")
   end
 
-  def log_parsing_errors(_state, []) do
-    # this is a no_op clause
-    nil
+  def log_parsing_error(errors) when is_list(errors) do
+    Enum.each(errors, &log_parsing_error/1)
   end
-  def log_parsing_errors(state, errored_events) do
-    for sse <- errored_events do
-      log_parsing_error(state, sse)
-    end
-  end
-
-  def log_parsing_error(state, %ServerSentEvent{} = sse) do
-    error = %{
-      error_type: "Parsing Error",
-      errors: sse.errors,
-    }
-    log_keolis_error(state, error)
-  end
-  def log_parsing_error(state, error) when is_map(error) do
-    error = Map.put(error, :error_type, "Parsing Error")
-    log_keolis_error(state, error)
+  def log_parsing_error(error) when is_map(error) do
+    error
+    |> Map.put(:error_type, "Parsing Error")
+    |> log_keolis_error
   end
 
-  def send_events_for_processing(state, events) do
+  def send_events_for_processing([], _send_to) do
+    #no op
+    Logger.info fn -> "#{__MODULE__} received 0 events" end
+  end
+  def send_events_for_processing(events, send_to) when is_list(events) do
     Logger.info fn -> "#{__MODULE__} received #{length events} events" end
     for event <- events do
       Logger.debug(fn ->
         inspect(event, limit: :infinity, printable_limit: :infinity)
       end)
     end
-    send(state.send_to, {:events, events})
+    send(send_to, {:events, events})
   end
 
-  def log_keolis_error(state, fields) when is_map(fields) do
-    fields
-    |> Map.put(:title, "Keolis API Failure")
-    |> Map.put(:url, state.url)
-    |> Logging.error
-  end
-  def log_keolis_error(state, reason) when is_binary(reason) do
-    log_keolis_error(state, %{error_type: reason})
-  end
-
-  @doc """
-    if we have an empty map:
-      log as error
-    if we have both errors and oks we want to:
-        log the errors
-        pass the oks for procvessing
-  """
-  def handle_events_groups(state, [], []) do
-    log_empty_events_error(state)
-  end
-
-  def handle_events_groups(state, events, errors) do
-    log_parsing_errors(state, errors)
-    send_events_for_processing(state, events)
-  end
-
-  def extract_events(event_binaries) when is_list(event_binaries) do
-    Enum.reduce(event_binaries, {[], []}, fn binary, {events_acc, errors_acc} -> 
-      case ServerSentEvent.from_string(binary) do
-        %{errors: []} = sse ->
-          {[ sse | events_acc ], errors_acc}
-        %{errors: errors} = errored_sse when length(errors) > 0 ->
-          {events_acc, [ errored_sse | errors_acc ]}
-      end
+  def log_keolis_error(fields) when is_map(fields) do
+    Logger.error(fn ->
+      Logging.log_string("Keolis API Failure", fields)
     end)
   end
-
-  def into_result_groups(items) when is_list(items) do
-    get_status = fn {status, _} -> status end
-    get_output = fn {_, output} -> output end
-    groups = Enum.group_by(items, get_status, get_output)
-    oks = Map.get(groups, :ok, [])
-    errors = Map.get(groups, :error, [])
-    {oks, errors}
+  def log_keolis_error(reason) when is_binary(reason) do
+    log_keolis_error(%{error_type: reason})
   end
+
+  # @doc """
+  #   if we have an empty map:
+  #     log as error
+  #   if we have both errors and oks we want to:
+  #     log the errors
+  #     pass the oks for procvessing
+  # """
+  # def handle_events_groups(state, [], []) do
+  #   log_empty_events_error()
+  # end
+  # def handle_events_groups(state, events, errors) do
+  #   # log_parsing_error(errors)
+  #   send_events_for_processing(state, events)
+  # end
+
+  def parse_events_from_blocks(event_blocks) when is_list(event_blocks) do
+    event_blocks
+    |> Enum.reduce({[], 0}, fn event_block, {events, errors_count} ->
+      case ServerSentEvent.from_string(event_block) do
+        {:ok, sse} ->
+          {[ sse | events ], errors_count}
+        {:error, errors} ->
+          log_keolis_error(%{
+            error_type: "Invalid Event Block",
+            parsing_errors: errors,
+          })
+          {events, errors_count + 1}
+      end
+    end)
+    |> case do
+      {[], 0} ->
+        log_empty_events_error()
+        []
+      {events, _} ->
+        events
+    end
+  end
+
+  # def into_result_groups(items) when is_list(items) do
+  #   get_status = fn {status, _} -> status end
+  #   get_output = fn {_, output} -> output end
+  #   groups = Enum.group_by(items, get_status, get_output)
+  #   oks = Map.get(groups, :ok, [])
+  #   errors = Map.get(groups, :error, [])
+  #   {oks, errors}
+  # end
 
 end

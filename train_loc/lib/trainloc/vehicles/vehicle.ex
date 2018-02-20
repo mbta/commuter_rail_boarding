@@ -77,12 +77,12 @@ defmodule TrainLoc.Vehicles.Vehicle do
 
   @spec from_json_elem({any, map}) :: [%Vehicle{}]
   defp from_json_elem({_, veh_data = %{"vehicleid" => _vehicle_id}}) do
-    [struct(__MODULE__, to_changes(veh_data))]
+    [from_json(veh_data)]
   end
   defp from_json_elem({_, _}), do: []
 
-  def to_changes(veh_data) do
-    %{
+  def from_json(veh_data) when is_map(veh_data) do
+    %__MODULE__{
       vehicle_id: veh_data["vehicleid"],
       timestamp:  Time.parse_improper_unix(veh_data["updatetime"]),
       block:      to_string(veh_data["workid"]),
