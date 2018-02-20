@@ -1,6 +1,6 @@
 defmodule TrainLoc.Input.ServerSentEvent do
   alias TrainLoc.Input.ServerSentEvent
-  alias TrainLoc.Input.ServerSentEvent.Parser
+  alias TrainLoc.Input.ServerSentEvent.Block
   @moduledoc """
   A single ServerSentEvent (SSE) from a server.
 
@@ -9,16 +9,12 @@ defmodule TrainLoc.Input.ServerSentEvent do
   """
   defstruct [
     event:            "message",
-    data:             [],
-    date:             nil,
+    data:             "",
   ]
-
-  # @type event_type :: "put" | "message" | "keep-alive" | "auth_revoked" | "cancel"
 
   @type t :: %__MODULE__{
     event: String.t,
-    data: [map],
-    date: String.t | nil,
+    data: String.t,
   }
 
   @doc """
@@ -33,21 +29,13 @@ defmodule TrainLoc.Input.ServerSentEvent do
   %ServerSentEvent{event: "message", binary: " short\\n"}
   """
   def from_string(string) do
-    parser_struct = Parser.parse(string)
-    case parser_struct.errors do
-      [] ->
-        {:ok, from_parser_struct(parser_struct)}
-      errors ->
-        {:error, errors}
+    case Block.parse(string) do
+      {:ok, block} ->
+        {:ok, Block.to_server_sent_event(block)}
+      {:error, _} = err ->
+        err
     end
   end
 
-  def from_parser_struct(parser) do
-    %ServerSentEvent{
-      event:    parser.event,
-      date:     parser.date,
-      data:     parser.json,
-    }
-  end
 
 end

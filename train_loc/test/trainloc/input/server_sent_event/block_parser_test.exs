@@ -1,6 +1,6 @@
-defmodule TrainLoc.Input.ServerSentEvent.LineParserTest do
+defmodule TrainLoc.Input.ServerSentEvent.BlockParserTest do
   use ExUnit.Case, async: true
-  import TrainLoc.Input.ServerSentEvent.LineParser
+  import TrainLoc.Input.ServerSentEvent.BlockParser
 
   test "parse/1" do
     raw_json = ~s({"1533":{"fix":1,"heading":0,"latitude":4224005,"longitude":-7113007,"routename":"","speed":0,"updatetime":1516338396,"vehicleid":1533,"workid":0}})    

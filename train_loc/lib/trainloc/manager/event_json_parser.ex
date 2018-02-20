@@ -1,16 +1,35 @@
-defmodule TrainLoc.Input.ServerSentEvent.JsonParser do
+defmodule TrainLoc.Manager.EventJsonParser do
+  alias TrainLoc.Manager.Event
 
   def parse(data) when is_binary(data) do
-    case Poison.decode(data) do
-      {:ok, json} ->
-        extracted = %{
-          vehicles_json: extract_vehicles_json(json),
-          date: extract_date(json),
-        }
-        {:ok, extracted}
+    with \
+      {:ok, json}   <- Poison.decode(data),
+      vehicles_json <- extract_vehicles_json(json),
+      date          <- extract_date(json),
+      :ok           <- validate_vehicles_json(vehicles_json)
+    do
+      {:ok, %Event{
+        vehicles_json: vehicles_json,
+        date: date,
+      }}
+    else
+      {:error, _} = err ->
+        err
       _ ->
         {:error, :invalid_json}
     end
+  end
+  def parse(_) do
+    {:error, :invalid_json}
+  end
+
+  defp validate_vehicles_json(vehicles_json) when is_list(vehicles_json) do
+    Enum.reduce(vehicles_json, :ok, fn 
+      vehicle, :ok ->
+        TrainLoc.Vehicles.JsonValidator.validate(vehicle)
+      _, {:error, _} = err ->
+        err
+    end)
   end
 
   def extract_vehicles_json(%{"data" => %{"results" => json}}) when is_map(json) do

@@ -87,18 +87,18 @@ defmodule TrainLoc.Vehicles.Vehicle do
       timestamp:  Time.parse_improper_unix(veh_data["updatetime"]),
       block:      to_string(veh_data["workid"]),
       trip:       process_trip(veh_data["routename"]),
-      latitude:   safe_div(veh_data["latitude"], 100000),
-      longitude:  safe_div(veh_data["longitude"], 100000),
+      latitude:   degrees_from_json(veh_data["latitude"]),
+      longitude:  degrees_from_json(veh_data["longitude"]),
       heading:    veh_data["heading"],
       speed:      veh_data["speed"],
       fix:        veh_data["fix"],
     }
   end
 
-  defp safe_div(numerator, divisor) when is_number(numerator) and is_number(divisor) do
-    numerator / divisor
+  defp degrees_from_json(numerator) when is_integer(numerator) do
+    numerator / 100000
   end
-  defp safe_div(_, _) do
+  defp degrees_from_json(_) do
     nil
   end
 

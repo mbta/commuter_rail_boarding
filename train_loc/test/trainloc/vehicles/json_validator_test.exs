@@ -1,6 +1,6 @@
-defmodule TrainLoc.Input.ServerSentEvent.JsonValidatorTest do
+defmodule TrainLoc.Vehicles.JsonValidatorTest do
   use ExUnit.Case, async: true
-  import TrainLoc.Input.ServerSentEvent.JsonValidator
+  import TrainLoc.Vehicles.JsonValidator
   require TestHelpers
 
   @valid_json %{
@@ -29,7 +29,7 @@ defmodule TrainLoc.Input.ServerSentEvent.JsonValidatorTest do
         @valid_json
         |> Map.drop(["fix"])
         |> validate()
-      assert result == {:error, "JSON key 'fix' was missing."}
+      assert result == {:error, :invalid_vehicle_json}
     end
 
     test "fails with an unexpected value" do
@@ -37,7 +37,7 @@ defmodule TrainLoc.Input.ServerSentEvent.JsonValidatorTest do
         @valid_json
         |> Map.put("fix", "other")
         |> validate()
-      assert result == {:error, "JSON key 'fix' must be an integer."}
+      assert result == {:error, :invalid_vehicle_json}
     end
   end
 

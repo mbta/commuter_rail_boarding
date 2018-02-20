@@ -85,17 +85,16 @@ defmodule TrainLoc.Input.APIFetcherTest do
     end
 
     test "with a full chunk, returns an event" do
+      json_binary = ~s({"1533":{"fix":1,"heading":0,"latitude":4224005,"longitude":-7113007,"routename":"","speed":0,"updatetime":1516338396,"vehicleid":1533,"workid":0})
       event_line = "event: put"
-      data_line = ~s(data: {"1533":{"fix":1,"heading":0,"latitude":4224005,"longitude":-7113007,"routename":"","speed":0,"updatetime":1516338396,"vehicleid":1533,"workid":0}})
+      data_line = "data: #{json_binary}"
       chunk = event_line <> "\n" <> data_line
       state = %TrainLoc.Input.APIFetcher{send_to: self()}
       
       assert {:noreply, state} = handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state)
       handle_info(%HTTPoison.AsyncChunk{chunk: "\n\n"}, state)
       assert_receive {:events, [event = %ServerSentEvent{}]}
-      assert event.data == [%{"fix" => 1, "heading" => 0, "latitude" => 4224005,
-      "longitude" => -7113007, "routename" => "", "speed" => 0,
-      "updatetime" => 1516338396, "vehicleid" => 1533, "workid" => 0}]
+      assert event.data == json_binary <> "\n"
     end
 
     test "doesn't crash on unknown call" do

@@ -9,6 +9,7 @@ defmodule TrainLoc.Manager do
 
   import TrainLoc.Utilities.ConfigHelpers
 
+  alias TrainLoc.Manager
   alias TrainLoc.Vehicles.{Vehicle, Vehicles, Validator}
   alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
@@ -51,34 +52,20 @@ defmodule TrainLoc.Manager do
     {:reply, true, state}
   end
 
-  def handle_info({:events, events}, %{first_message?: first_message?, time_baseline: time_baseline_fn} = state) do
+  def handle_info({:events, events}, state) do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
-
-      vehicles = vehicles_from_data(event.data)
-
-      vehicles
-      |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
-      |> Vehicles.log_assignments()
-      |> VState.set_vehicles()
-      all_conflicts = VState.get_duplicate_logons()
-      {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
-
-      if event.date do
-        upload_vehicles_to_s3()
-
-        Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
-        Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(VState.all_vehicles(), &Vehicle.active_vehicle?/1)} vehicles active." end)
-        Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
-      end
-
-      if not first_message? do
-        Enum.each(new_conflicts, fn c ->
-          Logger.warn(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
-        end)
-        Enum.each(removed_conflicts, fn c ->
-          Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
-        end)
+      case Manager.Event.from_string(event.data) do
+        {:ok, manager_event} ->
+          update_vehicles(manager_event, state)
+        {:error, reasons} when is_map(reasons) ->
+          Logger.error(fn ->
+            Logging.log_string("Manager Event Parsing Error", reasons)
+          end)
+        {:error, reason} when is_atom(reason) when is_binary(reason) ->
+          Logger.error(fn ->
+            Logging.log_string("Manager Event Parsing Error", %{reason: reason})
+          end)
       end
     end
 
@@ -90,6 +77,33 @@ defmodule TrainLoc.Manager do
     {:noreply, state}
   end
 
+  defp update_vehicles(%Manager.Event{} = manager_event, %{first_message?: first_message?, time_baseline: time_baseline_fn}) do
+    manager_event.vehicles_json
+    |> vehicles_from_data
+    |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
+    |> Vehicles.log_assignments()
+    |> VState.set_vehicles()
+    all_conflicts = VState.get_duplicate_logons()
+    {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
+
+    if manager_event.date do
+      upload_vehicles_to_s3()
+
+      Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
+      Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(VState.all_vehicles(), &Vehicle.active_vehicle?/1)} vehicles active." end)
+      Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
+    end
+
+    if not first_message? do
+      Enum.each(new_conflicts, fn c ->
+        Logger.warn(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
+      end)
+      Enum.each(removed_conflicts, fn c ->
+        Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
+      end)
+    end
+  end
+  
   def vehicles_from_data(data) when is_list(data) do
     Enum.reduce(data, [], fn (json, acc) when is_map(json) ->
       case vehicles_from_data(json) do

@@ -1,4 +1,5 @@
-defmodule TrainLoc.Input.ServerSentEvent.LineParser do
+defmodule TrainLoc.Input.ServerSentEvent.BlockParser do
+
   def parse(string) do  
     string
     |> split_on_newlines

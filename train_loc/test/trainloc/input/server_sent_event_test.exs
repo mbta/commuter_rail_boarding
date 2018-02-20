@@ -27,12 +27,11 @@ defmodule TrainLoc.Input.ServerSentEventTest do
       "1637" => %{"fix" => 1, "heading" => 123, "latitude" => 4237441, "longitude" => -7107523, "routename" => "9999", "speed" => 0,  "updatetime" => 1517235745, "vehicleid" => 1637, "workid" => 0},
       "4043440397" => %{"fix" => 0, "heading" => 0, "latitude" => 0,  "longitude" => 0, "routename" => " ", "speed" => 0, "updatetime" => 0, "vehicleid" => 4043440397, "workid" => 0}}}, "path" => "/"}
 
-  @tag current: true
   test "from_string/1 can parse vehicles in a \"results\" key" do
-    raw_binary = "event: put\ndata: #{Poison.encode!(@first_message_json)}\n\n"
+    binary_data = Poison.encode!(@first_message_json)
+    raw_binary = "event: put\ndata: #{binary_data}\n\n"
     assert {:ok, %ServerSentEvent{} = sse} = from_string(raw_binary)
-    assert sse.date == nil
-    assert length(sse.data) == 16
+    assert sse.data == binary_data <> "\n"
     assert sse.event == "put"
   end
 end
