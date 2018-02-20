@@ -133,10 +133,6 @@ defmodule TrainLoc.Input.APIFetcher do
     |> log_keolis_error
   end
 
-  def send_events_for_processing([], _send_to) do
-    #no op
-    Logger.info fn -> "#{__MODULE__} received 0 events" end
-  end
   def send_events_for_processing(events, send_to) when is_list(events) do
     Logger.info fn -> "#{__MODULE__} received #{length events} events" end
     for event <- events do
@@ -144,17 +140,22 @@ defmodule TrainLoc.Input.APIFetcher do
         inspect(event, limit: :infinity, printable_limit: :infinity)
       end)
     end
+  
+    events
+    |> filter_non_put_events
+    |> send_events_to(send_to)
+  end
 
-    put_events = Enum.filter(events, fn
-      %ServerSentEvent{event: "put"} -> true
-      _ -> false
-    end)
+  defp send_events_to([], _destination) do
+    # return {:events, []} to keep return api/shape consistent
+    {:events, []}
+  end
+  defp send_events_to(events, destination) do
+    send(destination, {:events, events})
+  end
 
-    case put_events do
-      [] -> nil
-      _ -> send(send_to, {:events, put_events})
-    end
-
+  def filter_non_put_events(events) when is_list(events) do
+    Enum.filter(events, fn sse -> sse.event == "put" end)
   end
 
   def log_keolis_error(fields) when is_map(fields) do

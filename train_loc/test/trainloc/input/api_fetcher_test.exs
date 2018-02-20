@@ -128,6 +128,14 @@ defmodule TrainLoc.Input.APIFetcherTest do
 
   end
 
+  test "filter_non_put_events/1" do
+    event1 = %ServerSentEvent{event: "put"}
+    event2 = %ServerSentEvent{event: "put"}
+    event3 = %ServerSentEvent{event: "other"}
+    events = [event1, event2, event3]
+    assert filter_non_put_events(events) == [event1, event2]
+  end
+
   describe "send_events_for_processing/2" do
     test "logs length of events when empty" do
       state = %TrainLoc.Input.APIFetcher{}
