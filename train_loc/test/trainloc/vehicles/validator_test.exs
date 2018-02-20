@@ -7,18 +7,14 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
   describe "must_be_non_neg_int/2" do
     test "fails on non-integer" do
       params = %{the_field: "123"}
-      expected = {:error,
-        %{expected: :non_negative_integer, field: :the_field, got: "123"}
-      }
+      expected = {:error, :invalid_vehicle}
       result = Validator.must_be_non_neg_int(params, :the_field) 
       assert result == expected
     end
 
     test "fails on negative integer" do
       params = %{the_field: -1}
-      expected = {:error,
-        %{expected: :non_negative_integer, field: :the_field, got: -1}
-      }
+      expected = {:error, :invalid_vehicle}
       result = Validator.must_be_non_neg_int(params, :the_field) 
       assert result == expected
     end
@@ -50,7 +46,7 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
 
     test "fails for any non-DateTime-struct" do
       params = %{the_field: 0}
-      expected = {:error, %{expected: :datetime_struct, field: :the_field, got: 0}}
+      expected = {:error, :invalid_vehicle}
       result = Validator.must_be_datetime(params, :the_field) 
       assert result == expected
     end
@@ -64,7 +60,7 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     end
     test "fails for non-floats" do
       params = %{the_field: :other}
-      expected = {:error, %{expected: :float, field: :the_field, got: :other}}
+      expected = {:error, :invalid_vehicle}
       result = Validator.must_be_float(params, :the_field) 
       assert result == expected
     end
@@ -78,27 +74,13 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     end
     test "fails for an non-int" do
       params = %{the_field: "not_an_int"}
-      error_map = %{
-        expected: :to_be_in_range,
-        field: :the_field,
-        got: "not_an_int",
-        range_start: 0,
-        range_stop: 1,
-      }
-      expected = {:error, error_map}
+      expected = {:error, :invalid_vehicle}
       result = Validator.must_be_in_range(params, :the_field, 0..1) 
       assert result == expected
     end
     test "fails for an int that is out of range" do
       params = %{the_field: 2}
-      error_map = %{
-        expected: :to_be_in_range,
-        field: :the_field,
-        got: 2,
-        range_start: 0,
-        range_stop: 1,
-      }
-      expected = {:error, error_map}
+      expected = {:error, :invalid_vehicle}
       result = Validator.must_be_in_range(params, :the_field, 0..1) 
       assert result == expected
     end
@@ -129,7 +111,7 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
         @valid_vehicle
         |> Map.put(:trip, nil)
         |> Validator.validate
-      assert result == {:error, %{expected: :any_non_blank_string, field: :trip, got: nil}}
+      assert result == {:error, :invalid_vehicle}
     end
   end
 end

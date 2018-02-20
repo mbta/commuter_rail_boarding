@@ -1,6 +1,6 @@
 defmodule TrainLoc.Vehicles.Validator do
   alias TrainLoc.Vehicles.Vehicle
-
+  
   def validate(%Vehicle{} = veh) do
     with \
       :ok <- must_be_non_neg_int(veh, :vehicle_id),
@@ -15,8 +15,8 @@ defmodule TrainLoc.Vehicles.Validator do
     do
       :ok
     else
-      {:error, _} = error ->
-        error
+      _ ->
+        {:error, :invalid_vehicle}
     end
   end
   def validate(_other) do
@@ -27,31 +27,19 @@ defmodule TrainLoc.Vehicles.Validator do
     case Map.get(veh, field) do
       x when is_integer(x) and x >= 0 ->
         :ok
-      x ->
-        {:error, %{
-          expected: :non_negative_integer,
-          got: x,
-          field: field,
-        }}
+      _ ->
+        {:error, :invalid_vehicle}
     end
   end
 
   def must_be_string(veh, field) do
     case Map.get(veh, field) do
       "" ->
-        {:error, %{
-          expected: :any_non_blank_string,
-          got: "",
-          field: field,
-        }}
+        {:error, :invalid_vehicle}
       x when is_binary(x) ->
         :ok
-      x -> 
-        {:error, %{
-          expected: :any_non_blank_string,
-          got: x,
-          field: field,
-        }}
+      _ -> 
+        {:error, :invalid_vehicle}
     end
   end
 
@@ -59,35 +47,24 @@ defmodule TrainLoc.Vehicles.Validator do
     case Map.get(veh, field) do
       %DateTime{} ->
         :ok
-      x ->
-        {:error, %{
-          expected: :datetime_struct,
-          got: x,
-          field: field,
-        }}
-    end
+      _ ->
+        {:error, :invalid_vehicle}
+      end
   end
 
   def must_be_float(veh, field) do
     case Map.get(veh, field) do
       x when is_float(x) -> :ok
-      x ->
-        {:error, %{expected: :float, got: x, field: field}}
+      _ ->
+        {:error, :invalid_vehicle}        
     end
   end
 
   def must_be_in_range(veh, field, first..last) do
     case Map.get(veh, field) do
       x when x in first..last -> :ok
-      x ->
-        {:error, %{
-          expected: :to_be_in_range,
-          got: x,
-          field: field,
-          range_start: first,
-          range_stop: last,
-        }}
-        
+      _ ->
+        {:error, :invalid_vehicle}
     end
   end
 
