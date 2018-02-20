@@ -5,13 +5,6 @@ defmodule TrainLoc.Logging do
   intended to be logged to splunk
   into an iolist.
   """
-  def log_string(title, %module{} = struct_thing) do
-    message = 
-      struct_thing
-      |> Map.from_struct # removes :__struct__ field
-      |> Map.put(:_struct, module |> pretty_module)
-    log_string(title, message)
-  end
   def log_string(title, params) when is_binary(title) when is_atom(title) do
     [ format_title(title) | do_splunk_format(params) ]
   end
@@ -49,12 +42,6 @@ defmodule TrainLoc.Logging do
 
   defp format_title(title) do
     [to_string(title), " - "]
-  end
-
-  defp pretty_module(module) do
-    module
-    |> Module.split
-    |> Enum.join(".")
   end
 
 end

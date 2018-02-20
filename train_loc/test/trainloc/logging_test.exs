@@ -21,14 +21,6 @@ defmodule TrainLoc.LoggingTest do
       assert :erlang.iolist_to_binary(iolist) == expected
     end
 
-    test "give a struct returns a correctly formatted iolist" do
-      iolist = log_string("Hello", %ExampleStruct{name: "Jim", age: 21})
-      string = :erlang.iolist_to_binary(iolist)
-      assert string =~ ~s(Hello - )
-      assert string =~ ~s(_struct="TrainLoc.LoggingTest.ExampleStruct)
-      assert string =~ ~s(name="Jim")
-      assert string =~ ~s(age=21)
-    end
   end
 
 end
