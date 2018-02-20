@@ -1,5 +1,4 @@
 defmodule TrainLoc.Input.ServerSentEvent do
-  alias TrainLoc.Input.ServerSentEvent
   alias TrainLoc.Input.ServerSentEvent.Block
   @moduledoc """
   A single ServerSentEvent (SSE) from a server.

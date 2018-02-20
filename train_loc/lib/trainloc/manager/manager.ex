@@ -136,7 +136,6 @@ defmodule TrainLoc.Manager do
     log_invalid_vehicle(%{reason: reason})
   end
 
-
   defp upload_vehicles_to_s3() do
     vehicles = VState.all_vehicles()
     json = VehiclePositionsEnhanced.encode(vehicles)

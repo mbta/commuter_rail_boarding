@@ -1,5 +1,4 @@
 defmodule TrainLoc.Manager.Event do
-  alias TrainLoc.Manager.Event
   alias TrainLoc.Manager.EventJsonParser
 
   defstruct [
