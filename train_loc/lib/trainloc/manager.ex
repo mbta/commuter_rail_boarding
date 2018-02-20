@@ -92,7 +92,12 @@ defmodule TrainLoc.Manager do
 
   def vehicles_from_data(data) when is_list(data) do
     Enum.reduce(data, [], fn (json, acc) when is_map(json) ->
-      [ vehicles_from_data(json) | acc ]
+      case vehicles_from_data(json) do
+        nil ->
+          acc
+        %Vehicle{} = vehicle ->
+          [ vehicle | acc ]
+      end
     end)
   end
   def vehicles_from_data(json) when is_map(json) do
@@ -101,20 +106,20 @@ defmodule TrainLoc.Manager do
       :ok ->
         vehicle
       {:error, reason} ->
-        log_and_raise_invalid_vehicle(reason)
+        log_invalid_vehicle(reason)
+        nil
     end
   end
 
-  defp log_and_raise_invalid_vehicle(reasons) when is_map(reasons) do
-    message = "Manager Vehicle Validation Error"
+  defp log_invalid_vehicle(reasons) when is_map(reasons) do
     Logger.error(fn ->
+      message = "Manager Vehicle Validation Error"
       reasons = Map.put(reasons, :error_type, "Validation Error")
       Logging.log_string(message, reasons)
     end)
-    raise %RuntimeError{message: message}
   end
-  defp log_and_raise_invalid_vehicle(reason) when is_atom(reason) when is_binary(reason) do
-    log_and_raise_invalid_vehicle(%{reason: reason})
+  defp log_invalid_vehicle(reason) when is_atom(reason) when is_binary(reason) do
+    log_invalid_vehicle(%{reason: reason})
   end
 
 
