@@ -72,4 +72,19 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       end
     end
   end
+
+  describe "start_date/1" do
+    test "converts DateTime into accurate service date string" do
+      test_datetime = %DateTime{
+        month: 2, day: 2, year: 2018,
+        hour: 3, minute: 30, second: 0,
+        std_offset: 0, utc_offset: -18000,
+        time_zone: "America/New_York", zone_abbr: "EST"
+      }
+      assert VehiclePositionsEnhanced.start_date(test_datetime) == "20180202"
+      early_datetime = %DateTime{test_datetime | hour: 0}
+      assert VehiclePositionsEnhanced.start_date(early_datetime) == "20180201"
+    end
+
+  end
 end

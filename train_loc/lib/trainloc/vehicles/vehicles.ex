@@ -46,8 +46,18 @@ defmodule TrainLoc.Vehicles.Vehicles do
     # Convert the incoming list of vehicles to a map
 
     #TODO: talk to chris or paul about rejecting incoming vehicle data that is older than what is currently in state.
+    updated_vehicles =
+      Enum.reduce(new_vehicles, old_vehicles, fn(x, acc) ->
+        Map.put(acc, x.vehicle_id, x)
+      end)
 
-    Enum.reduce(new_vehicles, old_vehicles, fn(x, acc) -> Map.put(acc, x.vehicle_id, x) end)
+    if old_vehicles == updated_vehicles do
+      Logger.warn(fn ->
+        "Keolis API Error - Only old locations in Keolis response"
+      end)
+    end
+
+    updated_vehicles
   end
 
   @spec delete(map, String.t) :: map
