@@ -7,7 +7,6 @@ defmodule TrainLoc.Input.ServerSentEvent.Parser do
     Parser,
     LineParser,
     JsonParser,
-    VehicleParser,
   }
 
   defstruct [

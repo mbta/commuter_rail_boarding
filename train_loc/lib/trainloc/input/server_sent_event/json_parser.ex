@@ -19,7 +19,7 @@ defmodule TrainLoc.Input.ServerSentEvent.JsonParser do
   def extract_vehicles_json(%{"vehicleid" => _} = json) do
     [json]
   end
-  def extract_vehicles_json(json) do
+  def extract_vehicles_json(json) when is_map(json) do
     json
     |> Enum.reduce([], fn
       ({_key, %{"vehicleid" => _} = vehicle_json}, acc) ->
