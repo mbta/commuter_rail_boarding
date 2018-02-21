@@ -37,10 +37,10 @@ defmodule TrainLoc.Utilities.Time do
 
 
   @spec naive_parse_unix(integer) :: DateTime.t | {:error, term}
-  def naive_parse_unix(unix) do
+  def naive_parse_unix(unix) when is_integer(unix) do
     unix
-    |> Timex.from_unix()
-    |> Timex.to_naive_datetime()
+    |> DateTime.from_unix!
+    |> DateTime.to_naive
   end
 
   @spec end_of_service_date(DateTime.t) :: DateTime.t
