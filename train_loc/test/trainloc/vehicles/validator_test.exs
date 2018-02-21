@@ -86,6 +86,60 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     end
   end
 
+  describe "is_datetime?/1" do
+    test "works on DateTime structs" do
+      date = DateTime.utc_now()
+      assert Validator.is_datetime?(date) == true
+    end
+    test "fails on non-DateTime structs" do
+      assert Validator.is_datetime?("not_a_date") == false
+    end
+  end
+
+  describe "is_non_neg_int?/1" do
+    test "true on positive integer" do
+      assert Validator.is_non_neg_int?(1) == true
+      assert Validator.is_non_neg_int?(100) == true
+    end
+    test "true on 0" do
+      assert Validator.is_non_neg_int?(0) == true
+    end
+    test "false on negative integer" do
+      assert Validator.is_non_neg_int?(-1) == false
+      assert Validator.is_non_neg_int?(-100) == false
+    end
+    test "false on other than integer" do
+      assert Validator.is_non_neg_int?("other") == false
+      assert Validator.is_non_neg_int?(:other) == false
+    end
+  end
+
+  describe "is_blank?/1" do
+    test "true on empty string" do
+      assert Validator.is_blank?("") == true
+    end
+    test "true on nil" do
+      assert Validator.is_blank?(nil) == true
+    end
+    test "false on anything other than nil or false" do
+      assert Validator.is_blank?("not_blank") == false
+    end
+  end
+
+
+  describe "is_not_blank?/1" do
+    test "false on empty string" do
+      assert Validator.is_not_blank?("") == false
+    end
+    test "false on nil" do
+      assert Validator.is_not_blank?(nil) == false
+    end
+    test "true on anything other than nil or false" do
+      assert Validator.is_not_blank?("not_blank") == true
+    end
+  end
+
+
   describe "validate/1" do
     @time_format config(:time_format)    
     @valid_timestamp Timex.parse!("2018-01-05 11:38:50 America/New_York", @time_format)
