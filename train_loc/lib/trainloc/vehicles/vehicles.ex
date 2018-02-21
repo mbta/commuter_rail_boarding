@@ -44,18 +44,9 @@ defmodule TrainLoc.Vehicles.Vehicles do
   def set(old_vehicles, new_vehicles) do
     log_changed_assigns(old_vehicles, new_vehicles)
     # Convert the incoming list of vehicles to a map
-    updated_vehicles =
-      Enum.reduce(new_vehicles, old_vehicles, fn(x, acc) ->
-        Map.put(acc, x.vehicle_id, x)
-      end)
-
-    if old_vehicles == updated_vehicles do
-      Logger.warn(fn ->
-        "Keolis API Error - Only old locations in Keolis response"
-      end)
-    end
-
-    updated_vehicles
+    Enum.reduce(new_vehicles, old_vehicles, fn(x, acc) ->
+      Map.put(acc, x.vehicle_id, x)
+    end)
   end
 
   @spec delete(map, String.t) :: map

@@ -11,6 +11,7 @@ defmodule TrainLoc.Manager do
 
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Vehicles.Vehicles
+  alias TrainLoc.Vehicles.PreviousBatch
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
   alias TrainLoc.Conflicts.State, as: CState
@@ -64,12 +65,8 @@ defmodule TrainLoc.Manager do
       all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
-      if not is_nil(data) and Map.has_key?(data, "date") do
-        upload_vehicles_to_s3()
-
-        Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
-        Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(VState.all_vehicles(), &Vehicle.active_vehicle?/1)} vehicles active." end)
-        Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
+      if end_of_batch?(data) do
+        run_end_of_batch_tasks(all_conflicts)
       end
 
       if not first_message? do
@@ -96,6 +93,22 @@ defmodule TrainLoc.Manager do
   end
   defp vehicles_from_data(data, _) do
     Vehicle.from_json_object(data)
+  end
+
+  defp end_of_batch?(%{"date" => _date}), do: true
+  defp end_of_batch?(_), do: false
+
+  defp run_end_of_batch_tasks(all_conflicts) do
+    upload_vehicles_to_s3()
+    all_vehicles = VState.all_vehicles()
+    end_of_batch_logging(all_conflicts, all_vehicles)
+    PreviousBatch.put(all_vehicles)
+  end
+
+  defp end_of_batch_logging(all_conflicts, all_vehicles) do
+    Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
+    Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active." end)
+    Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
   end
 
   defp upload_vehicles_to_s3() do
