@@ -38,7 +38,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
     of the vehicle
   * `heading`: compass direction to which the "nose" of the vehicle is pointing,
     its orientation
-  * `speed`: the vehicle's speed
+  * `speed`: the vehicle's speed (miles per hour)
   * `fix`: ID that represents the source of the data.
   """
   @type t :: %__MODULE__{
