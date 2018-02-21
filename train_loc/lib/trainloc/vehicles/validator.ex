@@ -16,9 +16,6 @@ defmodule TrainLoc.Vehicles.Validator do
       :ok <- must_be_in_range(veh, :fix, 0..9)
     do
       :ok
-    else
-      {:error, _} = err ->
-        err
     end
   end
   def validate(_other) do
