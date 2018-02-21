@@ -21,8 +21,6 @@ defmodule TrainLoc.Vehicles.Vehicle do
     fix: 0
   ]
 
-  #TODO: Resolve typespec vs integration test issues
-
   @typedoc """
   Vehicle data throughout the app is represented by vehicle structs.
 
@@ -44,7 +42,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
   @type t :: %__MODULE__{
     vehicle_id: non_neg_integer,
     timestamp: DateTime.t,
-    block: non_neg_integer,
+    block: String.t,
     trip: String.t,
     latitude: float,
     longitude: float,

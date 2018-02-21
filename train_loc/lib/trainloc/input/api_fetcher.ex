@@ -140,10 +140,7 @@ defmodule TrainLoc.Input.APIFetcher do
         inspect(event, limit: :infinity, printable_limit: :infinity)
       end)
     end
-  
-    events
-    |> filter_non_put_events
-    |> send_events_to(send_to)
+    send_events_to(events, send_to)
   end
 
   defp send_events_to([], _destination) do
@@ -152,10 +149,6 @@ defmodule TrainLoc.Input.APIFetcher do
   end
   defp send_events_to(events, destination) do
     send(destination, {:events, events})
-  end
-
-  def filter_non_put_events(events) when is_list(events) do
-    Enum.filter(events, fn sse -> sse.event == "put" end)
   end
 
   def log_keolis_error(fields) when is_map(fields) do

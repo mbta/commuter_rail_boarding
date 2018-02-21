@@ -113,7 +113,6 @@ defmodule TrainLoc.Input.APIFetcherTest do
     captured = capture_log(fun)
     assert captured =~ "Keolis API Failure - "
     assert captured =~ "error_type=\"No events parsed\""
-    
   end
 
   test "log parsing errors" do
@@ -125,15 +124,6 @@ defmodule TrainLoc.Input.APIFetcherTest do
     assert captured =~ " error_type=\"Parsing Error\""
     assert captured =~ " content=\"some event\""
     assert captured =~ " reason=\"Unexpected event\""
-
-  end
-
-  test "filter_non_put_events/1" do
-    event1 = %ServerSentEvent{event: "put"}
-    event2 = %ServerSentEvent{event: "put"}
-    event3 = %ServerSentEvent{event: "other"}
-    events = [event1, event2, event3]
-    assert filter_non_put_events(events) == [event1, event2]
   end
 
   describe "send_events_for_processing/2" do
@@ -142,9 +132,9 @@ defmodule TrainLoc.Input.APIFetcherTest do
       captured = capture_log(fn ->
         send_events_for_processing([], state.send_to)
       end)
-
       assert captured =~ "received 0 events"
     end
+
     test "logs length of events when not empty" do
       state = %TrainLoc.Input.APIFetcher{}
       events = [
@@ -157,7 +147,6 @@ defmodule TrainLoc.Input.APIFetcherTest do
       end)
       assert captured =~ "received 1 events"
     end
-
 
     test "logs each of the events" do
       state = %TrainLoc.Input.APIFetcher{}
@@ -173,8 +162,8 @@ defmodule TrainLoc.Input.APIFetcherTest do
       # assert captured =~ ~s(data: %{"stuff" => true})
       assert captured =~ ~s(event: "put")
     end
-
   end
+
   describe "log_keolis_error/1" do
     test "can handle a map" do
       payload = %{field1: "value1"}
@@ -182,6 +171,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert captured =~ "Keolis API Failure - "
       assert captured =~ ~s(field1="value1")
     end
+
     test "can handle a string" do      
       payload = "Some Payload"
       captured = capture_log(fn -> log_keolis_error(payload) end)
@@ -191,7 +181,6 @@ defmodule TrainLoc.Input.APIFetcherTest do
   end
 
   describe "extract_event_blocks_from_buffer/1" do
-
     test "returns the same buffer and no events when no double newlines are present" do
       buffer = "this some content in the buffer"
       assert {[], buffer} == extract_event_blocks_from_buffer(buffer)
@@ -216,5 +205,4 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert new_buffer == remaining
     end
   end
-
 end

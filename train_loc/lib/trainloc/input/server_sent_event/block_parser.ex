@@ -1,4 +1,5 @@
 defmodule TrainLoc.Input.ServerSentEvent.BlockParser do
+  alias TrainLoc.Input.ServerSentEvent
 
   def parse(string) do  
     string
@@ -10,7 +11,8 @@ defmodule TrainLoc.Input.ServerSentEvent.BlockParser do
   end
 
   def parse_lines(parts) when is_list(parts) do
-    Enum.reduce(parts, %{event: "", binary: ""}, &reduce_parse_line/2)
+    sse = %ServerSentEvent{event: "", data: ""}
+    Enum.reduce(parts, sse, &reduce_parse_line/2)
   end
 
   defp reduce_parse_line(":" <> _, acc) do
@@ -23,7 +25,7 @@ defmodule TrainLoc.Input.ServerSentEvent.BlockParser do
   end
   defp reduce_parse_line("data:" <> rest, acc) do
     # data, gets accumulated separated by newlines
-    %{acc | binary: acc.binary <> trim_one_space(rest) <> "\n" }
+    %{acc | data: acc.data <> trim_one_space(rest) <> "\n" }
   end
   defp reduce_parse_line(_, acc) do
     # ignored

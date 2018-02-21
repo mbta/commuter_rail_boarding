@@ -4,11 +4,6 @@ defmodule TrainLoc.LoggingTest do
   import TrainLoc.Logging
 
   describe "log_string/2" do
-
-    defmodule ExampleStruct  do
-      defstruct [:name, :age]
-    end
-
     test "given a map returns a correctly formatted iolist" do
       expected = "Hi - hello=world"
       iolist = log_string("Hi", %{hello: :world})
@@ -20,7 +15,5 @@ defmodule TrainLoc.LoggingTest do
       iolist = log_string("Hi", hello: :world)
       assert :erlang.iolist_to_binary(iolist) == expected
     end
-
   end
-
 end

@@ -1,14 +1,17 @@
 defmodule TrainLoc.Input.ServerSentEvent do
-  alias TrainLoc.Input.ServerSentEvent.Block
   @moduledoc """
   A single ServerSentEvent (SSE) from a server.
 
   The SSE protocol is defined by the W3C:
   https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream
   """
+
+  alias TrainLoc.Input.ServerSentEvent
+  alias TrainLoc.Input.ServerSentEvent.BlockParser
+
   defstruct [
-    event:            "message",
-    data:             "",
+    event: "message",
+    data:  "",
   ]
 
   @type t :: %__MODULE__{
@@ -16,25 +19,45 @@ defmodule TrainLoc.Input.ServerSentEvent do
     data: String.t,
   }
 
+  @event_types [
+    "put",
+    "message",
+    "keep-alive",
+    "auth_revoked",
+    "cancel"
+  ]
+
   @doc """
   Parse a UTF-8 string into a struct.
 
   Expects a full SSE block.
 
-  iex> ServerSentEvent.from_string("event: put\\rdata:123\\r\\ndata: 456\\n")
-  %ServerSentEvent{event: "put", binary: "123\\n456\\n"}
+  iex> TrainLoc.Input.ServerSentEvent.from_string("event: put\\rdata:123\\r\\ndata: 456\\n")
+  {:ok, %TrainLoc.Input.ServerSentEvent{event: "put", data: "123\\n456\\n"}}
 
-  iex> ServerSentEvent.from_string(":comment\\ndata:  short\\nignored: field")
-  %ServerSentEvent{event: "message", binary: " short\\n"}
+  iex> TrainLoc.Input.ServerSentEvent.from_string(":comment\\ndata:  short\\nignored: field")
+  {:error, %{expected: ["put", "message", "keep-alive", "auth_revoked", "cancel"], got: "", reason: "Unexpected event type"}}
   """
   def from_string(string) do
-    case Block.parse(string) do
-      {:ok, block} ->
-        {:ok, Block.to_server_sent_event(block)}
+    sse = BlockParser.parse(string)
+    case validate(sse) do
+      :ok ->
+        {:ok, sse}
       {:error, _} = err ->
         err
     end
   end
 
+  def validate(%ServerSentEvent{event: event}) when event in @event_types do
+    :ok
+  end
+  def validate(%ServerSentEvent{event: invalid_event}) do
+    err = %{
+      expected: @event_types,
+      got: invalid_event,
+      reason: "Unexpected event type",
+    }
+    {:error, err}
+  end
 
 end

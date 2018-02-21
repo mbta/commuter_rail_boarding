@@ -8,7 +8,7 @@ defmodule TrainLoc.Vehicles.Validator do
       :ok <- must_be_string(veh, :block),
       :ok <- must_not_be_blank(veh, :block),
       :ok <- must_be_string(veh, :trip),
-      :ok <- must_not_be_blank(veh, :block),      
+      :ok <- must_not_be_blank(veh, :trip),
       :ok <- must_be_float(veh, :latitude),
       :ok <- must_be_float(veh, :longitude),
       :ok <- must_be_in_range(veh, :heading, 0..359),

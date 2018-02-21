@@ -40,5 +40,4 @@ defmodule TrainLoc.Vehicles.JsonValidatorTest do
       assert result == {:error, :invalid_vehicle_json}
     end
   end
-
 end
