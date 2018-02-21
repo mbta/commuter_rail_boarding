@@ -33,10 +33,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     %{
       id: "#{:erlang.phash2(vehicle)}",
       vehicle: %{
-        trip: %{
-          start_date: start_date(vehicle.timestamp),
-          trip_short_name: vehicle.trip,
-        },
+        trip: entity_trip(vehicle),
         vehicle: %{
           "id" => vehicle.vehicle_id
         },
@@ -52,6 +49,14 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     }
   end
   defp build_entity(_), do: []
+
+  defp entity_trip(%{trip: trip} = vehicle) when trip not in ["0", "9999"] do
+    entity_trip = entity_trip(Map.delete(vehicle, :trip))
+    Map.put(entity_trip, :trip_short_name, trip)
+  end
+  defp entity_trip(vehicle) do
+    %{start_date: start_date(vehicle.timestamp)}
+  end
 
   def start_date(%DateTime{} = timestamp) do
     timestamp
