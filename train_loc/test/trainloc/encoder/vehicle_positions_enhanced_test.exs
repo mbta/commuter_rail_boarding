@@ -72,6 +72,27 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         assert json_vehicle_data["timestamp"] == unix_timestamp
       end
     end
+
+    test "omits 'trip_short_name' field if '0' or '9999'" do
+      unix_timestamp = 1501844511
+      datetime_timestamp = DateTime.from_unix!(unix_timestamp)
+      vehicles = [
+        %Vehicle{vehicle_id: 1, trip: "509", timestamp: datetime_timestamp},
+        %Vehicle{vehicle_id: 2, trip: "0", timestamp: datetime_timestamp},
+        %Vehicle{vehicle_id: 3, trip: "9999", timestamp: datetime_timestamp},
+      ]
+
+      json = VehiclePositionsEnhanced.encode(vehicles)
+
+      decoded_json = Poison.decode!(json)
+
+      json_contents = decoded_json["entity"]
+      assert length(json_contents) == 3
+      [vehicle_1, vehicle_2, vehicle_3] = json_contents
+      assert Map.has_key?(vehicle_1["vehicle"]["trip"], "trip_short_name")
+      refute Map.has_key?(vehicle_2["vehicle"]["trip"], "trip_short_name")
+      refute Map.has_key?(vehicle_3["vehicle"]["trip"], "trip_short_name")
+    end
   end
 
   describe "start_date/1" do
