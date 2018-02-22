@@ -36,7 +36,7 @@ defmodule TrainLoc.Utilities.Time do
   end
 
 
-  @spec naive_parse_unix(integer) :: DateTime.t | {:error, term}
+  @spec naive_parse_unix(integer) :: NaiveDateTime.t | {:error, term}
   def naive_parse_unix(unix) when is_integer(unix) do
     unix
     |> DateTime.from_unix!
