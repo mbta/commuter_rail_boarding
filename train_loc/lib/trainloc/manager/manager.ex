@@ -86,17 +86,8 @@ defmodule TrainLoc.Manager do
     all_conflicts = VState.get_duplicate_logons()
     {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
-
     if end_of_batch?(manager_event) do
       run_end_of_batch_tasks(all_conflicts)
-    end
-
-    if manager_event.date do
-      upload_vehicles_to_s3()
-
-      Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
-      Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(VState.all_vehicles(), &Vehicle.active_vehicle?/1)} vehicles active." end)
-      Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
     end
 
     if not first_message? do
