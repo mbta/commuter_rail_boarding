@@ -93,10 +93,10 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
     assert Vehicles.get(vehicles, test_id) == nil
   end
 
-  test "sets vehicle state", %{vehicles: test_vehicles} do
+  test "upsert/2 updates or inserts vehicles", %{vehicles: test_vehicles} do
     vehicles_list = Map.values(test_vehicles)
 
-    vehicles = Vehicles.set(Vehicles.new(), vehicles_list)
+    vehicles = Vehicles.upsert(Vehicles.new(), vehicles_list)
 
     assert Vehicles.get(vehicles, test_vehicles.vehicle1.vehicle_id) == test_vehicles.vehicle1
     assert Vehicles.get(vehicles, test_vehicles.vehicle2.vehicle_id) == test_vehicles.vehicle2

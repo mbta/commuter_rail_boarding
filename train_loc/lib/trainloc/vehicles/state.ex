@@ -28,12 +28,8 @@ defmodule TrainLoc.Vehicles.State do
     GenServer.call(pid, {:get, vehicle_id})
   end
 
-  def update_vehicle(pid \\ __MODULE__, vehicle) do
-    GenServer.call(pid, {:update, vehicle})
-  end
-
-  def set_vehicles(pid \\ __MODULE__, vehicles) do
-    GenServer.call(pid, {:set, vehicles})
+  def upsert_vehicles(pid \\ __MODULE__, vehicles) do
+    GenServer.call(pid, {:upsert_vehicles, vehicles})
   end
 
   def delete_vehicle(pid \\ __MODULE__, vehicle_id) do
@@ -71,11 +67,8 @@ defmodule TrainLoc.Vehicles.State do
   def handle_call({:get, vehicle_id}, _from, vehicles) do
     {:reply, Vehicles.get(vehicles, vehicle_id), vehicles}
   end
-  def handle_call({:update, vehicle}, _from, vehicles) do
-    {:reply, :ok, Vehicles.put(vehicles, vehicle)}
-  end
-  def handle_call({:set, new_vehicles}, _from, vehicles) do
-    vehicles = Vehicles.set(vehicles, new_vehicles)
+  def handle_call({:upsert_vehicles, new_vehicles}, _from, vehicles) do
+    vehicles = Vehicles.upsert(vehicles, new_vehicles)
     {:reply, vehicles, vehicles}
   end
   def handle_call({:delete, vehicle_id}, _from, vehicles) do
