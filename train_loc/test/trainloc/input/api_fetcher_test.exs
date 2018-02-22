@@ -65,12 +65,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
     test "logs error with %HTTPoison.AsyncEnd{}" do
       state = %TrainLoc.Input.APIFetcher{url: "expected_url"}
       fun = fn -> handle_info(%HTTPoison.AsyncEnd{}, state) end
-
-      expected_logger_message =
-        "Keolis API Failure - "
-        <> "url=\"#{state.url}\" "
-        <> "error_type=\"HTTPoison.AsyncEnd\""
-
+      expected_logger_message = "Keolis API Disconnected. Retrying..."
       assert capture_log(fun) =~ expected_logger_message
     end
 
