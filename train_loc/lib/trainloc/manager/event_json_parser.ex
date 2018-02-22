@@ -49,8 +49,7 @@ defmodule TrainLoc.Manager.EventJsonParser do
     [json]
   end
   def extract_vehicles_json(json) when is_map(json) do
-    json
-    |> Enum.reduce([], fn
+    Enum.reduce(json, [], fn
       ({_key, %{"vehicleid" => _} = vehicle_json}, acc) ->
         [ vehicle_json | acc ]
       (_, acc) -> 
