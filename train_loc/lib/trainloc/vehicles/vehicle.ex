@@ -107,21 +107,25 @@ defmodule TrainLoc.Vehicles.Vehicle do
   def active_vehicle?(%__MODULE__{}), do: true
 
   @doc """
-  Accepts an individual vehicle, logs assignment information for it, and
-  returns the vehicle without modifying it.
+  Logs all available vehicle data for a single vehicle and returns it without
+  modifying it.
 
-  Assignment information includes the vehicle ID, the trip, and block the
-  vehicle was assigned to.
   """
-  @spec log_assignment(Vehicle.t) :: Vehicle.t
-  def log_assignment(%{vehicle_id: id, trip: trip, block: block} = vehicle) do
-    Logger.info(fn ->
-      "Vehicle Assignment - "
-      <> "id=#{inspect id} "
-      <> "trip=#{inspect trip} "
-      <> "block=#{inspect block}"
+  @spec log_vehicle(Vehicle.t) :: Vehicle.t
+  def log_vehicle(vehicle) do
+    Logger.debug(fn ->
+      Enum.reduce(Map.from_struct(vehicle), "Vehicle - ", fn {key, value}, acc ->
+        acc <> format_key_value_pair(key, value)
+      end)
     end)
     vehicle
+  end
+
+  defp format_key_value_pair(key, %DateTime{} = value) do
+    format_key_value_pair(key, DateTime.to_iso8601(value))
+  end
+  defp format_key_value_pair(key, value) do
+    "#{key}=#{value} "
   end
 
 end
