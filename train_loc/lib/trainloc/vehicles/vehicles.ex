@@ -40,8 +40,12 @@ defmodule TrainLoc.Vehicles.Vehicles do
     Map.put(vehicles, vehicle.vehicle_id, vehicle)
   end
 
-  @spec set(map, [Vehicle.t]) :: map
-  def set(old_vehicles, new_vehicles) do
+  @doc """
+  Updates or inserts vehicles into a map of 'old vehicles'.
+
+  """
+  @spec upsert(map, [Vehicle.t]) :: map
+  def upsert(old_vehicles, new_vehicles) do
     log_changed_assigns(old_vehicles, new_vehicles)
     # Convert the incoming list of vehicles to a map
     Enum.reduce(new_vehicles, old_vehicles, fn(x, acc) ->

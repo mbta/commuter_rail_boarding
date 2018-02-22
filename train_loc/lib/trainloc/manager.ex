@@ -61,7 +61,7 @@ defmodule TrainLoc.Manager do
       updated_vehicles
         |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
         |> Vehicles.log_assignments()
-        |> VState.set_vehicles()
+        |> VState.upsert_vehicles()
       all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
