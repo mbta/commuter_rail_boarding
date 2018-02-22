@@ -29,7 +29,6 @@ defmodule TrainLoc.Input.APIFetcher do
   # Server functions
   defstruct [
     url:        nil,
-    url_getter: nil,
     send_to:    TrainLoc.Manager,
     buffer:     "",
     connected?: false,
@@ -37,7 +36,8 @@ defmodule TrainLoc.Input.APIFetcher do
 
   def init(url_getter) do
     state = %__MODULE__{
-      url_getter: url_getter}
+      url: url_getter,
+    }
     if config(APIFetcher, :connect_at_startup?), do: send(self(), :connect)
     {:ok, state}
   end
@@ -116,7 +116,7 @@ defmodule TrainLoc.Input.APIFetcher do
   defp update_url(%{url: url} = state) when is_binary(url) do
     state
   end
-  defp update_url(%{url_getter: {m, f, a}} = state) do
+  defp update_url(%{url: {m, f, a}} = state) do
     %{ state | url: apply(m, f, a) }
   end
   
