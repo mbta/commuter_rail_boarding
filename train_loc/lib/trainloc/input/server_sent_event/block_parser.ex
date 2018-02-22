@@ -1,4 +1,7 @@
 defmodule TrainLoc.Input.ServerSentEvent.BlockParser do
+  @moduledoc """
+  The business logic for parsing a binary block into a ServerSentEvent.
+  """
   alias TrainLoc.Input.ServerSentEvent
 
   def parse(string) do  

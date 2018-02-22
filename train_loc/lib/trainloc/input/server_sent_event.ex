@@ -4,6 +4,8 @@ defmodule TrainLoc.Input.ServerSentEvent do
 
   The SSE protocol is defined by the W3C:
   https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream
+
+  Each binary block is parsed into a ServerSentEvent struct then validated.
   """
 
   alias TrainLoc.Input.ServerSentEvent

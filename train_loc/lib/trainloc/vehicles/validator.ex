@@ -1,6 +1,19 @@
 defmodule TrainLoc.Vehicles.Validator do
+  @moduledoc """
+  Intended to validate the expected data ranges and
+  expected values that a vehicle is allowed to have.
+  """
   alias TrainLoc.Vehicles.Vehicle
-  
+
+
+  @doc """
+  Validates a vehicles to ensure expected values.
+
+  Any discrepancy between expected values and actual values results
+  in an error tuple `{:error, reason}`.
+
+  A valid vehicle will result in an `:ok`.
+  """
   def validate(%Vehicle{} = veh) do
     with \
       :ok <- must_be_non_neg_int(veh, :vehicle_id),

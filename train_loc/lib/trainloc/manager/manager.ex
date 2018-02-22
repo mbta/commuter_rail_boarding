@@ -1,15 +1,15 @@
 defmodule TrainLoc.Manager do
   @moduledoc """
-  Consults the application's state, determines conflicting assignments, updates
-  the application's state, and reports conflicts to Splunk Cloud (via Logger).
+  Parses and validates incoming events, consults the application's state,
+  determines conflicting assignments, updates the application's state,
+  and reports conflicts to Splunk Cloud (via Logger).
   """
 
   use GenServer
   use Timex
 
   import TrainLoc.Utilities.ConfigHelpers
-
-  alias TrainLoc.Manager
+  alias TrainLoc.Manager.Event, as: ManagerEvent
   alias TrainLoc.Vehicles.{Vehicle, Vehicles, Validator, PreviousBatch}
   alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
@@ -55,7 +55,7 @@ defmodule TrainLoc.Manager do
   def handle_info({:events, events}, state) do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
-      case Manager.Event.from_string(event.data) do
+      case ManagerEvent.from_string(event.data) do
         {:ok, manager_event} ->
           update_vehicles(manager_event, state)
         {:error, reasons} when is_map(reasons) ->
@@ -77,7 +77,7 @@ defmodule TrainLoc.Manager do
     {:noreply, state}
   end
 
-  defp update_vehicles(%Manager.Event{} = manager_event, %{first_message?: first_message?, time_baseline: time_baseline_fn}) do
+  defp update_vehicles(%ManagerEvent{} = manager_event, %{first_message?: first_message?, time_baseline: time_baseline_fn}) do
     manager_event.vehicles_json
     |> vehicles_from_data
     |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
@@ -132,7 +132,7 @@ defmodule TrainLoc.Manager do
     log_invalid_vehicle(%{reason: reason})
   end
 
-  defp end_of_batch?(%Manager.Event{date: date}) when is_binary(date), do: true
+  defp end_of_batch?(%ManagerEvent{date: date}) when is_binary(date), do: true
   defp end_of_batch?(_), do: false
 
   defp run_end_of_batch_tasks(all_conflicts) do

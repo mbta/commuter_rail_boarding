@@ -1,4 +1,8 @@
 defmodule TrainLoc.Logging do
+  @moduledoc """
+  Standardizes the interface for logging key-values
+  intended for Splunk.
+  """
 
   @doc """
   Formats a title and map/keyword_list

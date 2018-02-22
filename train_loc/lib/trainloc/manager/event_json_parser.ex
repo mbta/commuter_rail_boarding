@@ -1,4 +1,14 @@
 defmodule TrainLoc.Manager.EventJsonParser do
+  @moduledoc """
+  Used to parse and validate binary `data` from the `ServerSentEvent`.
+
+  This module is concerned with extracting a json_map from a string,
+  extracting vehicles_json maps from the json_map, extracting a date from json_map,
+  and finally validating the extracted vehicle_json maps.
+
+  A failure to validate any vehicle_json map will result in an error tuple.
+  """
+
   alias TrainLoc.Manager.Event
 
   def parse(data) when is_binary(data) do
