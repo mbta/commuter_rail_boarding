@@ -10,7 +10,7 @@ defmodule TrainLoc.Manager do
   import TrainLoc.Utilities.ConfigHelpers
 
   alias TrainLoc.Manager
-  alias TrainLoc.Vehicles.{Vehicle, Vehicles, Validator}
+  alias TrainLoc.Vehicles.{Vehicle, Vehicles, Validator, PreviousBatch}
   alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
@@ -86,6 +86,11 @@ defmodule TrainLoc.Manager do
     all_conflicts = VState.get_duplicate_logons()
     {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
+
+    if end_of_batch?(manager_event) do
+      run_end_of_batch_tasks(all_conflicts)
+    end
+
     if manager_event.date do
       upload_vehicles_to_s3()
 
@@ -135,6 +140,23 @@ defmodule TrainLoc.Manager do
   defp log_invalid_vehicle(reason) when is_atom(reason) when is_binary(reason) do
     log_invalid_vehicle(%{reason: reason})
   end
+
+  defp end_of_batch?(%Manager.Event{date: date}) when is_binary(date), do: true
+  defp end_of_batch?(_), do: false
+
+  defp run_end_of_batch_tasks(all_conflicts) do
+    upload_vehicles_to_s3()
+    all_vehicles = VState.all_vehicles()
+    end_of_batch_logging(all_conflicts, all_vehicles)
+    PreviousBatch.put(all_vehicles)
+  end
+
+  defp end_of_batch_logging(all_conflicts, all_vehicles) do
+    Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
+    Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active." end)
+    Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
+  end
+
 
   defp upload_vehicles_to_s3() do
     vehicles = VState.all_vehicles()
