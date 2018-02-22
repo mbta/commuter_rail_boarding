@@ -1,5 +1,9 @@
 #!/bin/bash
 set -e -x -u
+#!/bin/bash
+set -e -u
+
+sudo pip install -U awscli
 
 # bash script should be called with aws environment ($APP-dev / $APP-dev-green / $APP-prod)
 # other required configuration:
@@ -12,42 +16,44 @@ githash=$(git rev-parse --short HEAD)
 
 # get JSON describing task definition currently running on AWS
 # use it as basis for new revision, but replace image with the one built above
-currtask=$(aws ecs describe-task-definition --region us-east-1 --task-definition $awsenv)
-currrole=$(echo $currtask | jq -r '.taskDefinition.taskRoleArn')
-newcontainers=$(echo $currtask | jq ".taskDefinition.containerDefinitions | map(.image=\"$DOCKER_REPO:git-$githash\")")
-aws ecs register-task-definition --family $awsenv --region us-east-1 --task-role-arn $currrole --container-definitions "$newcontainers"
+taskdefinition=$(aws ecs describe-task-definition --region us-east-1 --task-definition $awsenv)
+taskdefinition=$(echo $taskdefinition | jq ".taskDefinition | del(.status) | del(.taskDefinitionArn) | del(.requiresAttributes) | del(.revision) | del(.compatibilities)")
+newcontainers=$(echo $taskdefinition | jq ".containerDefinitions | map(.image=\"$DOCKER_REPO:git-$githash\")")
+aws ecs register-task-definition --region us-east-1 --family $awsenv --cli-input-json "$taskdefinition" --container-definitions "$newcontainers"
 newrevision=$(aws ecs describe-task-definition --region us-east-1 --task-definition $awsenv | jq '.taskDefinition.revision')
 
-# by setting the desired count to 0, ECS will kill the task that the ECS service is running
-# allowing us to update it and start the new one. Check every 5 seconds to see if it's dead
-# yet (AWS issues `docker stop` and it could take a moment to spin down). If it's still running
-# after several checks, something is wrong and the script should die.
-aws ecs update-service --region us-east-1 --cluster $APP --service $awsenv --desired-count 0
-tasks=$(aws ecs list-tasks --region us-east-1 --cluster $APP --service $awsenv| jq '.taskArns')
-checks=0
-until [[ $tasks = '[]' ]]; do
-  echo "tasks still running"
-  if [[ $checks -ge 6 ]]; then
+function task_count_eq {
+    local tasks
+    task_count=$(aws ecs list-tasks --region us-east-1 --cluster $APP --service $awsenv| jq '.taskArns | length')
+    [[ $task_count = "$1" ]]
+}
+
+function exit_if_too_many_checks {
+  if [[ $checks -ge 12 ]]; then
     exit 1
   fi
   sleep 5
-  tasks=$(aws ecs list-tasks --region us-east-1 --cluster $APP --service $awsenv | jq '.taskArns')
   checks=$((checks+1))
+}
+
+expected_count=$(aws ecs list-tasks --region us-east-1 --cluster $APP --service $awsenv| jq '.taskArns | length')
+
+aws ecs update-service --region us-east-1 --cluster $APP --service $awsenv --task-definition $awsenv:$newrevision
+if  [[ $expected_count = "0" ]]; then
+    echo Environment $APP:$awsenv is not running!
+    echo
+    echo We updated the definition: you can manually set the desired instances to 1.
+    exit 1
+fi
+
+checks=0
+while task_count_eq $expected_count; do
+    echo not yet started...
+    exit_if_too_many_checks
 done
 
-# Update the ECS service to use the new revision of the task definition. Then update the desired
-# count back to 1, so the container instance starts up the task. Check periodically to see if the
-# task is running yet, and signal deploy failure if it doesn't start up in a reasonable time.
-aws ecs update-service --region us-east-1 --cluster $APP --service $awsenv --task-definition $awsenv:$newrevision
-aws ecs update-service --region us-east-1 --cluster $APP --service $awsenv --desired-count 1
-tasks=$(aws ecs list-tasks --region us-east-1 --cluster $APP --service $awsenv | jq '.taskArns')
 checks=0
-while [[ $tasks = '[]' ]]; do
-  echo "no tasks running"
-  if [[ $checks -ge 6 ]]; then
-    exit 1
-  fi
-  sleep 5
-  tasks=$(aws ecs list-tasks --region us-east-1 --cluster $APP --service $awsenv | jq '.taskArns')
-  checks=$((checks+1))
+until task_count_eq $expected_count; do
+    echo old task not stopped...
+    exit_if_too_many_checks
 done

@@ -1,6 +1,6 @@
-defmodule TripUpdates.ProducerConsumer do
+defmodule DeparturesCSV.ProducerConsumer do
   @moduledoc """
-  GenStage ProducerConsumer which turns a list of BoardingStatus structs into an enhanced TripUpdates JSON file.
+  GenStage ProducerConsumer which turns a list of BoardingStatus structs into the legacy Departures.csv
   """
   use GenStage
   import StageHelpers
@@ -16,8 +16,7 @@ defmodule TripUpdates.ProducerConsumer do
   def handle_events(events, _from, state) do
     binary = events
     |> List.last
-    |> TripUpdates.to_map
-    |> Poison.encode!
-    {:noreply, [{"TripUpdates_enhanced.json", binary}], state}
+    |> DeparturesCSV.to_binary
+    {:noreply, [{"Departures.csv", binary}], state}
   end
 end

@@ -19,8 +19,35 @@ defmodule TripCache do
   def route_direction_id(""), do: :error
   def route_direction_id(trip_id) when is_binary(trip_id) do
     case :ets.lookup(@table, {:trip, trip_id}) do
-      [{_, route_id, direction_id}] -> {:ok, route_id, direction_id}
-      [] -> insert_and_return_route_direction_id(trip_id)
+      [{_, route_id, direction_id, _, _}] ->
+        {:ok, route_id, direction_id}
+      [] ->
+        with {:ok,
+              route_id,
+              direction_id,
+              _,
+              _} <- insert_and_return_trip_info(trip_id) do
+          {:ok, route_id, direction_id}
+        end
+    end
+  end
+
+  @doc """
+  Returns the name and headsign for a trip ID"
+  """
+  def trip_name_headsign(""), do: :error
+  def trip_name_headsign(trip_id) when is_binary(trip_id) do
+    case :ets.lookup(@table, {:trip, trip_id}) do
+      [{_, _, _, name, headsign}] ->
+        {:ok, name, headsign}
+      [] ->
+        with {:ok,
+              _,
+              _,
+              name,
+              headsign} <- insert_and_return_trip_info(trip_id) do
+          {:ok, name, headsign}
+        end
     end
   end
 
@@ -40,13 +67,18 @@ defmodule TripCache do
       end)
   end
 
-  defp insert_and_return_route_direction_id(trip_id) do
+  defp insert_and_return_trip_info(trip_id) do
     with {:ok, response} <- HTTPClient.get(
-           "/trips/#{trip_id}", [], params: [{"fields[trip]", "direction_id"}]),
+           "/trips/#{trip_id}", [], params: [{"fields[trip]", "direction_id,name,headsign"}]),
          %{status_code: 200, body: body} <- response,
-         {:ok, route_id, direction_id} <- decode_single_trip(body) do
-      _ = :ets.insert_new(@table, {{:trip, trip_id}, route_id, direction_id})
-      {:ok, route_id, direction_id}
+         {:ok,
+          route_id,
+          direction_id,
+          trip_name,
+          trip_headsign} <- decode_single_trip(body) do
+      row = {{:trip, trip_id}, route_id, direction_id, trip_name, trip_headsign}
+      _ = :ets.insert_new(@table, row)
+      {:ok, route_id, direction_id, trip_name, trip_headsign}
     else
       _ -> :error
     end
@@ -55,7 +87,9 @@ defmodule TripCache do
   defp decode_single_trip(%{"data" => %{"relationships" => relationships, "attributes" => attributes}}) do
     {:ok,
      relationships["route"]["data"]["id"],
-     attributes["direction_id"]}
+     attributes["direction_id"],
+     attributes["name"],
+     attributes["headsign"]}
   end
   defp decode_single_trip(%{"data" => []}) do
     :error

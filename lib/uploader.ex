@@ -4,10 +4,10 @@ defmodule Uploader do
 
   What "somewhere" means is up to the implementation.
   """
-  @callback upload(binary) :: :ok | {:error, term}
+  @callback upload(filename :: binary, body :: binary) :: :ok | {:error, term}
 
-  def upload(binary) do
+  def upload(filename, binary) do
     module = Application.fetch_env!(:commuter_rail_boarding, :uploader)
-    module.upload(binary)
+    module.upload(filename, binary)
   end
 end

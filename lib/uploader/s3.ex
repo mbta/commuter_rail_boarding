@@ -8,10 +8,10 @@ defmodule Uploader.S3 do
   import ConfigHelpers
 
   @impl true
-  def upload(binary) do
+  def upload(filename, binary) do
     request = S3.put_object(
       config(Uploader.S3, :bucket),
-      "TripUpdates_enhanced.json",
+      filename,
       binary,
       acl: :public_read,
       content_type: "application/json")
