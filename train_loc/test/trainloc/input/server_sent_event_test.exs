@@ -39,21 +39,4 @@ defmodule TrainLoc.Input.ServerSentEventTest do
     assert sse.data == binary_data <> "\n"
     assert sse.event == "put"
   end
-
-  # describe "validate/1" do
-  #   test "ok with valid event" do
-  #     valid_event = %ServerSentEvent{event: "put"}
-  #     assert ServerSentEvent.validate(valid_event) == :ok
-  #   end
-
-  #   test "error with unexpected event" do
-  #     invalid_event = %ServerSentEvent{event: "invalid_value_here"}
-  #     error_map = %{
-  #       expected: ["put", "message", "keep-alive", "auth_revoked", "cancel"],
-  #       got: "invalid_value_here",
-  #       reason: "Unexpected event type",
-  #     }
-  #     assert ServerSentEvent.validate(invalid_event) == {:error, error_map}
-  #   end
-  # end
 end
