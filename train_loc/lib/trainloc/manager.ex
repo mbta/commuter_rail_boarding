@@ -59,13 +59,9 @@ defmodule TrainLoc.Manager do
       case ManagerEvent.from_string(event.data) do
         {:ok, manager_event} ->
           update_vehicles(manager_event, state)
-        {:error, reasons} when is_map(reasons) ->
+        {:error, reason}  ->
           Logger.error(fn ->
-            Logging.log_string("Manager Event Parsing Error", reasons)
-          end)
-        {:error, reason} when is_atom(reason) when is_binary(reason) ->
-          Logger.error(fn ->
-            Logging.log_string("Manager Event Parsing Error", %{reason: reason})
+            Logging.log_string("Manager Event Parsing Error", reason)
           end)
       end
     end

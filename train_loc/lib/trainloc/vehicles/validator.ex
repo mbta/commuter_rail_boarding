@@ -10,7 +10,7 @@ defmodule TrainLoc.Vehicles.Validator do
   Validates a vehicles to ensure expected values.
 
   Any discrepancy between expected values and actual values results
-  in an error tuple `{:error, reason}`.
+  in an error tuple `{:error, reason}` where `reason` is an atom.
 
   A valid vehicle will result in an `:ok`.
   """

@@ -15,5 +15,11 @@ defmodule TrainLoc.LoggingTest do
       iolist = log_string("Hi", hello: :world)
       assert :erlang.iolist_to_binary(iolist) == expected
     end
+
+    test "given an atom returns a correctly formatted iolist with `reason` as the key" do
+      expected = "Hi - reason=because"
+      iolist = log_string("Hi", :because)
+      assert :erlang.iolist_to_binary(iolist) == expected
+    end
   end
 end

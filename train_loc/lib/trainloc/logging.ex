@@ -9,6 +9,9 @@ defmodule TrainLoc.Logging do
   intended to be logged to splunk
   into an iolist.
   """
+  def log_string(title, reason) when is_atom(reason) do
+    log_string(title, %{reason: reason})
+  end
   def log_string(title, params) when is_binary(title) when is_atom(title) do
     [ format_title(title) | do_splunk_format(params) ]
   end
