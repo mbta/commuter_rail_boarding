@@ -140,7 +140,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
     end
   end
 
-  describe "to_changes/1" do
+  describe "from_json/1" do
     test "works on valid json" do
       expected = %Vehicle{
         block: "602",
