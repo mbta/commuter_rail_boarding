@@ -6,14 +6,13 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Conflicts.Conflict
 
-  import ExUnit.CaptureLog
-  require Logger
-
   setup do
+    iso_8601 = "2017-08-04T11:01:51Z"
+    {:ok, datetime, 0} = DateTime.from_iso8601(iso_8601)
     vehicles = %{
       vehicle1: %Vehicle{
         vehicle_id: 1712,
-        timestamp: ~N[2017-08-04 11:01:51],
+        timestamp: datetime,
         block: "802",
         trip: "509",
         latitude: 42.24023,
@@ -24,7 +23,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
       },
       vehicle2: %Vehicle{
         vehicle_id: 1713,
-        timestamp: ~N[2017-08-04 11:01:51],
+        timestamp: datetime,
         block: "803",
         trip: "508",
         latitude: 42.24023,
@@ -35,7 +34,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
       },
       vehicle3: %Vehicle{
         vehicle_id: 1714,
-        timestamp: ~N[2017-08-04 11:01:51],
+        timestamp: datetime,
         block: "803",
         trip: "508",
         latitude: 42.24023,
@@ -46,7 +45,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
       },
       vehicle4: %Vehicle{
         vehicle_id: 1715,
-        timestamp: ~N[2017-08-04 11:01:51],
+        timestamp: datetime,
         block: "802",
         trip: "510",
         latitude: 42.24023,
@@ -93,10 +92,10 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
     assert Vehicles.get(vehicles, test_id) == nil
   end
 
-  test "sets vehicle state", %{vehicles: test_vehicles} do
+  test "upsert/2 updates or inserts vehicles", %{vehicles: test_vehicles} do
     vehicles_list = Map.values(test_vehicles)
 
-    vehicles = Vehicles.set(Vehicles.new(), vehicles_list)
+    vehicles = Vehicles.upsert(Vehicles.new(), vehicles_list)
 
     assert Vehicles.get(vehicles, test_vehicles.vehicle1.vehicle_id) == test_vehicles.vehicle1
     assert Vehicles.get(vehicles, test_vehicles.vehicle2.vehicle_id) == test_vehicles.vehicle2
@@ -112,25 +111,5 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         |> Vehicles.new()
 
       assert Vehicles.find_duplicate_logons(vehicles) == test_conflicts
-  end
-
-  describe "log_assignments/1" do
-    test "with list of valid vehicles", %{vehicles: test_vehicles} do
-      vehicles = Map.values(test_vehicles)
-      fun = fn -> Vehicles.log_assignments(vehicles) end
-
-      expected_logger_messages =
-        for vehicle <- vehicles do
-            "Vehicle Assignment - "
-            <> "id=#{inspect vehicle.vehicle_id} "
-            <> "trip=#{inspect vehicle.trip} "
-            <> "block=#{inspect vehicle.block}"
-        end
-
-      captured_logger_messages = capture_log(fun)
-      for expected_logger_message <- expected_logger_messages do
-        assert captured_logger_messages =~ expected_logger_message
-      end
-    end
   end
 end
