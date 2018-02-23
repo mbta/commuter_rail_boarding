@@ -101,23 +101,16 @@ defmodule TrainLoc.Manager do
   end
   
   def vehicles_from_data(data) when is_list(data) do
-    Enum.reduce(data, [], fn (json, acc) when is_map(json) ->
-      case vehicles_from_data(json) do
-        nil ->
-          acc
-        %Vehicle{} = vehicle ->
-          [ vehicle | acc ]
-      end
-    end)
+    Enum.flat_map(data, &vehicles_from_data/1)
   end
   def vehicles_from_data(json) when is_map(json) do
     vehicle = Vehicle.from_json(json)
     case Validator.validate(vehicle) do
       :ok ->
-        vehicle
+        [vehicle]
       {:error, reason} ->
         log_invalid_vehicle(reason)
-        nil
+        []
     end
   end
 

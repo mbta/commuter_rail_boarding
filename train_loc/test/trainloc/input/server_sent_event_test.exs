@@ -1,7 +1,7 @@
 defmodule TrainLoc.Input.ServerSentEventTest do
   use ExUnit.Case
-  doctest TrainLoc.Input.ServerSentEvent
   alias TrainLoc.Input.ServerSentEvent
+  doctest TrainLoc.Input.ServerSentEvent
   import TrainLoc.Input.ServerSentEvent
 
   @first_message_json %{
@@ -35,25 +35,25 @@ defmodule TrainLoc.Input.ServerSentEventTest do
   test "from_string/1 can parse vehicles in a \"results\" key" do
     binary_data = Poison.encode!(@first_message_json)
     raw_binary = "event: put\ndata: #{binary_data}\n\n"
-    assert {:ok, %ServerSentEvent{} = sse} = from_string(raw_binary)
+    assert %ServerSentEvent{} = sse = from_string(raw_binary)
     assert sse.data == binary_data <> "\n"
     assert sse.event == "put"
   end
 
-  describe "validate/1" do
-    test "ok with valid event" do
-      valid_event = %ServerSentEvent{event: "put"}
-      assert ServerSentEvent.validate(valid_event) == :ok
-    end
+  # describe "validate/1" do
+  #   test "ok with valid event" do
+  #     valid_event = %ServerSentEvent{event: "put"}
+  #     assert ServerSentEvent.validate(valid_event) == :ok
+  #   end
 
-    test "error with unexpected event" do
-      invalid_event = %ServerSentEvent{event: "invalid_value_here"}
-      error_map = %{
-        expected: ["put", "message", "keep-alive", "auth_revoked", "cancel"],
-        got: "invalid_value_here",
-        reason: "Unexpected event type",
-      }
-      assert ServerSentEvent.validate(invalid_event) == {:error, error_map}
-    end
-  end
+  #   test "error with unexpected event" do
+  #     invalid_event = %ServerSentEvent{event: "invalid_value_here"}
+  #     error_map = %{
+  #       expected: ["put", "message", "keep-alive", "auth_revoked", "cancel"],
+  #       got: "invalid_value_here",
+  #       reason: "Unexpected event type",
+  #     }
+  #     assert ServerSentEvent.validate(invalid_event) == {:error, error_map}
+  #   end
+  # end
 end

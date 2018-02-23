@@ -161,28 +161,12 @@ defmodule TrainLoc.Input.APIFetcher do
     log_keolis_error(%{error_type: reason})
   end
 
+  def parse_events_from_blocks([]) do
+    log_empty_events_error()
+    []
+  end
   def parse_events_from_blocks(event_blocks) when is_list(event_blocks) do
-    event_blocks
-    |> Enum.reduce({[], 0}, fn event_block, {events, errors_count} ->
-      case ServerSentEvent.from_string(event_block) do
-        {:ok, sse} ->
-          {[ sse | events ], errors_count}
-        {:error, errors} ->
-          log_keolis_error(%{
-            error_type: "Invalid Event Block",
-            parsing_errors: errors,
-          })
-          {events, errors_count + 1}
-      end
-    end)
-    |> case do
-      {[], 0} ->
-        # no events were parsed and no errors were accumulated
-        log_empty_events_error()
-        []
-      {events, _} ->
-        events
-    end
+    Enum.map(event_blocks, &ServerSentEvent.from_string/1)
   end
 
   defp log_keolis_error(state, message_fn) do
