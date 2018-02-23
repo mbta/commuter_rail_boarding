@@ -10,7 +10,8 @@ defmodule TrainLoc.Manager do
 
   import TrainLoc.Utilities.ConfigHelpers
   alias TrainLoc.Manager.Event, as: ManagerEvent
-  alias TrainLoc.Vehicles.{Vehicle, Vehicles, Validator, PreviousBatch}
+  alias TrainLoc.Vehicles.Validator, as: VehicleValidator
+  alias TrainLoc.Vehicles.{Vehicle, Vehicles, PreviousBatch}
   alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
@@ -105,7 +106,7 @@ defmodule TrainLoc.Manager do
   end
   def vehicles_from_data(json) when is_map(json) do
     vehicle = Vehicle.from_json(json)
-    case Validator.validate(vehicle) do
+    case VehicleValidator.validate(vehicle) do
       :ok ->
         [vehicle]
       {:error, reason} ->
