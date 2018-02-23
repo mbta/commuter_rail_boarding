@@ -86,7 +86,7 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncEnd{}, state) do
-    log_keolis_error state, fn -> "HTTPoison.AsyncEnd" end
+    Logger.info(fn -> "Keolis API Disconnected. Retrying..." end)
     state = %{state | buffer: ""}
     send self(), :connect
     {:noreply, state}
