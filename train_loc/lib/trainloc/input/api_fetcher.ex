@@ -34,9 +34,9 @@ defmodule TrainLoc.Input.APIFetcher do
     connected?: false,
   ]
 
-  def init(url_getter) do
+  def init(url_or_mfa) do
     state = %__MODULE__{
-      url: url_getter,
+      url: url_or_mfa,
     }
     if config(APIFetcher, :connect_at_startup?), do: send(self(), :connect)
     {:ok, state}
@@ -46,16 +46,16 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, Enum.reduce(Map.keys(new_state), state, &Map.put(&2, &1, new_state[&1]))}
   end
   def handle_info(:connect, state) do
-    state = update_url(state)
-    Logger.debug(fn -> "#{__MODULE__} requesting #{state.url}" end)
+    url = compute_url(state)
+    Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
     headers = [
-      {"Accept", "text/event-stream"}
+      {"Accept", "text/event-stream"},
     ]
     httpoison_opts = [
       recv_timeout: 60_000,
       stream_to: self(),
     ]
-    {:ok, _} = HTTPoison.get(state.url, headers, httpoison_opts)
+    {:ok, _} = HTTPoison.get(url, headers, httpoison_opts)
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
@@ -113,13 +113,13 @@ defmodule TrainLoc.Input.APIFetcher do
     end
   end
 
-  defp update_url(%{url: url} = state) when is_binary(url) do
-    state
+  defp compute_url(%{url: {m, f, a}}) do
+    apply(m, f, a)
   end
-  defp update_url(%{url: {m, f, a}} = state) do
-    %{ state | url: apply(m, f, a) }
+  defp compute_url(%{url: url}) when is_binary(url) do
+    url
   end
-  
+
   def log_empty_events_error() do
     log_keolis_error("No events parsed")
   end
