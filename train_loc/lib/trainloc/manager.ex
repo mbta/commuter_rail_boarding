@@ -110,15 +110,13 @@ defmodule TrainLoc.Manager do
     end
   end
 
-  defp log_invalid_vehicle(reasons) when is_map(reasons) do
+  defp log_invalid_vehicle(reason) when is_atom(reason) do
     Logger.error(fn ->
-      message = "Manager Vehicle Validation Error"
-      reasons = Map.put(reasons, :error_type, "Validation Error")
-      Logging.log_string(message, reasons)
+      Logging.log_string("Manager Parsing Error", %{
+        error_type: "Vehicle Validation Error",
+        reason: reason,
+      })
     end)
-  end
-  defp log_invalid_vehicle(reason) when is_atom(reason) when is_binary(reason) do
-    log_invalid_vehicle(%{reason: reason})
   end
 
   defp reject_stale_vehicles(vehicles, time_baseline) do
