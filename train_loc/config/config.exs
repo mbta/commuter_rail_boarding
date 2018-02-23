@@ -20,7 +20,7 @@ use Mix.Config
 config :logger, :console,
   format: "$date $time $metadata[$level] $message\n",
   metadata: [:request_id],
-  level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "info")
+  level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "debug")
 
 config :goth,
   json: {:system, "CREDENTIALS_JSON"}

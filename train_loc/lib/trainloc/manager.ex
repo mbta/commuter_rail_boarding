@@ -11,7 +11,7 @@ defmodule TrainLoc.Manager do
   import TrainLoc.Utilities.ConfigHelpers
   alias TrainLoc.Manager.Event, as: ManagerEvent
   alias TrainLoc.Vehicles.Validator, as: VehicleValidator
-  alias TrainLoc.Vehicles.{Vehicle, Vehicles, PreviousBatch}
+  alias TrainLoc.Vehicles.{Vehicle, PreviousBatch}
   alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
@@ -81,9 +81,8 @@ defmodule TrainLoc.Manager do
   defp update_vehicles(%ManagerEvent{} = manager_event, %{first_message?: first_message?, time_baseline: time_baseline_fn}) do
     manager_event.vehicles_json
     |> vehicles_from_data
-    |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
-    |> Vehicles.log_assignments()
-    |> VState.set_vehicles()
+    |> reject_stale_vehicles(time_baseline_fn.())
+    |> VState.upsert_vehicles()
     all_conflicts = VState.get_duplicate_logons()
     {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
@@ -124,6 +123,15 @@ defmodule TrainLoc.Manager do
   end
   defp log_invalid_vehicle(reason) when is_atom(reason) when is_binary(reason) do
     log_invalid_vehicle(%{reason: reason})
+  end
+
+  defp reject_stale_vehicles(vehicles, time_baseline) do
+    Enum.reject(vehicles, fn vehicle -> stale?(vehicle, time_baseline) end)
+  end
+
+  defp stale?(vehicle, time_baseline) do
+    age = time_baseline - Timex.to_unix(vehicle.timestamp)
+    age > @stale_data_seconds
   end
 
   defp end_of_batch?(%ManagerEvent{date: date}) when is_binary(date), do: true
