@@ -48,8 +48,9 @@ defmodule TrainLoc.Vehicles.Vehicles do
   def upsert(old_vehicles, new_vehicles) do
     log_changed_assigns(old_vehicles, new_vehicles)
     # Convert the incoming list of vehicles to a map
-    Enum.reduce(new_vehicles, old_vehicles, fn(x, acc) ->
-      Map.put(acc, x.vehicle_id, x)
+    Enum.reduce(new_vehicles, old_vehicles, fn(new_vehicle, acc) ->
+      Vehicle.log_vehicle(new_vehicle)
+      Map.put(acc, new_vehicle.vehicle_id, new_vehicle)
     end)
   end
 
@@ -81,18 +82,6 @@ defmodule TrainLoc.Vehicles.Vehicles do
       |> Enum.map(&Conflict.from_tuple(&1, :block))
 
     Enum.concat(same_trip, same_block)
-  end
-
-  @doc """
-  Accepts a list of vehicles, logs assignment information for each vehicle, and
-  returns the list of vehicles without modifying it.
-  """
-  @spec log_assignments([Vehicle.t]) :: [Vehicle.t]
-  def log_assignments(vehicles) do
-    for vehicle <- vehicles do
-      Vehicle.log_assignment(vehicle)
-    end
-    vehicles
   end
 
   @spec reject_group?({String.t, [Vehicle.t]}) :: boolean

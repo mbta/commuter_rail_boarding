@@ -10,7 +10,6 @@ defmodule TrainLoc.Manager do
   import TrainLoc.Utilities.ConfigHelpers
 
   alias TrainLoc.Vehicles.Vehicle
-  alias TrainLoc.Vehicles.Vehicles
   alias TrainLoc.Vehicles.PreviousBatch
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
@@ -59,9 +58,8 @@ defmodule TrainLoc.Manager do
       updated_vehicles = vehicles_from_data(data, first_message?)
 
       updated_vehicles
-        |> Enum.reject(fn v -> time_baseline_fn.() - Timex.to_unix(v.timestamp) > @stale_data_seconds end)
-        |> Vehicles.log_assignments()
-        |> VState.upsert_vehicles()
+      |> reject_stale_vehicles(time_baseline_fn.())
+      |> VState.upsert_vehicles()
       all_conflicts = VState.get_duplicate_logons()
       {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
@@ -93,6 +91,15 @@ defmodule TrainLoc.Manager do
   end
   defp vehicles_from_data(data, _) do
     Vehicle.from_json_object(data)
+  end
+
+  defp reject_stale_vehicles(vehicles, time_baseline) do
+    Enum.reject(vehicles, fn vehicle -> stale?(vehicle, time_baseline) end)
+  end
+
+  defp stale?(vehicle, time_baseline) do
+    age = time_baseline - Timex.to_unix(vehicle.timestamp)
+    age > @stale_data_seconds
   end
 
   defp end_of_batch?(%{"date" => _date}), do: true

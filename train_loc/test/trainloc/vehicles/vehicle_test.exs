@@ -112,20 +112,34 @@ defmodule TrainLoc.Vehicles.VehicleTest do
     ]
   end
 
-  describe "log_assignment/1" do
+  describe "log_vehicle/1" do
     test "with valid vehicle" do
+      iso_8601 = "2015-01-23T23:50:07Z"
+      {:ok, datetime, 0} = DateTime.from_iso8601(iso_8601)
       vehicle = %Vehicle{
         vehicle_id: 1712,
+        timestamp: datetime,
         block: "802",
         trip: "509",
+        latitude: 42.36698,
+        longitude: -71.06314,
+        speed: 10,
+        heading: 318,
+        fix: 6
       }
-      fun = fn -> Vehicle.log_assignment(vehicle) end
+      fun = fn -> Vehicle.log_vehicle(vehicle) end
 
       expected_logger_message =
-        "Vehicle Assignment - "
-        <> "id=#{inspect vehicle.vehicle_id} "
-        <> "trip=#{inspect vehicle.trip} "
-        <> "block=#{inspect vehicle.block}"
+        "Vehicle - "
+        <> "block=#{vehicle.block} "
+        <> "fix=#{vehicle.fix} "
+        <> "heading=#{vehicle.heading} "
+        <> "latitude=#{vehicle.latitude} "
+        <> "longitude=#{vehicle.longitude} "
+        <> "speed=#{vehicle.speed} "
+        <> "timestamp=#{iso_8601} "
+        <> "trip=#{vehicle.trip} "
+        <> "vehicle_id=#{vehicle.vehicle_id} "
 
       assert capture_log(fun) =~ expected_logger_message
     end
