@@ -2,7 +2,7 @@ defmodule Mix.Tasks.InferBlocks do
   use Mix.Task
   alias TrainLoc.LogAnalyzer.BlockInferrer
 
-  @shortdoc "Infers blocks from vehicle assignment logs and writes them in JSON"
+  @shortdoc "Infers blocks from vehicle assignment logs"
   def run(logs_file_path) do
     blocks =
       logs_file_path
