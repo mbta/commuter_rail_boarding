@@ -5,6 +5,7 @@ defmodule TrainLoc.Vehicles.Validator do
   """
   alias TrainLoc.Vehicles.Vehicle
 
+  @default_error {:error, :invalid_vehicle}
 
   @doc """
   Validates a vehicles to ensure expected values.
@@ -22,8 +23,8 @@ defmodule TrainLoc.Vehicles.Validator do
       :ok <- must_not_be_blank(veh, :block),
       :ok <- must_be_string(veh, :trip),
       :ok <- must_not_be_blank(veh, :trip),
-      :ok <- must_be_float(veh, :latitude),
-      :ok <- must_be_float(veh, :longitude),
+      :ok <- must_have_valid_latitude(veh),
+      :ok <- must_have_valid_longitude(veh),
       :ok <- must_be_in_range(veh, :heading, 0..359),
       :ok <- must_be_non_neg_int(veh, :speed),
       :ok <- must_be_in_range(veh, :fix, 0..9)
@@ -35,7 +36,7 @@ defmodule TrainLoc.Vehicles.Validator do
     {:error, :not_a_vehicle}
   end
 
-  defp run_validation(veh, field, bool_func, error \\ {:error, :invalid_vehicle}) when is_function(bool_func, 1) do
+  defp run_validation(veh, field, bool_func, error \\ @default_error) when is_function(bool_func, 1) do
     if veh |> Map.get(field) |> bool_func.() do
       :ok
     else
@@ -81,4 +82,17 @@ defmodule TrainLoc.Vehicles.Validator do
     run_validation(veh, field, in_range?)
   end
 
+  def must_have_valid_latitude(%Vehicle{latitude: lat}) when is_float(lat) and lat >= 41.5 and lat <= 42.8 do
+    :ok
+  end
+  def must_have_valid_latitude(_) do
+    @default_error
+  end
+
+  def must_have_valid_longitude(%Vehicle{longitude: long}) when is_float(long) and long >= -72.0 and long <= -70.25 do
+    :ok
+  end
+  def must_have_valid_longitude(_) do
+    @default_error
+  end
 end
