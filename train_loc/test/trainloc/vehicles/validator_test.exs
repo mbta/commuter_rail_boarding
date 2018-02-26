@@ -50,19 +50,47 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     end
   end
 
-  describe "must_be_float/2" do
-    test "works for floats" do
-      params = %{the_field: 1.1}
-      expected = :ok
-      result = Validator.must_be_float(params, :the_field) 
-      assert result == expected
+  describe "must_have_valid_latitude/1" do
+    test "ok for valid values in range" do
+      veh = %Vehicle{latitude: 41.6, vehicle_id: 1}
+      assert :ok = Validator.must_have_valid_latitude(veh)
     end
 
-    test "fails for non-floats" do
-      params = %{the_field: :other}
-      expected = {:error, :invalid_vehicle}
-      result = Validator.must_be_float(params, :the_field) 
-      assert result == expected
+    test "errors non-floats" do
+      veh = %Vehicle{latitude: nil, vehicle_id: 1}
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_latitude(veh)
+    end
+
+    test "errors for high values" do
+      veh = %Vehicle{latitude: 44.6, vehicle_id: 1}
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_latitude(veh)
+    end
+
+    test "errors for low values" do
+      veh = %Vehicle{latitude: 32.0, vehicle_id: 1}
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_latitude(veh)
+    end
+  end
+
+  describe "must_have_valid_longitude/1" do
+    test "ok for valid values in range" do
+      veh = %Vehicle{longitude: -71.0, vehicle_id: 1}
+      assert :ok = Validator.must_have_valid_longitude(veh)
+    end
+
+    test "errors non-floats" do
+      veh = %Vehicle{longitude: nil, vehicle_id: 1}
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_longitude(veh)
+    end
+
+    test "errors for high values" do
+      veh = %Vehicle{longitude: -68.0, vehicle_id: 1}
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_longitude(veh)
+    end
+
+    test "errors for low values" do
+      veh = %Vehicle{longitude: -73.0, vehicle_id: 1}
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_longitude(veh)
     end
   end
 
