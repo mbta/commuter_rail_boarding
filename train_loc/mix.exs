@@ -15,6 +15,7 @@ defmodule TrainLoc.Mixfile do
        "coveralls.html": :test,
        "coveralls.json": :test
      ],
+     dialyzer: [ignore_warnings: "dialyzer.ignore-warnings"],
     ]
   end
 
