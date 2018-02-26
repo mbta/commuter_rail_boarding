@@ -29,5 +29,4 @@ defmodule TrainLoc.Vehicles.JsonValidator do
   def validate(_) do
     {:error, :invalid_json}
   end
-
 end

@@ -1,4 +1,3 @@
-
 defmodule TrainLoc.LoggingTest do
   use ExUnit.Case
   import TrainLoc.Logging
