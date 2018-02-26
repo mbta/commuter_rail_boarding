@@ -82,6 +82,13 @@ defmodule TrainLoc.Vehicles.Validator do
     run_validation(veh, field, in_range?)
   end
 
+  @doc """
+  Validates the type and range value of a Vehicles latitude.
+
+  The outhernmost station is Wickford Junction (41.5).
+
+  The northernmost station is Newburyport (42.8).
+  """
   def must_have_valid_latitude(%Vehicle{latitude: lat}) when is_float(lat) and lat >= 41.5 and lat <= 42.8 do
     :ok
   end
@@ -89,6 +96,16 @@ defmodule TrainLoc.Vehicles.Validator do
     @default_error
   end
 
+  @doc """
+  Validates the type and range value of a Vehicles longitude.
+
+  The westernmost station is Wachusett (-72).
+
+  The easternmost station depends on whether the summer
+  CapeFLYER trains use vehicles that appear in this
+  feed - either Rockport (-70.6) or Hyannis (-70.25). In this
+  case, Hyannis (-70.25) was chosen because it is more permissive.
+  """
   def must_have_valid_longitude(%Vehicle{longitude: long}) when is_float(long) and long >= -72.0 and long <= -70.25 do
     :ok
   end
