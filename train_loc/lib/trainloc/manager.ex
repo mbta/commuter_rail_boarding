@@ -112,7 +112,7 @@ defmodule TrainLoc.Manager do
 
   defp log_invalid_vehicle(reason) when is_atom(reason) do
     Logger.error(fn ->
-      log_string("Manager Vehicle Validation Error", reason)
+      Logging.log_string("Manager Vehicle Validation Error", reason)
     end)
   end
 
