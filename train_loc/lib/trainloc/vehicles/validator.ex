@@ -36,11 +36,11 @@ defmodule TrainLoc.Vehicles.Validator do
     {:error, :not_a_vehicle}
   end
 
-  defp run_validation(veh, field, bool_func, error \\ @default_error) when is_function(bool_func, 1) do
+  defp run_validation(veh, field, bool_func) when is_function(bool_func, 1) do
     if veh |> Map.get(field) |> bool_func.() do
       :ok
     else
-      error
+      @default_error
     end
   end
 
