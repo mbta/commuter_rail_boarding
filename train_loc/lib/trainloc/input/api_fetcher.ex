@@ -6,7 +6,7 @@ defmodule TrainLoc.Input.APIFetcher do
   """
 
   alias TrainLoc.Input.ServerSentEvent
-
+  alias TrainLoc.Logging
   use GenServer
 
   require Logger
@@ -27,11 +27,17 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   # Server functions
-  defstruct [:url, send_to: TrainLoc.Manager, buffer: "", connected?: false]
+  defstruct [
+    url:        nil,
+    send_to:    TrainLoc.Manager,
+    buffer:     "",
+    connected?: false,
+  ]
 
-  def init(url) do
+  def init(url_or_mfa) do
     state = %__MODULE__{
-      url: url}
+      url: url_or_mfa,
+    }
     if config(APIFetcher, :connect_at_startup?), do: send(self(), :connect)
     {:ok, state}
   end
@@ -43,12 +49,13 @@ defmodule TrainLoc.Input.APIFetcher do
     url = compute_url(state)
     Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
     headers = [
-      {"Accept", "text/event-stream"}
+      {"Accept", "text/event-stream"},
     ]
-    {:ok, _} = HTTPoison.get(
-      url, headers,
+    httpoison_opts = [
       recv_timeout: 60_000,
-      stream_to: self())
+      stream_to: self(),
+    ]
+    {:ok, _} = HTTPoison.get(url, headers, httpoison_opts)
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
@@ -63,21 +70,13 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state) do
-    buffer = state.buffer <> chunk
-    event_binaries = String.split(buffer, "\n\n")
-    {event_binaries, [buffer]} = Enum.split(event_binaries, -1)
-    events = Enum.map(event_binaries, &ServerSentEvent.from_string/1)
-    unless events == [] do
-      Logger.info fn -> "#{__MODULE__} received #{length events} events" end
-      for event <- events do
-        Logger.debug(fn ->
-          inspect(event, limit: :infinity, printable_limit: :infinity)
-        end)
-      end
-      send(state.send_to, {:events, events})
-    end
-
+    {event_blocks, buffer} = extract_event_blocks_from_buffer(state.buffer <> chunk)
     state = %{state | buffer: buffer}
+
+    event_blocks
+    |> parse_events_from_blocks
+    |> send_events_for_processing(state.send_to)
+
     {:noreply, state}
   end
   def handle_info(%HTTPoison.Error{reason: reason}, state) do
@@ -105,6 +104,15 @@ defmodule TrainLoc.Input.APIFetcher do
     {:noreply, state}
   end
 
+  def extract_event_blocks_from_buffer(buffer) do
+    buffer
+    |> String.split("\n\n") # separate events
+    |> Enum.split(-1) # last one is new_buffer
+    |> case do
+      {events, [new_buffer]} -> {events, new_buffer}
+    end
+  end
+
   defp compute_url(%{url: {m, f, a}}) do
     apply(m, f, a)
   end
@@ -112,9 +120,59 @@ defmodule TrainLoc.Input.APIFetcher do
     url
   end
 
+  def log_empty_events_error() do
+    log_keolis_error("No events parsed")
+  end
+
+  def log_parsing_error(errors) when is_list(errors) do
+    Enum.each(errors, &log_parsing_error/1)
+  end
+  def log_parsing_error(error) when is_map(error) do
+    error
+    |> Map.put(:error_type, "Parsing Error")
+    |> log_keolis_error
+  end
+
+  def send_events_for_processing(events, send_to) when is_list(events) do
+    Logger.info fn -> "#{__MODULE__} received #{length events} events" end
+    for event <- events do
+      Logger.debug(fn ->
+        inspect(event, limit: :infinity, printable_limit: :infinity)
+      end)
+    end
+    send_events_to(events, send_to)
+  end
+
+  defp send_events_to([], _destination) do
+    # return {:events, []} to keep return api/shape consistent
+    {:events, []}
+  end
+  defp send_events_to(events, destination) do
+    send(destination, {:events, events})
+  end
+
+  def log_keolis_error(fields) when is_map(fields) do
+    Logger.error(fn ->
+      Logging.log_string("Keolis API Failure", fields)
+    end)
+
+  end
+  def log_keolis_error(reason) when is_binary(reason) do
+    log_keolis_error(%{error_type: reason})
+  end
+
+  def parse_events_from_blocks([]) do
+    log_empty_events_error()
+    []
+  end
+  def parse_events_from_blocks(event_blocks) when is_list(event_blocks) do
+    Enum.map(event_blocks, &ServerSentEvent.from_string/1)
+  end
+
   defp log_keolis_error(state, message_fn) do
     Logger.error fn ->
       "#{__MODULE__} Keolis API Failure - url=#{inspect state.url} error_type=#{inspect message_fn.()}"
     end
   end
+
 end

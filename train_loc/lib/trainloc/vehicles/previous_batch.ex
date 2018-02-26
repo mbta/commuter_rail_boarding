@@ -3,7 +3,6 @@ defmodule TrainLoc.Vehicles.PreviousBatch do
   Keeps track of vehicle data received in the previously processed Keolis batch.
 
   """
-
   use GenServer
   require Logger
 

@@ -1,4 +1,4 @@
-defmodule Trainloc.Mixfile do
+defmodule TrainLoc.Mixfile do
   use Mix.Project
 
   def project do

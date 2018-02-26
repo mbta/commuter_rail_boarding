@@ -2,9 +2,7 @@ defmodule TrainLoc.Utilities.Time do
   @moduledoc """
   Utility module for working with times
   """
-
   use Timex
-
   import TrainLoc.Utilities.ConfigHelpers
 
   # Week starts on Sunday
@@ -21,8 +19,10 @@ defmodule TrainLoc.Utilities.Time do
     |> Timex.to_unix()
   end
 
-  def parse_improper_unix(local_unix, timezone \\ config(:time_zone)) do
-    offset = timezone
+  def parse_improper_unix(local_unix, timezone \\ config(:time_zone))
+  def parse_improper_unix(local_unix, timezone) when is_integer(local_unix) do
+    offset =
+      timezone
       |> Timezone.get()
       |> Timezone.total_offset()
 
@@ -31,12 +31,16 @@ defmodule TrainLoc.Utilities.Time do
     |> Timezone.convert(timezone)
     |> Timex.shift(seconds: offset * -1)
   end
+  def parse_improper_unix(_, _) do
+    nil
+  end
 
-  @spec naive_parse_unix(integer) :: DateTime.t | {:error, term}
-  def naive_parse_unix(unix) do
+
+  @spec naive_parse_unix(integer) :: NaiveDateTime.t | {:error, term}
+  def naive_parse_unix(unix) when is_integer(unix) do
     unix
-      |> Timex.from_unix()
-      |> Timex.to_naive_datetime()
+    |> DateTime.from_unix!
+    |> DateTime.to_naive
   end
 
   @spec end_of_service_date(DateTime.t) :: DateTime.t

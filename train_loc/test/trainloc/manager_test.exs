@@ -20,34 +20,21 @@ defmodule TrainLoc.ManagerTest do
   describe "`:events` callback logs 'only old locations in batch' warning" do
     test "logs warning if batch has same data as previous batch" do
       unix_timestamp = DateTime.to_unix(DateTime.utc_now())
-      datetime_timestamp = Time.parse_improper_unix(unix_timestamp)
-      previous_batch = [
-        %Vehicle{
-          fix: 3,
-          heading: 0,
-          latitude: 42.24 / 100000,
-          longitude: -71.12 / 100000,
-          trip: "some trip",
-          speed: 7,
-          timestamp: datetime_timestamp,
-          vehicle_id: 1712,
-          block: "some block",
-        }
-      ]
-      PreviousBatch.put(previous_batch)
       vehicle_1_data = %{
-        data: %{
-          fix: 3,
-          heading: 0,
-          latitude: 42.24,
-          longitude: -71.12,
-          routename: "some trip",
-          speed: 7,
-          updatetime: unix_timestamp,
-          vehicleid: 1712,
-          workid: "some block"
-        }
+        "fix" => 3,
+        "heading" => 0,
+        "latitude" => 4224005,
+        "longitude" => -7112007,
+        "routename" => "some trip",
+        "speed" => 7,
+        "updatetime" => unix_timestamp,
+        "vehicleid" => 1712,
+        "workid" => 0
       }
+      vehicle_1 = Vehicle.from_json(vehicle_1_data)
+      previous_batch = [vehicle_1]
+      PreviousBatch.put(previous_batch)
+
       end_of_batch_event_data = %{data: %{date: "some date"}}
       events =
         for data <- [vehicle_1_data, end_of_batch_event_data] do

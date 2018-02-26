@@ -42,7 +42,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
   @type t :: %__MODULE__{
     vehicle_id: non_neg_integer,
     timestamp: DateTime.t,
-    block: non_neg_integer,
+    block: String.t,
     trip: String.t,
     latitude: float,
     longitude: float,
@@ -74,21 +74,31 @@ defmodule TrainLoc.Vehicles.Vehicle do
   end
 
   @spec from_json_elem({any, map}) :: [%Vehicle{}]
-  defp from_json_elem({_, veh_data = %{"vehicleid" => vehicle_id}}) do
-    [%__MODULE__{
-      vehicle_id: vehicle_id,
-      timestamp:  Time.parse_improper_unix(veh_data["updatetime"]),
-      block:      to_string(veh_data["workid"]),
-      trip:       process_trip(veh_data["routename"]),
-      latitude:   veh_data["latitude"] / 100000,
-      longitude:  veh_data["longitude"] / 100000,
-      heading:    veh_data["heading"],
-      speed:      veh_data["speed"],
-      fix:        veh_data["fix"]
-    }]
+  defp from_json_elem({_, veh_data = %{"vehicleid" => _vehicle_id}}) do
+    [from_json(veh_data)]
   end
   defp from_json_elem({_, _}), do: []
 
+  def from_json(veh_data) when is_map(veh_data) do
+    %__MODULE__{
+      vehicle_id: veh_data["vehicleid"],
+      timestamp:  Time.parse_improper_unix(veh_data["updatetime"]),
+      block:      to_string(veh_data["workid"]),
+      trip:       process_trip(veh_data["routename"]),
+      latitude:   degrees_from_json(veh_data["latitude"]),
+      longitude:  degrees_from_json(veh_data["longitude"]),
+      heading:    veh_data["heading"],
+      speed:      veh_data["speed"],
+      fix:        veh_data["fix"],
+    }
+  end
+
+  defp degrees_from_json(numerator) when is_integer(numerator) do
+    numerator / 100000
+  end
+  defp degrees_from_json(_) do
+    nil
+  end
 
   @spec process_trip(String.t) :: String.t
   defp process_trip("NO TRAIN SELECTED"), do: "0"

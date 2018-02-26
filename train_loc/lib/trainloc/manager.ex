@@ -1,16 +1,18 @@
 defmodule TrainLoc.Manager do
   @moduledoc """
-  Consults the application's state, determines conflicting assignments, updates
-  the application's state, and reports conflicts to Splunk Cloud (via Logger).
+  Parses and validates incoming events, consults the application's state,
+  determines conflicting assignments, updates the application's state,
+  and reports conflicts to Splunk Cloud (via Logger).
   """
 
   use GenServer
   use Timex
 
   import TrainLoc.Utilities.ConfigHelpers
-
-  alias TrainLoc.Vehicles.Vehicle
-  alias TrainLoc.Vehicles.PreviousBatch
+  alias TrainLoc.Manager.Event, as: ManagerEvent
+  alias TrainLoc.Vehicles.Validator, as: VehicleValidator
+  alias TrainLoc.Vehicles.{Vehicle, PreviousBatch}
+  alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.State, as: VState
   alias TrainLoc.Conflicts.State, as: CState
@@ -51,29 +53,16 @@ defmodule TrainLoc.Manager do
     {:reply, true, state}
   end
 
-  def handle_info({:events, events}, %{first_message?: first_message?, time_baseline: time_baseline_fn} = state) do
+  def handle_info({:events, events}, state) do
     for event <- events, event.event == "put" do
       Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
-      data = Poison.decode!(event.data)["data"]
-      updated_vehicles = vehicles_from_data(data, first_message?)
-
-      updated_vehicles
-      |> reject_stale_vehicles(time_baseline_fn.())
-      |> VState.upsert_vehicles()
-      all_conflicts = VState.get_duplicate_logons()
-      {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
-
-      if end_of_batch?(data) do
-        run_end_of_batch_tasks(all_conflicts)
-      end
-
-      if not first_message? do
-        Enum.each(new_conflicts, fn c ->
-          Logger.warn(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
-        end)
-        Enum.each(removed_conflicts, fn c ->
-          Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
-        end)
+      case ManagerEvent.from_string(event.data) do
+        {:ok, manager_event} ->
+          update_vehicles(manager_event, state)
+        {:error, reason}  ->
+          Logger.error(fn ->
+            Logging.log_string("Manager Event Parsing Error", reason)
+          end)
       end
     end
 
@@ -85,12 +74,46 @@ defmodule TrainLoc.Manager do
     {:noreply, state}
   end
 
-  defp vehicles_from_data(nil, _), do: []
-  defp vehicles_from_data(data, true) do
-    Vehicle.from_json_map(data["results"])
+  defp update_vehicles(%ManagerEvent{} = manager_event, %{first_message?: first_message?, time_baseline: time_baseline_fn}) do
+    manager_event.vehicles_json
+    |> vehicles_from_data
+    |> reject_stale_vehicles(time_baseline_fn.())
+    |> VState.upsert_vehicles()
+    all_conflicts = VState.get_duplicate_logons()
+    {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
+
+    if end_of_batch?(manager_event) do
+      run_end_of_batch_tasks(all_conflicts)
+    end
+
+    if not first_message? do
+      Enum.each(new_conflicts, fn c ->
+        Logger.warn(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
+      end)
+      Enum.each(removed_conflicts, fn c ->
+        Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
+      end)
+    end
   end
-  defp vehicles_from_data(data, _) do
-    Vehicle.from_json_object(data)
+  
+  def vehicles_from_data(data) when is_list(data) do
+    Enum.flat_map(data, &vehicles_from_data/1)
+  end
+  def vehicles_from_data(json) when is_map(json) do
+    vehicle = Vehicle.from_json(json)
+    case VehicleValidator.validate(vehicle) do
+      :ok ->
+        [vehicle]
+      {:error, reason} ->
+        log_invalid_vehicle(reason)
+        []
+    end
+  end
+
+  defp log_invalid_vehicle(reason) when is_atom(reason) do
+    Logger.error(fn ->
+      Logging.log_string("Manager Vehicle Validation Error", reason)
+    end)
   end
 
   defp reject_stale_vehicles(vehicles, time_baseline) do
@@ -102,7 +125,7 @@ defmodule TrainLoc.Manager do
     age > @stale_data_seconds
   end
 
-  defp end_of_batch?(%{"date" => _date}), do: true
+  defp end_of_batch?(%ManagerEvent{date: date}) when is_binary(date), do: true
   defp end_of_batch?(_), do: false
 
   defp run_end_of_batch_tasks(all_conflicts) do
@@ -117,6 +140,7 @@ defmodule TrainLoc.Manager do
     Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active." end)
     Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
   end
+
 
   defp upload_vehicles_to_s3() do
     vehicles = VState.all_vehicles()

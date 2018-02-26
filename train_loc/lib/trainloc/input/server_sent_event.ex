@@ -4,15 +4,20 @@ defmodule TrainLoc.Input.ServerSentEvent do
 
   The SSE protocol is defined by the W3C:
   https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream
+
+  Each binary block is parsed into a ServerSentEvent struct then validated.
   """
+
+  alias TrainLoc.Input.ServerSentEvent.BlockParser
+
   defstruct [
     event: "message",
-    data: ""
+    data:  "",
   ]
 
   @type t :: %__MODULE__{
     event: String.t,
-    data: String.t
+    data: String.t,
   }
 
   @doc """
@@ -20,39 +25,14 @@ defmodule TrainLoc.Input.ServerSentEvent do
 
   Expects a full SSE block.
 
-  iex> ServerSentEvent.from_string("event: put\\rdata:123\\r\\ndata: 456\\n")
-  %ServerSentEvent{event: "put", data: "123\\n456\\n"}
+  iex> TrainLoc.Input.ServerSentEvent.from_string("event: put\\rdata:123\\r\\ndata: 456\\n")
+  %TrainLoc.Input.ServerSentEvent{event: "put", data: "123\\n456\\n"}
 
-  iex> ServerSentEvent.from_string(":comment\\ndata:  short\\nignored: field")
-  %ServerSentEvent{event: "message", data: " short\\n"}
+  iex> TrainLoc.Input.ServerSentEvent.from_string(":comment\\ndata:  short\\nignored: field")
+  %TrainLoc.Input.ServerSentEvent{data: " short\n", event: ""}
   """
   def from_string(string) do
-    string
-    |> String.split(~r/\r|\r\n|\n/, trim: true)
-    |> Enum.reduce(%__MODULE__{}, &include_line/2)
+    BlockParser.parse(string)
   end
 
-  defp include_line(":" <> _, acc) do
-    # comment
-    acc
-  end
-  defp include_line("event:" <> rest, acc) do
-    # event, can only be one
-    %{acc | event: trim_one_space(rest)}
-  end
-  defp include_line("data:" <> rest, acc) do
-    # data, gets accumulated separated by newlines
-    %{acc | data: add_data(acc.data, trim_one_space(rest))}
-  end
-  defp include_line(_, acc) do
-    # ignored
-    acc
-  end
-
-  defp trim_one_space(" " <> rest), do: rest
-  defp trim_one_space(data), do: data
-
-  defp add_data(first, second) do
-    first <> second <> "\n"
-  end
 end
