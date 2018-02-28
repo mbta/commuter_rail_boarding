@@ -33,7 +33,7 @@ defmodule CommuterRailBoarding.Mixfile do
       {:poison, "~> 3.1"},
       {:httpoison, "~> 0.12"},
       {:ex_aws, "~> 1.1"},
-      {:gen_stage, "~> 0.12"},
+      {:gen_stage, "< 0.13.1"},
       {:calendar, "~> 0.17"},
       {:excoveralls, "~> 0.7", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
