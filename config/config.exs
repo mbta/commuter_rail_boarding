@@ -3,7 +3,8 @@
 use Mix.Config
 
 config :commuter_rail_boarding,
-  firebase_url: "https://keolis-api-production.firebaseio.com/12001_departureData_nodejs.json",
+  firebase_url:
+    "https://keolis-api-production.firebaseio.com/12001_departureData_nodejs.json",
   stop_ids: %{
     "Boston" => "South Station",
     "Boston North Station" => "North Station"
@@ -20,27 +21,35 @@ config :commuter_rail_boarding,
     "AA" => :all_aboard,
     "AR" => :arrived,
     "ARVG" => :arriving,
-    "BL" => :not_stopping_here, # :blue_line,
+    # :blue_line,
+    "BL" => :not_stopping_here,
     "BS" => :bus_substitution,
     "CX" => :cancelled,
     "DL" => :delayed,
     "DP" => :departed,
-    "GL" => :not_stopping_here, # :green_line,
-    "HD" => :info_to_follow, # :hold,
+    # :green_line,
+    "GL" => :not_stopping_here,
+    # :hold,
+    "HD" => :info_to_follow,
     "LT" => :late,
     "NB" => :now_boarding,
     "ON" => :on_time,
-    "OL" => :not_stopping_here, # :orange_line,
-    "PR" => :info_to_follow, # :priority,
-    "RL" => :not_stopping_here, # :red_line,
+    # :orange_line,
+    "OL" => :not_stopping_here,
+    # :priority,
+    "PR" => :info_to_follow,
+    # :red_line,
+    "RL" => :not_stopping_here,
     "SA" => :see_agent,
-    "SL" => :not_stopping_here, # :silver_line,
-    "SUB" => :not_stopping_here # :subway
+    # :silver_line,
+    "SL" => :not_stopping_here,
+    # :subway
+    "SUB" => :not_stopping_here
   },
   uploader: Uploader.Console,
-  v3_api_key: System.get_env("V3_API_KEY") # also overriden by CommuterRailBoarding.Application
+  # also overriden by CommuterRailBoarding.Application
+  v3_api_key: System.get_env("V3_API_KEY")
 
-config :goth,
-  json: {:system, "GCS_CREDENTIAL_JSON"}
+config :goth, json: {:system, "GCS_CREDENTIAL_JSON"}
 
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

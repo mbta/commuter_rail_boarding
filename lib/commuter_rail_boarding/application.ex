@@ -9,37 +9,32 @@ defmodule CommuterRailBoarding.Application do
     Application.put_env(
       :commuter_rail_boarding,
       :v3_api_key,
-      System.get_env("V3_API_KEY"))
+      System.get_env("V3_API_KEY")
+    )
 
     # List all child processes to be supervised
     children = [
       TripCache,
       RouteCache,
       ScheduleCache,
-
       {ServerSentEvent.Producer,
-       name: ServerSentEvent.Producer,
-       url: {FirebaseUrl, :url, []}},
-
+       name: ServerSentEvent.Producer, url: {FirebaseUrl, :url, []}},
       {BoardingStatus.ProducerConsumer,
        name: BoardingStatus.ProducerConsumer,
        dispatcher: GenStage.BroadcastDispatcher,
        subscribe_to: [ServerSentEvent.Producer]},
-
       {TripUpdates.ProducerConsumer,
        name: TripUpdates.ProducerConsumer,
        subscribe_to: [BoardingStatus.ProducerConsumer]},
-
       {DeparturesCSV.ProducerConsumer,
        name: DeparturesCSV.ProducerConsumer,
-       subscribe_to: [BoardingStatus.ProducerConsumer],
-      },
-
+       subscribe_to: [BoardingStatus.ProducerConsumer]},
       {Uploader.Consumer,
        name: Uploader.Consumer,
-       subscribe_to: [TripUpdates.ProducerConsumer,
-                      DeparturesCSV.ProducerConsumer]
-      }
+       subscribe_to: [
+         TripUpdates.ProducerConsumer,
+         DeparturesCSV.ProducerConsumer
+       ]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

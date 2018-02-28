@@ -30,9 +30,11 @@ defmodule TripUpdatesTest do
 
   describe "entity/2" do
     test "groups statuses by their trip_id" do
-      statuses = for trip_id <- ["1", "2", "1"] do
-        %BoardingStatus{trip_id: trip_id}
-      end
+      statuses =
+        for trip_id <- ["1", "2", "1"] do
+          %BoardingStatus{trip_id: trip_id}
+        end
+
       entities = entity(1234, statuses)
       assert [one, two] = entities
       assert [_, _] = one.trip_update.stop_time_update
@@ -56,8 +58,9 @@ defmodule TripUpdatesTest do
     end
 
     test "builds a trip_update for the statuses" do
-      assert [update] = trip_update(
-        1234, [%BoardingStatus{}, %BoardingStatus{}])
+      assert [update] =
+               trip_update(1234, [%BoardingStatus{}, %BoardingStatus{}])
+
       assert %{} = update.trip_update.trip
       assert [%{}, %{}] = update.trip_update.stop_time_update
     end
@@ -71,13 +74,14 @@ defmodule TripUpdatesTest do
         trip_id: "trip",
         direction_id: 1
       }
+
       assert trip(status) == %{
-        trip_id: "trip",
-        route_id: "route",
-        direction_id: 1,
-        start_date: ~D[2017-02-05],
-        schedule_relationship: "SCHEDULED"
-      }
+               trip_id: "trip",
+               route_id: "route",
+               direction_id: 1,
+               start_date: ~D[2017-02-05],
+               schedule_relationship: "SCHEDULED"
+             }
     end
 
     test "does not include an unknown direction" do
@@ -86,8 +90,7 @@ defmodule TripUpdatesTest do
     end
 
     test "schedule_relationship is ADDED if added? is true" do
-      status = %BoardingStatus{
-        added?: true}
+      status = %BoardingStatus{added?: true}
       assert trip(status).schedule_relationship == "ADDED"
     end
 
@@ -96,6 +99,7 @@ defmodule TripUpdatesTest do
       status = %BoardingStatus{
         status: :cancelled
       }
+
       assert trip(status).schedule_relationship == "CANCELED"
     end
   end
@@ -109,16 +113,17 @@ defmodule TripUpdatesTest do
         status: :all_aboard,
         track: "5"
       }
+
       assert stop_time_update(status) == %{
-        stop_id: "stop",
-        stop_sequence: 5,
-        departure: %{
-          time: 12_345
-        },
-        boarding_status: "ALL_ABOARD",
-        platform_id: "stop-05",
-        track: "5"
-      }
+               stop_id: "stop",
+               stop_sequence: 5,
+               departure: %{
+                 time: 12_345
+               },
+               boarding_status: "ALL_ABOARD",
+               platform_id: "stop-05",
+               track: "5"
+             }
     end
 
     test "does not include stop sequence if it's unknown" do
@@ -132,6 +137,7 @@ defmodule TripUpdatesTest do
         stop_id: "stop",
         track: "track"
       }
+
       refute :boarding_status in Map.keys(stop_time_update(status))
     end
 
@@ -141,6 +147,7 @@ defmodule TripUpdatesTest do
         stop_id: "stop",
         status: :late
       }
+
       refute :platform_id in Map.keys(stop_time_update(status))
     end
 
@@ -152,6 +159,6 @@ defmodule TripUpdatesTest do
 
   defp utc_now do
     # returns a DateTime in UTC, but without the microseconds
-    %{DateTime.utc_now | microsecond: {0, 0}}
+    %{DateTime.utc_now() | microsecond: {0, 0}}
   end
 end

@@ -15,18 +15,17 @@ defmodule TripCache do
   Returns the route_id and direction_id for a trip, or an error
   """
   @spec route_direction_id(trip_id) :: {:ok, route_id, direction_id} | :error
-    when trip_id: binary, route_id: binary, direction_id: 0 | 1
+        when trip_id: binary, route_id: binary, direction_id: 0 | 1
   def route_direction_id(""), do: :error
+
   def route_direction_id(trip_id) when is_binary(trip_id) do
     case :ets.lookup(@table, {:trip, trip_id}) do
       [{_, route_id, direction_id, _, _}] ->
         {:ok, route_id, direction_id}
+
       [] ->
-        with {:ok,
-              route_id,
-              direction_id,
-              _,
-              _} <- insert_and_return_trip_info(trip_id) do
+        with {:ok, route_id, direction_id, _, _} <-
+               insert_and_return_trip_info(trip_id) do
           {:ok, route_id, direction_id}
         end
     end
@@ -36,17 +35,19 @@ defmodule TripCache do
   Returns the name and headsign for a trip ID"
   """
   def trip_name_headsign(""), do: :error
+
   def trip_name_headsign(trip_id) when is_binary(trip_id) do
     case :ets.lookup(@table, {:trip, trip_id}) do
       [{_, _, _, name, headsign}] ->
         {:ok, name, headsign}
+
       [] ->
-        with {:ok,
-              _,
-              _,
-              name,
-              headsign} <- insert_and_return_trip_info(trip_id) do
-          {:ok, name, headsign}
+        case insert_and_return_trip_info(trip_id) do
+          {:ok, _, _, name, headsign} ->
+            {:ok, name, headsign}
+
+          error ->
+            error
         end
     end
   end
@@ -55,27 +56,28 @@ defmodule TripCache do
   Returns the trip_id and direction_id for a route + name, or an error
   """
   @spec route_trip_name_to_id(route_id, trip_name) ::
-  {:ok, trip_id, direction_id} | :error
-  when route_id: binary, trip_name: binary, trip_id: binary,
-    direction_id: 0 | 1
-  def route_trip_name_to_id(route_id, trip_name) when is_binary(route_id) and is_binary(trip_name) do
-    do_route_trip_name_to_id(
-      route_id,
-      trip_name,
-      fn {route_id, trip_name} ->
-        insert_and_return_trip_id(route_id, trip_name)
-      end)
+          {:ok, trip_id, direction_id} | :error
+        when route_id: binary,
+             trip_name: binary,
+             trip_id: binary,
+             direction_id: 0 | 1
+  def route_trip_name_to_id(route_id, trip_name)
+      when is_binary(route_id) and is_binary(trip_name) do
+    do_route_trip_name_to_id(route_id, trip_name, fn {route_id, trip_name} ->
+      insert_and_return_trip_id(route_id, trip_name)
+    end)
   end
 
   defp insert_and_return_trip_info(trip_id) do
-    with {:ok, response} <- HTTPClient.get(
-           "/trips/#{trip_id}", [], params: [{"fields[trip]", "direction_id,name,headsign"}]),
+    with {:ok, response} <-
+           HTTPClient.get(
+             "/trips/#{trip_id}",
+             [],
+             params: [{"fields[trip]", "direction_id,name,headsign"}]
+           ),
          %{status_code: 200, body: body} <- response,
-         {:ok,
-          route_id,
-          direction_id,
-          trip_name,
-          trip_headsign} <- decode_single_trip(body) do
+         {:ok, route_id, direction_id, trip_name, trip_headsign} <-
+           decode_single_trip(body) do
       row = {{:trip, trip_id}, route_id, direction_id, trip_name, trip_headsign}
       _ = :ets.insert_new(@table, row)
       {:ok, route_id, direction_id, trip_name, trip_headsign}
@@ -84,13 +86,16 @@ defmodule TripCache do
     end
   end
 
-  defp decode_single_trip(%{"data" => %{"relationships" => relationships, "attributes" => attributes}}) do
-    {:ok,
-     relationships["route"]["data"]["id"],
-     attributes["direction_id"],
-     attributes["name"],
-     attributes["headsign"]}
+  defp decode_single_trip(%{
+         "data" => %{
+           "relationships" => relationships,
+           "attributes" => attributes
+         }
+       }) do
+    {:ok, relationships["route"]["data"]["id"], attributes["direction_id"],
+     attributes["name"], attributes["headsign"]}
   end
+
   defp decode_single_trip(%{"data" => []}) do
     :error
   end
@@ -103,11 +108,16 @@ defmodule TripCache do
   end
 
   defp insert_and_return_trip_id(route_id, trip_name) do
-    with {:ok, response} <- HTTPClient.get(
-           "/trips/", [],
-           params: ["fields[trip]": "name,direction_id",
-                    route: route_id,
-                    date: Date.to_iso8601(DateHelpers.service_date)]),
+    with {:ok, response} <-
+           HTTPClient.get(
+             "/trips/",
+             [],
+             params: [
+               "fields[trip]": "name,direction_id",
+               route: route_id,
+               date: Date.to_iso8601(DateHelpers.service_date())
+             ]
+           ),
          %{status_code: 200, body: body} <- response,
          {:ok, items} <- decode_trips(body) do
       _ = :ets.insert(@table, items)
@@ -118,32 +128,40 @@ defmodule TripCache do
   defp decode_trips(%{"data" => data}) when is_list(data) do
     {:ok,
      for trip <- data do
-       key = {:route,
-              trip["relationships"]["route"]["data"]["id"],
-              trip["attributes"]["name"]}
+       key =
+         {:route, trip["relationships"]["route"]["data"]["id"],
+          trip["attributes"]["name"]}
+
        {key, trip["id"], trip["attributes"]["direction_id"]}
-     end
-    }
+     end}
   end
+
   defp decode_trips(_) do
     :error
   end
 
   # Server callbacks
   def init(:ok) do
-    ets_options = [:set, :public, :named_table,
-                   {:read_concurrency, true}, {:write_concurrency, true}]
+    ets_options = [
+      :set,
+      :public,
+      :named_table,
+      {:read_concurrency, true},
+      {:write_concurrency, true}
+    ]
+
     _ = :ets.new(@table, ets_options)
-    timeout = DateHelpers.seconds_until_next_service_date
+    timeout = DateHelpers.seconds_until_next_service_date()
     {:ok, :state, :timer.seconds(timeout)}
   end
 
   def handle_info(:timeout, state) do
-    Logger.info fn ->
+    Logger.info(fn ->
       "#{__MODULE__} expiring cache"
-    end
+    end)
+
     :ets.delete_all_objects(@table)
-    timeout = DateHelpers.seconds_until_next_service_date
+    timeout = DateHelpers.seconds_until_next_service_date()
     {:noreply, state, :timer.seconds(timeout)}
   end
 end

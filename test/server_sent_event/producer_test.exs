@@ -22,11 +22,14 @@ defmodule ServerSentEvent.ProducerTest do
   describe "handle_info/2" do
     test "ignores a 200 status" do
       state = %ServerSentEvent.Producer{}
-      assert {:noreply, [], ^state} = handle_info(%HTTPoison.AsyncStatus{code: 200}, state)
+
+      assert {:noreply, [], ^state} =
+               handle_info(%HTTPoison.AsyncStatus{code: 200}, state)
     end
 
     test "crashes on a non-200 status" do
       state = %ServerSentEvent.Producer{}
+
       assert_raise FunctionClauseError, fn ->
         handle_info(%HTTPoison.AsyncStatus{code: 401}, state)
       end
@@ -34,18 +37,27 @@ defmodule ServerSentEvent.ProducerTest do
 
     test "ignores headers" do
       state = %ServerSentEvent.Producer{}
-      assert {:noreply, [], ^state} = handle_info(%HTTPoison.AsyncHeaders{}, state)
+
+      assert {:noreply, [], ^state} =
+               handle_info(%HTTPoison.AsyncHeaders{}, state)
     end
 
     test "does nothing with a partial chunk" do
       state = %ServerSentEvent.Producer{}
-      assert {:noreply, [], _state} = handle_info(%HTTPoison.AsyncChunk{chunk: "data:"}, state)
+
+      assert {:noreply, [], _state} =
+               handle_info(%HTTPoison.AsyncChunk{chunk: "data:"}, state)
     end
 
     test "with a full chunk, returns an event" do
       state = %ServerSentEvent.Producer{}
-      assert {:noreply, [], state} = handle_info(%HTTPoison.AsyncChunk{chunk: "data:"}, state)
-      assert {:noreply, [event], _state} = handle_info(%HTTPoison.AsyncChunk{chunk: "data\n\n"}, state)
+
+      assert {:noreply, [], state} =
+               handle_info(%HTTPoison.AsyncChunk{chunk: "data:"}, state)
+
+      assert {:noreply, [event], _state} =
+               handle_info(%HTTPoison.AsyncChunk{chunk: "data\n\n"}, state)
+
       assert event.data == "data\n"
     end
   end
@@ -54,27 +66,29 @@ defmodule ServerSentEvent.ProducerTest do
     setup do
       Application.ensure_all_started(:bypass)
       Application.ensure_all_started(:httpoison)
-      bypass = Bypass.open
+      bypass = Bypass.open()
       {:ok, bypass: bypass}
     end
 
     test "sends an event when fully parsed", %{bypass: bypass} do
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         assert Plug.Conn.get_req_header(conn, "accept") == ["text/event-stream"]
         Plug.Conn.send_resp(conn, 200, ~s(data: %{}\n\n))
-      end
+      end)
+
       start_producer(bypass)
       assert_receive {:events, [%ServerSentEvent{}]}
     end
 
     test "reconnects when it gets disconnected", %{bypass: bypass} do
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         Plug.Conn.send_resp(conn, 200, ~s(data: %{}\n\n))
-      end
+      end)
+
       start_producer(bypass)
       assert_receive {:events, [%ServerSentEvent{}]}
-      Bypass.down bypass
-      Bypass.up bypass
+      Bypass.down(bypass)
+      Bypass.up(bypass)
       # should receive another event
       assert_receive {:events, [%ServerSentEvent{}]}
     end
@@ -82,7 +96,9 @@ defmodule ServerSentEvent.ProducerTest do
     defp start_producer(bypass) do
       url = "http://127.0.0.1:#{bypass.port}"
       {:ok, producer} = start_link(url: url)
-      {:ok, _consumer} = __MODULE__.SimpleSubscriber.start_link(self(), producer)
+
+      {:ok, _consumer} =
+        __MODULE__.SimpleSubscriber.start_link(self(), producer)
     end
   end
 
@@ -101,7 +117,7 @@ defmodule ServerSentEvent.ProducerTest do
     end
 
     def handle_events(events, _from, parent) do
-      send parent, {:events, events}
+      send(parent, {:events, events})
       {:noreply, [], parent}
     end
   end

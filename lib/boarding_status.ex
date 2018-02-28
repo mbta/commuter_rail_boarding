@@ -5,18 +5,16 @@ defmodule BoardingStatus do
   require Logger
   import ConfigHelpers
 
-  defstruct [
-    scheduled_time: :unknown,
-    predicted_time: :unknown,
-    route_id: :unknown,
-    trip_id: :unknown,
-    direction_id: :unknown,
-    stop_id: :unknown,
-    stop_sequence: :unknown,
-    status: :unknown,
-    track: "",
-    added?: false
-  ]
+  defstruct scheduled_time: :unknown,
+            predicted_time: :unknown,
+            route_id: :unknown,
+            trip_id: :unknown,
+            direction_id: :unknown,
+            stop_id: :unknown,
+            stop_sequence: :unknown,
+            status: :unknown,
+            track: "",
+            added?: false
 
   @type route_id :: binary
   @type trip_id :: binary
@@ -34,17 +32,17 @@ defmodule BoardingStatus do
   * added?: true if the trip isn't included in the GTFS schedule
   """
   @type t :: %__MODULE__{
-    scheduled_time: :unknown | DateTime.t,
-    predicted_time: :unknown | DateTime.t,
-    route_id: :unknown | route_id,
-    trip_id: :unknown | trip_id,
-    direction_id: :unknown | direction_id,
-    stop_id: :unknown | stop_id,
-    stop_sequence: :unknown | non_neg_integer,
-    status: atom,
-    track: String.t,
-    added?: boolean
-  }
+          scheduled_time: :unknown | DateTime.t(),
+          predicted_time: :unknown | DateTime.t(),
+          route_id: :unknown | route_id,
+          trip_id: :unknown | trip_id,
+          direction_id: :unknown | direction_id,
+          stop_id: :unknown | stop_id,
+          stop_sequence: :unknown | non_neg_integer,
+          status: atom,
+          track: String.t(),
+          added?: boolean
+        }
 
   @doc """
   Builds a BoardingStatus from the data we get out of Firebase.
@@ -60,95 +58,119 @@ defmodule BoardingStatus do
   There are examples of this data in test/fixtures/firebase.json
   """
   @spec from_firebase(map) :: {:ok, t} | :error
-  def from_firebase(%{
-        "gtfs_departure_time" => schedule_time_iso,
-        "gtfs_stop_name" => stop_name,
-        "gtfsrt_departure" => predicted_time_iso,
-        "status" => status,
-        "track" => track} = map) do
+  def from_firebase(
+        %{
+          "gtfs_departure_time" => schedule_time_iso,
+          "gtfs_stop_name" => stop_name,
+          "gtfsrt_departure" => predicted_time_iso,
+          "status" => status,
+          "track" => track
+        } = map
+      ) do
     with {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, trip_id, route_id, direction_id, added?} <-
            trip_route_direction_id(map) do
       stop_id = stop_id(stop_name)
-      {:ok, %__MODULE__{
-          scheduled_time: scheduled_time,
-          predicted_time: predicted_time(
-            predicted_time_iso, scheduled_time, status),
-          route_id: route_id,
-          trip_id: trip_id,
-          stop_id: stop_id,
-          stop_sequence: stop_sequence(trip_id, stop_id, added?),
-          direction_id: direction_id,
-          status: status_atom(status),
-          track: track,
-          added?: added?
-       }
-      }
+
+      {:ok,
+       %__MODULE__{
+         scheduled_time: scheduled_time,
+         predicted_time:
+           predicted_time(predicted_time_iso, scheduled_time, status),
+         route_id: route_id,
+         trip_id: trip_id,
+         stop_id: stop_id,
+         stop_sequence: stop_sequence(trip_id, stop_id, added?),
+         direction_id: direction_id,
+         status: status_atom(status),
+         track: track,
+         added?: added?
+       }}
     else
       error ->
-        _ = Logger.warn fn ->
-          "unable to parse firebase map: #{inspect map}: #{inspect error}"
-        end
+        _ =
+          Logger.warn(fn ->
+            "unable to parse firebase map: #{inspect(map)}: #{inspect(error)}"
+          end)
+
         :error
     end
   end
+
   def from_firebase(%{} = map) do
-    _ = Logger.warn fn ->
-      "unable to match firebase map: #{inspect map}"
-    end
+    _ =
+      Logger.warn(fn ->
+        "unable to match firebase map: #{inspect(map)}"
+      end)
+
     :error
   end
 
   defp trip_route_direction_id(%{
-        "gtfs_trip_id" => "",
-        "gtfs_route_long_name" => long_name,
-        "gtfs_trip_short_name" => trip_name,
-        "trip_id" => keolis_trip_id}) do
+         "gtfs_trip_id" => "",
+         "gtfs_route_long_name" => long_name,
+         "gtfs_trip_short_name" => trip_name,
+         "trip_id" => keolis_trip_id
+       }) do
     # no ID, but maybe we can look it up with the trip name
     with {:ok, route_id} <- RouteCache.id_from_long_name(long_name),
-         {:ok, trip_id, direction_id, added?} <- create_trip_id(
-           route_id, trip_name, keolis_trip_id) do
+         {:ok, trip_id, direction_id, added?} <-
+           create_trip_id(route_id, trip_name, keolis_trip_id) do
       {:ok, trip_id, route_id, direction_id, added?}
     end
   end
+
   defp trip_route_direction_id(%{"gtfs_trip_id" => trip_id}) do
     # easy case: we have a trip ID, so we look up the route/direction
-    with {:ok, route_id, direction_id} <- TripCache.route_direction_id(
-           trip_id) do
-      {:ok, trip_id, route_id, direction_id, false}
+    case TripCache.route_direction_id(trip_id) do
+      {:ok, route_id, direction_id} ->
+        {:ok, trip_id, route_id, direction_id, false}
+
+      error ->
+        error
     end
   end
 
   defp create_trip_id(route_id, "", keolis_trip_id) do
     # no trip name, build a new trip_id
-    _ = Logger.warn(fn ->
-      "creating trip for Keolis trip #{route_id} (#{keolis_trip_id})"
-    end)
+    _ =
+      Logger.warn(fn ->
+        "creating trip for Keolis trip #{route_id} (#{keolis_trip_id})"
+      end)
+
     {:ok, "CRB_" <> keolis_trip_id, :unknown, true}
   end
+
   defp create_trip_id(route_id, trip_name, keolis_trip_id) do
     case TripCache.route_trip_name_to_id(route_id, trip_name) do
       {:ok, trip_id, direction_id} ->
-        _ = Logger.warn(fn ->
-          "matched trip #{trip_id} based on #{route_id} #{trip_name}"
-        end)
+        _ =
+          Logger.warn(fn ->
+            "matched trip #{trip_id} based on #{route_id} #{trip_name}"
+          end)
+
         {:ok, trip_id, direction_id, false}
+
       :error ->
         # couldn't match the trip name: log a warning but build a trip ID
         # anyways.
-        _ = Logger.warn(fn ->
-          "unexpected missing GTFS trip ID: \
+        _ =
+          Logger.warn(fn ->
+            "unexpected missing GTFS trip ID: \
 route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
-        end)
+          end)
+
         {:ok, "CRB_#{keolis_trip_id}_#{trip_name}", :unknown, true}
     end
   end
 
   defp stop_sequence(trip_id, stop_id, added?)
+
   defp stop_sequence(_, _, true) do
     # added trips don't have a stop sequence ID
     :unknown
   end
+
   defp stop_sequence(trip_id, stop_id, _) do
     case ScheduleCache.stop_sequence(trip_id, stop_id) do
       {:ok, sequence} -> sequence
@@ -157,13 +179,16 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
   end
 
   defp predicted_time(iso_dt, scheduled_time, status)
+
   defp predicted_time(_, _, "CX") do
     # cancelled trips don't have a predictions
     :unknown
   end
+
   defp predicted_time("", scheduled_time, _) do
     scheduled_time
   end
+
   defp predicted_time(iso_dt, scheduled_time, _) do
     with {:ok, predicted_time, _} <- DateTime.from_iso8601(iso_dt) do
       predicted_time
@@ -173,21 +198,20 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
   end
 
   def stop_id(stop_name) do
-    Map.get(
-      config(:stop_ids),
-      stop_name,
-      stop_name)
+    Map.get(config(:stop_ids), stop_name, stop_name)
   end
 
-  for {status, atom} <- Application.get_env(
-        :commuter_rail_boarding, :statuses) do
-      # build a function for each status in the map
+  statuses = Application.get_env(:commuter_rail_boarding, :statuses)
+
+  for {status, atom} <- statuses do
+    # build a function for each status in the map
     def status_atom(unquote(status)) do
       unquote(atom)
     end
   end
+
   def status_atom(status) do
-    _ = Logger.warn(fn -> "unknown status: #{inspect status}" end)
+    _ = Logger.warn(fn -> "unknown status: #{inspect(status)}" end)
     :unknown
   end
 end

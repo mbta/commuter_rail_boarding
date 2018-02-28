@@ -14,10 +14,12 @@ defmodule TripUpdates.ProducerConsumer do
   end
 
   def handle_events(events, _from, state) do
-    binary = events
-    |> List.last
-    |> TripUpdates.to_map
-    |> Poison.encode!
+    binary =
+      events
+      |> List.last()
+      |> TripUpdates.to_map()
+      |> Poison.encode!()
+
     {:noreply, [{"TripUpdates_enhanced.json", binary}], state}
   end
 end

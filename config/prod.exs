@@ -9,8 +9,7 @@ config :commuter_rail_boarding, Uploader.S3,
   bucket: {:system, "S3_BUCKET"}
 
 # Configures Elixir's Logger
-config :sasl,
-  errlog_type: :error
+config :sasl, errlog_type: :error
 
 config :logger,
   truncate: :infinity,

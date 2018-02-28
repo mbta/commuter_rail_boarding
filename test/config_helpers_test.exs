@@ -4,13 +4,16 @@ defmodule ConfigHelpersTest do
   import ConfigHelpers
 
   setup do
-    Application.put_env(:commuter_rail_boarding, __MODULE__,
+    Application.put_env(
+      :commuter_rail_boarding,
+      __MODULE__,
       environment_variable: {:system, "PATH"},
       value: :value
     )
-    on_exit fn ->
+
+    on_exit(fn ->
       Application.delete_env(:commuter_rail_boarding, __MODULE__)
-    end
+    end)
   end
 
   describe "config/2" do

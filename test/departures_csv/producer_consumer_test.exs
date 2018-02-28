@@ -7,25 +7,27 @@ defmodule DeparturesCSV.ProducerConsumerTest do
   describe "handle_events/3" do
     test "returns a Departures.csv file" do
       {_, state, _} = init([])
+
       statuses = [
         %BoardingStatus{
           stop_id: "North Station",
           trip_id: "CR-Weekday-Fall-17-315",
           direction_id: 0,
-          scheduled_time: DateTime.from_unix!(1518797520),
+          scheduled_time: DateTime.from_unix!(1_518_797_520),
           status: :on_time
         },
         %BoardingStatus{
           stop_id: "South Station",
           trip_id: "CR-Weekday-Fall-17-707",
           direction_id: 0,
-          scheduled_time: DateTime.from_unix!(1518796800),
+          scheduled_time: DateTime.from_unix!(1_518_796_800),
           track: "2",
           status: :all_aboard
         }
       ]
+
       assert {:noreply, [{"Departures.csv", "TimeStamp" <> _}], ^state} =
-        handle_events([statuses], :from, state)
+               handle_events([statuses], :from, state)
     end
   end
 end

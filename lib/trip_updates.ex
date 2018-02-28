@@ -9,6 +9,7 @@ defmodule TripUpdates do
 
   def to_map(boarding_statuses) do
     current_time = DateTime.to_unix(DateTime.utc_now())
+
     %{
       header: header(current_time),
       entity: entity(current_time, boarding_statuses)
@@ -23,16 +24,17 @@ defmodule TripUpdates do
   end
 
   def entity(current_time, boarding_statuses) do
-    for {_trip_id, trip_statuses} <- Enum.group_by(
-          boarding_statuses, & &1.trip_id),
-      update <- trip_update(current_time, trip_statuses) do
-        update
+    for {_trip_id, trip_statuses} <-
+          Enum.group_by(boarding_statuses, & &1.trip_id),
+        update <- trip_update(current_time, trip_statuses) do
+      update
     end
   end
 
   def trip_update(_current_time, []) do
     []
   end
+
   def trip_update(current_time, [%BoardingStatus{} = bs | _] = statuses) do
     [
       %{
@@ -46,10 +48,12 @@ defmodule TripUpdates do
   end
 
   def trip(%BoardingStatus{} = bs) do
-    start_date = case bs.scheduled_time do
-                   :unknown -> Date.utc_today()
-                   dt -> DateTime.to_date(dt)
-                 end
+    start_date =
+      case bs.scheduled_time do
+        :unknown -> Date.utc_today()
+        dt -> DateTime.to_date(dt)
+      end
+
     Map.merge(
       %{
         trip_id: bs.trip_id,
@@ -62,21 +66,26 @@ defmodule TripUpdates do
   end
 
   def stop_time_update(%BoardingStatus{} = bs) do
-    Enum.reduce([
-      %{stop_id: bs.stop_id},
-      stop_sequence_map(bs.stop_sequence),
-      boarding_status_map(bs.status),
-      platform_id_map(bs.stop_id, bs.track),
-      departure_map(bs.predicted_time)
-    ], &Map.merge/2)
+    Enum.reduce(
+      [
+        %{stop_id: bs.stop_id},
+        stop_sequence_map(bs.stop_sequence),
+        boarding_status_map(bs.status),
+        platform_id_map(bs.stop_id, bs.track),
+        departure_map(bs.predicted_time)
+      ],
+      &Map.merge/2
+    )
   end
 
   def schedule_relationship(%BoardingStatus{status: :cancelled}) do
     "CANCELED"
   end
+
   def schedule_relationship(%BoardingStatus{added?: true}) do
     "ADDED"
   end
+
   def schedule_relationship(%BoardingStatus{}) do
     "SCHEDULED"
   end
@@ -84,6 +93,7 @@ defmodule TripUpdates do
   def direction_id_map(:unknown) do
     %{}
   end
+
   def direction_id_map(direction_id) do
     %{direction_id: direction_id}
   end
@@ -91,6 +101,7 @@ defmodule TripUpdates do
   def stop_sequence_map(:unknown) do
     %{}
   end
+
   def stop_sequence_map(stop_sequence) do
     %{stop_sequence: stop_sequence}
   end
@@ -98,17 +109,20 @@ defmodule TripUpdates do
   def boarding_status_map(:unknown) do
     %{}
   end
+
   def boarding_status_map(status) do
     %{
-      boarding_status: status |> Atom.to_string |> String.upcase
+      boarding_status: status |> Atom.to_string() |> String.upcase()
     }
   end
 
   def platform_id_map(_, "") do
     %{}
   end
+
   def platform_id_map(stop_id, track) do
     platform_id = "#{stop_id}-#{String.pad_leading(track, 2, ["0"])}"
+
     %{
       track: track,
       platform_id: platform_id
@@ -118,6 +132,7 @@ defmodule TripUpdates do
   defp departure_map(:unknown) do
     %{}
   end
+
   defp departure_map(%DateTime{} = dt) do
     %{
       departure: %{

@@ -6,8 +6,8 @@ defmodule CommuterRailBoarding.Mixfile do
       app: :commuter_rail_boarding,
       version: "0.1.0",
       elixir: "~> 1.6",
-      start_permanent: Mix.env == :prod,
-      elixirc_paths: elixirc_paths(Mix.env),
+      start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       aliases: aliases(),
       test_coverage: [tool: ExCoveralls],
@@ -40,7 +40,8 @@ defmodule CommuterRailBoarding.Mixfile do
       {:credo, "~> 0.8", only: [:dev, :test]},
       {:bypass, "~> 0.8", only: :test},
       {:distillery, "~> 1.4.1", runtime: false},
-      {:ehmon, git: "https://github.com/heroku/ehmon.git", tag: "v4", only: :prod}
+      {:ehmon,
+       git: "https://github.com/heroku/ehmon.git", tag: "v4", only: :prod}
     ]
   end
 

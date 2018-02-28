@@ -5,15 +5,13 @@ defmodule ServerSentEvent do
   The SSE protocol is defined by the W3C:
   https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream
   """
-  defstruct [
-    event: "message",
-    data: ""
-  ]
+  defstruct event: "message",
+            data: ""
 
   @type t :: %__MODULE__{
-    event: String.t,
-    data: String.t
-  }
+          event: String.t(),
+          data: String.t()
+        }
 
   @doc """
   Parse a UTF-8 string into a struct.
@@ -36,14 +34,17 @@ defmodule ServerSentEvent do
     # comment
     acc
   end
+
   defp include_line("event:" <> rest, acc) do
     # event, can only be one
     %{acc | event: trim_one_space(rest)}
   end
+
   defp include_line("data:" <> rest, acc) do
     # data, gets accumulated separated by newlines
     %{acc | data: add_data(acc.data, trim_one_space(rest))}
   end
+
   defp include_line(_, acc) do
     # ignored
     acc

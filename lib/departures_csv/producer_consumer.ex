@@ -14,9 +14,11 @@ defmodule DeparturesCSV.ProducerConsumer do
   end
 
   def handle_events(events, _from, state) do
-    binary = events
-    |> List.last
-    |> DeparturesCSV.to_binary
+    binary =
+      events
+      |> List.last()
+      |> DeparturesCSV.to_binary()
+
     {:noreply, [{"Departures.csv", binary}], state}
   end
 end

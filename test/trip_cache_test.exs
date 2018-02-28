@@ -34,7 +34,7 @@ defmodule TripCacheTest do
   describe "route_trip_name_to_id/2" do
     test "returns {:ok, trip_id, direction_id} for a value route + name" do
       assert {:ok, @trip_id, @direction_id} ==
-        route_trip_name_to_id(@route_id, @trip_name)
+               route_trip_name_to_id(@route_id, @trip_name)
     end
 
     test "returns an error if we can't match the name" do
@@ -44,7 +44,7 @@ defmodule TripCacheTest do
 
   describe "handle_info(:timeout)" do
     test "clears the table and reschedules for the next day" do
-      timeout = :timer.seconds(DateHelpers.seconds_until_next_service_date)
+      timeout = :timer.seconds(DateHelpers.seconds_until_next_service_date())
       assert {:noreply, :state, ^timeout} = handle_info(:timeout, :state)
       assert :ets.info(TripCache.Table, :size) == 0
     end
