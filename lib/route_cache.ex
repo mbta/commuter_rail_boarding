@@ -19,9 +19,10 @@ defmodule RouteCache do
   iex> RouteCache.id_from_long_name("unknown")
   :error
   """
-  @spec id_from_long_name(String.t) :: {:ok, route_id} | :error
-  when route_id: binary
+  @spec id_from_long_name(String.t()) :: {:ok, route_id} | :error
+        when route_id: binary
   def id_from_long_name(""), do: :error
+
   def id_from_long_name(route_name) when is_binary(route_name) do
     do_id_from_long_name(route_name, &insert_and_return/1)
   end
@@ -34,8 +35,8 @@ defmodule RouteCache do
   end
 
   defp insert_and_return(route_name) do
-    with {:ok, response} <- HTTPClient.get(
-           "/routes/?fields[route]=long_name&type=2"),
+    with {:ok, response} <-
+           HTTPClient.get("/routes/?fields[route]=long_name&type=2"),
          %{status_code: 200, body: body} <- response,
          {:ok, items} <- decode_data(body) do
       _ = :ets.insert(@table, items)
@@ -50,17 +51,23 @@ defmodule RouteCache do
     {:ok,
      for route <- data do
        {route["attributes"]["long_name"], route["id"]}
-     end
-    }
+     end}
   end
+
   defp decode_data(_) do
     :error
   end
 
   # Server callbacks
   def init(:ok) do
-    ets_options = [:set, :public, :named_table,
-                   {:read_concurrency, true}, {:write_concurrency, true}]
+    ets_options = [
+      :set,
+      :public,
+      :named_table,
+      {:read_concurrency, true},
+      {:write_concurrency, true}
+    ]
+
     _ = :ets.new(@table, ets_options)
     {:ok, :state}
   end

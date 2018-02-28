@@ -3,7 +3,7 @@ defmodule Uploader.Mock do
 
   @impl true
   def upload(filename, binary) do
-    send self(), {:upload, filename, binary}
+    send(self(), {:upload, filename, binary})
     :ok
   end
 end

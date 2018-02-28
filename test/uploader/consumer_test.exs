@@ -14,7 +14,12 @@ defmodule Uploader.ConsumerTest do
   describe "handle_events/3" do
     test "uploads the last data received" do
       assert {:noreply, [], :state} =
-        handle_events([{"a", "first"}, {"a", "second"}, {"a", "third"}], :from, :state)
+               handle_events(
+                 [{"a", "first"}, {"a", "second"}, {"a", "third"}],
+                 :from,
+                 :state
+               )
+
       assert_received {:upload, "a", "third"}
     end
   end

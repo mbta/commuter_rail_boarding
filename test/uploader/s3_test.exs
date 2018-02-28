@@ -7,14 +7,18 @@ defmodule Uploader.S3Test do
 
   setup do
     old_config = Application.get_env(:commuter_rail_boarding, Uploader.S3)
-    on_exit fn ->
-      Application.put_env(:commuter_rail_boarding, Uploader.S3, old_config)
-    end
 
-    config = Keyword.merge(old_config || [],[
-          requestor: __MODULE__.MockAws,
-          bucket: "test_bucket"
-                       ])
+    on_exit(fn ->
+      Application.put_env(:commuter_rail_boarding, Uploader.S3, old_config)
+    end)
+
+    config =
+      Keyword.merge(
+        old_config || [],
+        requestor: __MODULE__.MockAws,
+        bucket: "test_bucket"
+      )
+
     Application.put_env(:commuter_rail_boarding, Uploader.S3, config)
     :ok
   end
@@ -33,7 +37,7 @@ defmodule Uploader.S3Test do
 
   defmodule MockAws do
     def request!(request) do
-      send self(), {:aws_request, request}
+      send(self(), {:aws_request, request})
       :ok
     end
   end

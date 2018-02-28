@@ -21,7 +21,7 @@ defmodule DateHelpersTest do
       seconds = seconds_until_next_service_date()
       now = Calendar.DateTime.now!("America/New_York")
       tomorrow = Calendar.DateTime.add!(now, seconds)
-      assert {tomorrow.hour, tomorrow.minute, tomorrow.second}  == {3, 0, 0}
+      assert {tomorrow.hour, tomorrow.minute, tomorrow.second} == {3, 0, 0}
     end
   end
 

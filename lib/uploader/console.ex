@@ -7,6 +7,6 @@ defmodule Uploader.Console do
 
   @impl true
   def upload(filename, binary) do
-    Logger.info(fn -> "#{__MODULE__}.upload: #{filename} #{inspect binary}" end)
+    Logger.info(fn -> "#{__MODULE__}.upload: #{filename} #{inspect(binary)}" end)
   end
 end

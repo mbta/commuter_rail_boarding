@@ -22,9 +22,9 @@ defmodule ScheduleCache do
   :error
   """
   @spec stop_sequence(trip_id, stop_id) :: {:ok, non_neg_integer} | :error
-  when trip_id: binary, stop_id: binary
+        when trip_id: binary, stop_id: binary
   def stop_sequence(trip_id, stop_id)
-  when is_binary(trip_id) and is_binary(stop_id) do
+      when is_binary(trip_id) and is_binary(stop_id) do
     case :ets.lookup(@table, {trip_id, stop_id}) do
       [{_, stop_sequence}] -> {:ok, stop_sequence}
       [] -> insert_and_return_stop_sequence(trip_id, stop_id)
@@ -32,10 +32,16 @@ defmodule ScheduleCache do
   end
 
   defp insert_and_return_stop_sequence(trip_id, stop_id) do
-    with {:ok, response} <- HTTPClient.get(
-           "/schedules/", [],
-           params: [trip: trip_id, stop: stop_id,
-                    "fields[schedule]": "stop_sequence"]),
+    with {:ok, response} <-
+           HTTPClient.get(
+             "/schedules/",
+             [],
+             params: [
+               trip: trip_id,
+               stop: stop_id,
+               "fields[schedule]": "stop_sequence"
+             ]
+           ),
          %{status_code: 200, body: body} <- response,
          {:ok, stop_sequence} <- decode(body) do
       _ = :ets.insert(@table, {{trip_id, stop_id}, stop_sequence})
@@ -47,18 +53,23 @@ defmodule ScheduleCache do
   end
 
   defp decode(%{"data" => [schedule]}) do
-    {:ok,
-     schedule["attributes"]["stop_sequence"]
-    }
+    {:ok, schedule["attributes"]["stop_sequence"]}
   end
+
   defp decode(_) do
     :error
   end
 
   # Server callbacks
   def init(:ok) do
-    ets_options = [:set, :public, :named_table,
-                   {:read_concurrency, true}, {:write_concurrency, true}]
+    ets_options = [
+      :set,
+      :public,
+      :named_table,
+      {:read_concurrency, true},
+      {:write_concurrency, true}
+    ]
+
     _ = :ets.new(@table, ets_options)
     # we have a timeout after six months so that on the off-chance this runs
     # for a while, we won't use an infinite amount of memory
@@ -67,9 +78,10 @@ defmodule ScheduleCache do
   end
 
   def handle_info(:timeout, state) do
-    Logger.info fn ->
+    Logger.info(fn ->
       "#{__MODULE__} expiring cache"
-    end
+    end)
+
     :ets.delete_all_objects(@table)
     schedule_timeout()
     {:noreply, state}
