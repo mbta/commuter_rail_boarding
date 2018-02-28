@@ -27,11 +27,11 @@ defmodule DeparturesCSVTest do
           status: :all_aboard
         }
       ]
-      expected = String.trim("""
+      expected = ~s(\
 TimeStamp,Origin,Trip,Destination,ScheduledTime,Lateness,Track,Status\r
 1518796775,"North Station","315","Lowell",1518797520,0,,"On Time"\r
 1518796775,"South Station","707","Forge Park / 495",1518796800,0,"2","All Aboard"\r
-      """) <> "\r\n"
+)
       actual = to_binary(statuses, unix_now)
 
       assert expected == actual
