@@ -44,8 +44,8 @@ defmodule TrainLoc.Vehicles.Vehicle do
     timestamp: DateTime.t,
     block: String.t,
     trip: String.t,
-    latitude: float,
-    longitude: float,
+    latitude: float | nil,
+    longitude: float | nil,
     heading: 0..359,
     speed: non_neg_integer,
     fix: fix_id
@@ -93,6 +93,10 @@ defmodule TrainLoc.Vehicles.Vehicle do
     }
   end
 
+  defp degrees_from_json(0) do
+    # lat/long of 0 indicate an unknown value, best represented by nil
+    nil
+  end
   defp degrees_from_json(numerator) when is_integer(numerator) do
     numerator / 100000
   end

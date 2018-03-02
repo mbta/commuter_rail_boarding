@@ -187,5 +187,22 @@ defmodule TrainLoc.Vehicles.VehicleTest do
       got = Vehicle.from_json(invalid_json)
       assert got == expected
     end
+
+    test "converts lat/long of 0 to nil" do
+      json = %{@valid_vehicle_json | "latitude" => 0, "longitude" => 0}
+      expected = %Vehicle{
+        block: "602",
+        fix: 1,
+        heading: 48,
+        latitude: nil,
+        longitude: nil,
+        speed: 14,
+        timestamp: @valid_timestamp,
+        trip: "612",
+        vehicle_id: 1827,
+      }
+      got = Vehicle.from_json(json)
+      assert got == expected
+    end
   end
 end
