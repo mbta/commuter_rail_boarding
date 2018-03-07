@@ -19,6 +19,9 @@ can be added to the MBTA's GTFS feed.
 
 ## Development Setup
 
+Sensitive parameters for local development are declared in a `~/.dev.keys` file.
+It should look like [.dev.keys.example](.dev.keys.example).
+
 ```
 # get Elixir dependencies
 mix deps.get
@@ -32,25 +35,10 @@ mix test
 
 ## Usage
 
-The app is started using a shell script `*-startup.sh` (with the asterisk replaced by the environment name,
-e.g. `dev`), which sets necessary environment variables and starts the process.
-* Sensitive parameters are declared separately in a `~/.*.keys` file (with the same environment name as the startup file). It should look like [.dev.keys.example](.dev.keys.example).
-
-Once started, the application's current state can be probed from anywhere on the network by using `iex`:
-1. Ensure you have a file `~/.erlang.cookie` containing the string "BGJRNXPUOSSJNMBXKYWO".
-(Otherwise, TrainLoc will deny the connection.)
-2. Open Interactive Elixir in a terminal window using `iex --sname test`.
-3. Retrieve data from GenServer interfaces using `GenServer.call/2`, with a `{module_name, node}` tuple as the first parameter. `node` will be an atom of the form `:"trainloc-<environment>@<computer-name>"`
-    * *Note:* For convenience, it is recommended to assign the tuple to a variable in `iex` if you intend to make multiple calls.
-
-  Example:
-```elixir
-iex> vehicle_state = {TrainLoc.Vehicles.State, :"trainloc-dev@mycomputer"}
-{TrainLoc.Vehicles.State, :"trainloc-dev@mycomputer"}
-iex> GenServer.call(vehicle_state, :all_ids)
-["1707", "1634", "1531", "1630", "1649", "1507", "1506", "1709", "1821", "1724",
-...]
-```
+The app runs on Amazon Web Services (AWS), specifically in the Elastic Container Service (ECS).
+The deployment image is created using Docker, and the application is automatically re-deployed
+to the Dev environment with every successful CI rebuild of the `master` branch. Production deploys
+are done manually.
 
 ## Domain Concepts
 
