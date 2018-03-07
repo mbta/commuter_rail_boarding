@@ -1,6 +1,6 @@
 defmodule TrainLoc.Conflicts.StateTest do
   use ExUnit.Case, async: true
-  alias TrainLoc.Conflicts.Conflict
+  alias TrainLoc.Conflicts.{Conflict, Conflicts}
 
   setup do
     Application.ensure_all_started(:trainloc)
@@ -38,11 +38,16 @@ defmodule TrainLoc.Conflicts.StateTest do
       service_date: ~D[2017-09-01]
     }
 
-    pre_existing = [conflict1, conflict2]
-    current = [conflict2, conflict3]
+    pre_existing = Conflicts.new([conflict1, conflict2])
 
-    assert {[], pre_existing} == TrainLoc.Conflicts.State.set_conflicts(pre_existing)
-    assert {[conflict1], [conflict3]} == TrainLoc.Conflicts.State.set_conflicts(current)
+    removed_conflicts = Conflicts.new() # empty
+    assert {removed_conflicts, pre_existing} == TrainLoc.Conflicts.State.set_conflicts(pre_existing)
+    current = Conflicts.new([conflict2, conflict3])
+
+    unseen_conflicts = Conflicts.new([conflict3])
+    removed_conflicts = Conflicts.new([conflict1])
+
+    assert {removed_conflicts, unseen_conflicts} == TrainLoc.Conflicts.State.set_conflicts(current)
     assert current == TrainLoc.Conflicts.State.all_conflicts()
   end
 end

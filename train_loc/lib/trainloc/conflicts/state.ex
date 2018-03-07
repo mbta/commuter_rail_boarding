@@ -37,7 +37,12 @@ defmodule TrainLoc.Conflicts.State do
     GenServer.call(pid, {:filter_by, field, value})
   end
 
-  def set_conflicts(pid \\ __MODULE__, conflicts) do
+  def set_conflicts(pid \\ __MODULE__, conflicts)    
+  def set_conflicts(pid, conflicts) when is_list(conflicts) do
+    conflicts = Conflicts.new(conflicts)
+    set_conflicts(pid, conflicts)
+  end
+  def set_conflicts(pid, conflicts) do
     GenServer.call(pid, {:set, conflicts})
   end
 

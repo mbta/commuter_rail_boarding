@@ -212,14 +212,14 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
   This is the expected return value of `TrainLoc.Conflicts.State.all_conflicts/0` after processing the above messages
   """
   def expected_conflict_state do
-    [
+    TrainLoc.Conflicts.Conflicts.new([
       %TrainLoc.Conflicts.Conflict{
         assign_id: "200",
         assign_type: :block,
         service_date: ~D[2018-01-29],
         vehicles: [1631, 1636]
       }
-    ]
+    ])
   end
 
 end
