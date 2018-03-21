@@ -8,7 +8,7 @@ defmodule TripUpdates do
   """
 
   def to_map(boarding_statuses) do
-    current_time = DateTime.to_unix(DateTime.utc_now())
+    current_time = System.system_time(:seconds)
 
     %{
       header: header(current_time),
@@ -50,8 +50,8 @@ defmodule TripUpdates do
   def trip(%BoardingStatus{} = bs) do
     start_date =
       case bs.scheduled_time do
-        :unknown -> Date.utc_today()
-        dt -> DateTime.to_date(dt)
+        :unknown -> DateHelpers.service_date()
+        dt -> DateHelpers.service_date(dt)
       end
 
     Map.merge(

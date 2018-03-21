@@ -69,7 +69,7 @@ defmodule TripUpdatesTest do
   describe "trip/1" do
     test "builds trip information from the status" do
       status = %BoardingStatus{
-        scheduled_time: DateTime.from_naive!(~N[2017-02-05T05:06:07], "Etc/UTC"),
+        scheduled_time: DateTime.from_naive!(~N[2017-02-05T09:10:11], "Etc/UTC"),
         route_id: "route",
         trip_id: "trip",
         direction_id: 1
@@ -101,6 +101,23 @@ defmodule TripUpdatesTest do
       }
 
       assert trip(status).schedule_relationship == "CANCELED"
+    end
+
+    test "uses the previous day's date if the service is before 3am Eastern" do
+      eastern_time =
+        Calendar.DateTime.from_date_and_time_and_zone!(
+          ~D[2018-03-20],
+          ~T[02:00:00],
+          "America/New_York"
+        )
+
+      utc_time = Calendar.DateTime.shift_zone!(eastern_time, "Etc/UTC")
+
+      status = %BoardingStatus{
+        scheduled_time: utc_time
+      }
+
+      assert %{start_date: ~D[2018-03-19]} = trip(status)
     end
   end
 

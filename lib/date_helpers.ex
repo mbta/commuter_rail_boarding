@@ -19,6 +19,7 @@ defmodule DateHelpers do
 
   def service_date(%DateTime{} = dt) do
     dt
+    |> ensure_timezone(@timezone)
     |> Calendar.DateTime.subtract!(@three_hours_in_seconds)
     |> DateTime.to_date()
   end
@@ -47,5 +48,14 @@ defmodule DateHelpers do
     # microseconds. the negatives make sure we floor towards
     # negative-infinity (getting a larger number)
     -Integer.floor_div(seconds * 1_000_000 + microseconds, -1_000_000)
+  end
+
+  defp ensure_timezone(%DateTime{time_zone: timezone} = dt, timezone) do
+    # already in the right timezone
+    dt
+  end
+
+  defp ensure_timezone(dt, timezone) do
+    Calendar.DateTime.shift_zone!(dt, timezone)
   end
 end
