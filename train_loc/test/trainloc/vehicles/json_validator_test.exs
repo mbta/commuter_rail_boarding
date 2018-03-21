@@ -6,11 +6,11 @@ defmodule TrainLoc.Vehicles.JsonValidatorTest do
   @valid_json %{
     "fix" => 1,
     "heading" => 0,
-    "latitude" => 4237405,
-    "longitude" => -7107496,
+    "latitude" => 4_237_405,
+    "longitude" => -7_107_496,
     "routename" => "",
     "speed" => 0,
-    "updatetime" => 1516115007,
+    "updatetime" => 1_516_115_007,
     "vehicleid" => 1633,
     "workid" => 0
   }
@@ -29,6 +29,7 @@ defmodule TrainLoc.Vehicles.JsonValidatorTest do
         @valid_json
         |> Map.drop(["fix"])
         |> validate()
+
       assert result == {:error, :invalid_vehicle_json}
     end
 
@@ -37,6 +38,7 @@ defmodule TrainLoc.Vehicles.JsonValidatorTest do
         @valid_json
         |> Map.put("fix", "other")
         |> validate()
+
       assert result == {:error, :invalid_vehicle_json}
     end
   end

@@ -9,6 +9,6 @@ defmodule Mix.Tasks.InferBlocks do
       |> File.read!()
       |> BlockInferrer.run()
 
-    IO.puts Poison.encode!(blocks)
+    IO.puts(Poison.encode!(blocks))
   end
 end

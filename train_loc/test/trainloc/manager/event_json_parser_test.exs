@@ -7,17 +7,17 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
   @valid_map %{
     "fix" => 1,
     "heading" => 0,
-    "latitude" => 4237405,
-    "longitude" => -7107496,
+    "latitude" => 4_237_405,
+    "longitude" => -7_107_496,
     "routename" => "",
     "speed" => 0,
-    "updatetime" => 1516115007,
+    "updatetime" => 1_516_115_007,
     "vehicleid" => 1633,
     "workid" => 0
   }
   @valid_json Poison.encode!(@valid_map)
-  @missing_key @valid_map |> Map.drop(["speed"]) |> Poison.encode!
-  @bad_value @valid_map |> Map.put("fix", "other") |> Poison.encode!
+  @missing_key @valid_map |> Map.drop(["speed"]) |> Poison.encode!()
+  @bad_value @valid_map |> Map.put("fix", "other") |> Poison.encode!()
 
   describe "parse/1" do
     test "works on a valid json string" do
@@ -25,6 +25,7 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
         date: nil,
         vehicles_json: [@valid_map]
       }
+
       assert parse(@valid_json) == {:ok, expected_event}
     end
 
@@ -46,25 +47,28 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
       vehicle_json_map = %{
         "fix" => 1,
         "heading" => 0,
-        "latitude" => 4237405,
-        "longitude" => -7107496,
+        "latitude" => 4_237_405,
+        "longitude" => -7_107_496,
         "routename" => "",
         "speed" => 0,
-        "updatetime" => 1516115007,
+        "updatetime" => 1_516_115_007,
         "vehicleid" => 1633,
         "workid" => 0
       }
-      assert extract_vehicles_json(vehicle_json_map) == [%{
-        "fix" => 1,
-        "heading" => 0,
-        "latitude" => 4237405,
-        "longitude" => -7107496,
-        "routename" => "",
-        "speed" => 0,
-        "updatetime" => 1516115007,
-        "vehicleid" => 1633,
-        "workid" => 0
-      }]
+
+      assert extract_vehicles_json(vehicle_json_map) == [
+               %{
+                 "fix" => 1,
+                 "heading" => 0,
+                 "latitude" => 4_237_405,
+                 "longitude" => -7_107_496,
+                 "routename" => "",
+                 "speed" => 0,
+                 "updatetime" => 1_516_115_007,
+                 "vehicleid" => 1633,
+                 "workid" => 0
+               }
+             ]
     end
 
     test "works with a vehicle json wrapping map" do
@@ -72,26 +76,29 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
         "1633" => %{
           "fix" => 1,
           "heading" => 0,
-          "latitude" => 4237405,
-          "longitude" => -7107496,
+          "latitude" => 4_237_405,
+          "longitude" => -7_107_496,
           "routename" => "",
           "speed" => 0,
-          "updatetime" => 1516115007,
+          "updatetime" => 1_516_115_007,
           "vehicleid" => 1633,
           "workid" => 0
         }
       }
-      assert extract_vehicles_json(vehicle_json_map) == [%{
-        "fix" => 1,
-        "heading" => 0,
-        "latitude" => 4237405,
-        "longitude" => -7107496,
-        "routename" => "",
-        "speed" => 0,
-        "updatetime" => 1516115007,
-        "vehicleid" => 1633,
-        "workid" => 0
-      }]
+
+      assert extract_vehicles_json(vehicle_json_map) == [
+               %{
+                 "fix" => 1,
+                 "heading" => 0,
+                 "latitude" => 4_237_405,
+                 "longitude" => -7_107_496,
+                 "routename" => "",
+                 "speed" => 0,
+                 "updatetime" => 1_516_115_007,
+                 "vehicleid" => 1633,
+                 "workid" => 0
+               }
+             ]
     end
   end
 
@@ -99,18 +106,20 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
     test "finds a date with dated json" do
       valid_dated_json = %{
         "data" => %{
-          "date" => "January 29, 2018 2:23:15 PM", 
+          "date" => "January 29, 2018 2:23:15 PM"
         }
       }
+
       assert extract_date(valid_dated_json) == "January 29, 2018 2:23:15 PM"
     end
 
     test "extract_date/1 finds a nil with non-dated json" do
       invalid_dated_json = %{
         "data" => %{
-          "somthing" => "else",
+          "somthing" => "else"
         }
       }
+
       assert extract_date(invalid_dated_json) == nil
     end
   end

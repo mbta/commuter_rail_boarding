@@ -1,5 +1,4 @@
 defmodule TrainLoc.Input.APIFetcherTest do
-
   use ExUnit.Case
 
   import TrainLoc.Input.APIFetcher
@@ -42,9 +41,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
       fun = fn -> handle_info(%HTTPoison.AsyncStatus{code: 500}, state) end
 
       expected_logger_message =
-        "Keolis API Failure - "
-        <> "url=\"#{state.url}\" "
-        <> "error_type=\"HTTP status 500\""
+        "Keolis API Failure - " <> "url=\"#{state.url}\" " <> "error_type=\"HTTP status 500\""
 
       assert capture_log(fun) =~ expected_logger_message
     end
@@ -55,9 +52,8 @@ defmodule TrainLoc.Input.APIFetcherTest do
       fun = fn -> handle_info(%HTTPoison.Error{reason: reason}, state) end
 
       expected_logger_message =
-        "Keolis API Failure - "
-        <> "url=\"#{state.url}\" "
-        <> "error_type=\"HTTPoison.Error #{reason}\""
+        "Keolis API Failure - " <>
+          "url=\"#{state.url}\" " <> "error_type=\"HTTPoison.Error #{reason}\""
 
       assert capture_log(fun) =~ expected_logger_message
     end
@@ -80,12 +76,14 @@ defmodule TrainLoc.Input.APIFetcherTest do
     end
 
     test "with a full chunk, returns an event" do
-      json_binary = ~s({"1533":{"fix":1,"heading":0,"latitude":4224005,"longitude":-7113007,"routename":"","speed":0,"updatetime":1516338396,"vehicleid":1533,"workid":0})
+      json_binary =
+        ~s({"1533":{"fix":1,"heading":0,"latitude":4224005,"longitude":-7113007,"routename":"","speed":0,"updatetime":1516338396,"vehicleid":1533,"workid":0})
+
       event_line = "event: put"
       data_line = "data: #{json_binary}"
       chunk = event_line <> "\n" <> data_line
       state = %TrainLoc.Input.APIFetcher{send_to: self()}
-      
+
       assert {:noreply, state} = handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state)
       handle_info(%HTTPoison.AsyncChunk{chunk: "\n\n"}, state)
       assert_receive {:events, [event = %ServerSentEvent{}]}
@@ -94,7 +92,9 @@ defmodule TrainLoc.Input.APIFetcherTest do
 
     test "doesn't crash on unknown call" do
       state = %TrainLoc.Input.APIFetcher{}
-      assert {:reply, {:error, "Unknown callback."}, ^state} = handle_call(:unknown_call, self(), state)
+
+      assert {:reply, {:error, "Unknown callback."}, ^state} =
+               handle_call(:unknown_call, self(), state)
     end
 
     test "doesn't crash on unknown cast" do
@@ -124,35 +124,46 @@ defmodule TrainLoc.Input.APIFetcherTest do
   describe "send_events_for_processing/2" do
     test "logs length of events when empty" do
       state = %TrainLoc.Input.APIFetcher{}
-      captured = capture_log(fn ->
-        send_events_for_processing([], state.send_to)
-      end)
+
+      captured =
+        capture_log(fn ->
+          send_events_for_processing([], state.send_to)
+        end)
+
       assert captured =~ "received 0 events"
     end
 
     test "logs length of events when not empty" do
       state = %TrainLoc.Input.APIFetcher{}
+
       events = [
         %TrainLoc.Input.ServerSentEvent{
-          event: "put",
+          event: "put"
         }
       ]
-      captured = capture_log(fn ->
-        send_events_for_processing(events, state.send_to)
-      end)
+
+      captured =
+        capture_log(fn ->
+          send_events_for_processing(events, state.send_to)
+        end)
+
       assert captured =~ "received 1 events"
     end
 
     test "logs each of the events" do
       state = %TrainLoc.Input.APIFetcher{}
+
       events = [
         %TrainLoc.Input.ServerSentEvent{
-          event: "put",
+          event: "put"
         }
       ]
-      captured = capture_log(fn ->
-        send_events_for_processing(events, state.send_to)
-      end)
+
+      captured =
+        capture_log(fn ->
+          send_events_for_processing(events, state.send_to)
+        end)
+
       assert captured =~ ~s(%TrainLoc.Input.ServerSentEvent{)
       # assert captured =~ ~s(data: %{"stuff" => true})
       assert captured =~ ~s(event: "put")
@@ -167,7 +178,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert captured =~ ~s(field1="value1")
     end
 
-    test "can handle a string" do      
+    test "can handle a string" do
       payload = "Some Payload"
       captured = capture_log(fn -> log_keolis_error(payload) end)
       assert captured =~ "Keolis API Failure - "
@@ -191,6 +202,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
 
       event: incomplete_event_here
       """
+
       {event_binaries, new_buffer} = extract_event_blocks_from_buffer(buffer)
       first = "event: put\ndata: datum_one"
       second = "event: put\ndata: datum_two"

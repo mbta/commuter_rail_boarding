@@ -7,7 +7,8 @@ defmodule TrainLoc.Conflicts.StateTest do
   end
 
   test "handles undefined call" do
-    assert GenServer.call(TrainLoc.Conflicts.State, :invalid_callback) == {:error, "Unknown callback."}
+    assert GenServer.call(TrainLoc.Conflicts.State, :invalid_callback) ==
+             {:error, "Unknown callback."}
   end
 
   test "handles undefined cast" do
@@ -25,13 +26,15 @@ defmodule TrainLoc.Conflicts.StateTest do
       vehicles: [1111, 2222],
       service_date: ~D[2017-09-02]
     }
+
     conflict2 = %Conflict{
       assign_type: :block,
       assign_id: "456",
       vehicles: [3333, 4444],
       service_date: ~D[2017-09-02]
     }
-    conflict3 = %Conflict {
+
+    conflict3 = %Conflict{
       assign_type: :block,
       assign_id: "789",
       vehicles: [5555, 6666],
@@ -40,14 +43,20 @@ defmodule TrainLoc.Conflicts.StateTest do
 
     pre_existing = Conflicts.new([conflict1, conflict2])
 
-    removed_conflicts = Conflicts.new() # empty
-    assert {removed_conflicts, pre_existing} == TrainLoc.Conflicts.State.set_conflicts(pre_existing)
+    # empty
+    removed_conflicts = Conflicts.new()
+
+    assert {removed_conflicts, pre_existing} ==
+             TrainLoc.Conflicts.State.set_conflicts(pre_existing)
+
     current = Conflicts.new([conflict2, conflict3])
 
     unseen_conflicts = Conflicts.new([conflict3])
     removed_conflicts = Conflicts.new([conflict1])
 
-    assert {removed_conflicts, unseen_conflicts} == TrainLoc.Conflicts.State.set_conflicts(current)
+    assert {removed_conflicts, unseen_conflicts} ==
+             TrainLoc.Conflicts.State.set_conflicts(current)
+
     assert current == TrainLoc.Conflicts.State.all_conflicts()
   end
 end

@@ -10,15 +10,13 @@ defmodule TrainLoc.Input.ServerSentEvent do
 
   alias TrainLoc.Input.ServerSentEvent.BlockParser
 
-  defstruct [
-    event: "message",
-    data:  "",
-  ]
+  defstruct event: "message",
+            data: ""
 
   @type t :: %__MODULE__{
-    event: String.t,
-    data: String.t,
-  }
+          event: String.t(),
+          data: String.t()
+        }
 
   @doc """
   Parse a UTF-8 string into a struct.
@@ -34,5 +32,4 @@ defmodule TrainLoc.Input.ServerSentEvent do
   def from_string(string) do
     BlockParser.parse(string)
   end
-
 end

@@ -21,7 +21,7 @@ defmodule TrainLoc.LogAnalyzer.BlockInferrer do
 
   """
 
-  @spec run(String.t) :: list
+  @spec run(String.t()) :: list
   def run(logs) do
     logs
     |> log_lines()
@@ -30,9 +30,10 @@ defmodule TrainLoc.LogAnalyzer.BlockInferrer do
   end
 
   defp log_lines(logs) do
+    # to process earliest logs first
     logs
     |> String.split("\n", trim: true)
-    |> Enum.reverse() # to process earliest logs first
+    |> Enum.reverse()
   end
 
   defp blocks_and_trips(log_lines) do
@@ -53,5 +54,4 @@ defmodule TrainLoc.LogAnalyzer.BlockInferrer do
     final_trip_ids = trip_ids |> Enum.reverse() |> Enum.uniq()
     %{block_id: block_id, trip_ids: final_trip_ids}
   end
-
 end

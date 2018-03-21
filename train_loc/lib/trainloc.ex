@@ -7,7 +7,7 @@ defmodule TrainLoc do
 
   require Logger
 
-  @env Mix.env
+  @env Mix.env()
 
   def env, do: @env
 
@@ -16,13 +16,17 @@ defmodule TrainLoc do
 
     children = [
       supervisor(TrainLoc.Supervisor, []),
-      worker(TrainLoc.Manager, [[
-        name: TrainLoc.Manager
-        ]]),
-      worker(TrainLoc.Input.APIFetcher, [[
-        name: TrainLoc.Input.APIFetcher,
-        url: {TrainLoc.Utilities.FirebaseUrl, :url, []}
-        ]])
+      worker(TrainLoc.Manager, [
+        [
+          name: TrainLoc.Manager
+        ]
+      ]),
+      worker(TrainLoc.Input.APIFetcher, [
+        [
+          name: TrainLoc.Input.APIFetcher,
+          url: {TrainLoc.Utilities.FirebaseUrl, :url, []}
+        ]
+      ])
     ]
 
     Logger.info(fn -> "Starting main TrainLoc supervisor..." end)

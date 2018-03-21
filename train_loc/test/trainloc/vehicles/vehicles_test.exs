@@ -1,5 +1,4 @@
 defmodule TrainLoc.Vehicles.VehiclesTest do
-
   use ExUnit.Case, async: true
 
   alias TrainLoc.Vehicles.Vehicles
@@ -9,6 +8,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
   setup do
     iso_8601 = "2017-08-04T11:01:51Z"
     {:ok, datetime, 0} = DateTime.from_iso8601(iso_8601)
+
     vehicles = %{
       vehicle1: %Vehicle{
         vehicle_id: 1712,
@@ -55,26 +55,28 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         fix: 1
       }
     }
+
     conflicts = [
-        %Conflict{
-            assign_type: :trip,
-            assign_id: "508",
-            vehicles: [1713, 1714],
-            service_date: ~D[2017-08-04]
-        },
-        %Conflict{
-            assign_type: :block,
-            assign_id: "802",
-            vehicles: [1712, 1715],
-            service_date: ~D[2017-08-04]
-        },
-        %Conflict{
-            assign_type: :block,
-            assign_id: "803",
-            vehicles: [1713, 1714],
-            service_date: ~D[2017-08-04]
-        }
+      %Conflict{
+        assign_type: :trip,
+        assign_id: "508",
+        vehicles: [1713, 1714],
+        service_date: ~D[2017-08-04]
+      },
+      %Conflict{
+        assign_type: :block,
+        assign_id: "802",
+        vehicles: [1712, 1715],
+        service_date: ~D[2017-08-04]
+      },
+      %Conflict{
+        assign_type: :block,
+        assign_id: "803",
+        vehicles: [1713, 1714],
+        service_date: ~D[2017-08-04]
+      }
     ]
+
     %{vehicles: vehicles, conflicts: conflicts}
   end
 
@@ -104,12 +106,13 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
   end
 
   test "Identifies duplicate logins", %{vehicles: test_vehicles, conflicts: test_conflicts} do
-      #Same Trip: vehicle_two & vehicle_three
-      #Same Block: vehicle_one & vehicle_four; vehicle_two & vehicle_three
-      vehicles = test_vehicles
-        |> Map.values()
-        |> Vehicles.new()
+    # Same Trip: vehicle_two & vehicle_three
+    # Same Block: vehicle_one & vehicle_four; vehicle_two & vehicle_three
+    vehicles =
+      test_vehicles
+      |> Map.values()
+      |> Vehicles.new()
 
-      assert Vehicles.find_duplicate_logons(vehicles) == test_conflicts
+    assert Vehicles.find_duplicate_logons(vehicles) == test_conflicts
   end
 end

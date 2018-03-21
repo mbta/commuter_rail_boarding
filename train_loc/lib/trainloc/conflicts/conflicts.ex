@@ -5,14 +5,14 @@ defmodule TrainLoc.Conflicts.Conflicts do
 
   alias TrainLoc.Conflicts.Conflict
 
-  @type conflicts_acc :: MapSet.t(Conflict.t)
+  @type conflicts_acc :: MapSet.t(Conflict.t())
 
-  @spec new([Conflict.t]) :: conflicts_acc
+  @spec new([Conflict.t()]) :: conflicts_acc
   def new(items \\ []) do
     MapSet.new(items)
   end
 
-  @spec add(conflicts_acc, Conflict.t) :: conflicts_acc
+  @spec add(conflicts_acc, Conflict.t()) :: conflicts_acc
   def add(conflicts, %Conflict{} = to_add) do
     MapSet.put(conflicts, to_add)
   end
@@ -33,20 +33,21 @@ defmodule TrainLoc.Conflicts.Conflicts do
     {removed_conflicts, new_conflicts}
   end
 
-  @spec remove(conflicts_acc, Conflict.t) :: conflicts_acc
+  @spec remove(conflicts_acc, Conflict.t()) :: conflicts_acc
   def remove(conflicts, to_remove) do
     MapSet.delete(conflicts, to_remove)
   end
 
-  @spec remove_many(conflicts_acc, conflicts_acc | [Conflict.t]) :: conflicts_acc
+  @spec remove_many(conflicts_acc, conflicts_acc | [Conflict.t()]) :: conflicts_acc
   def remove_many(conflicts, to_remove) when is_list(to_remove) do
     remove_many(conflicts, new(to_remove))
   end
+
   def remove_many(conflicts, to_remove) do
     MapSet.difference(conflicts, to_remove)
   end
 
-  @spec filter_by(conflicts_acc, Conflict.field, any) :: conflicts_acc
+  @spec filter_by(conflicts_acc, Conflict.field(), any) :: conflicts_acc
   def filter_by(conflicts, field, value) do
     conflicts
     |> Enum.filter(fn conflict -> Map.get(conflict, field) == value end)
@@ -63,7 +64,7 @@ defmodule TrainLoc.Conflicts.Conflicts do
     MapSet.difference(old_conflicts, new_conflicts)
   end
 
-  @spec contains_conflict?(conflicts_acc, Conflict.t) :: boolean
+  @spec contains_conflict?(conflicts_acc, Conflict.t()) :: boolean
   def contains_conflict?(conflicts, conflict) do
     conflict in conflicts
   end

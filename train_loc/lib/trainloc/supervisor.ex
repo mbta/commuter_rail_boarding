@@ -21,7 +21,7 @@ defmodule TrainLoc.Supervisor do
     children = [
       worker(TrainLoc.Conflicts.State, [[name: TrainLoc.Conflicts.State]]),
       worker(TrainLoc.Vehicles.State, [[name: TrainLoc.Vehicles.State]]),
-      worker(TrainLoc.Vehicles.PreviousBatch, [[name: TrainLoc.Vehicles.PreviousBatch]]),
+      worker(TrainLoc.Vehicles.PreviousBatch, [[name: TrainLoc.Vehicles.PreviousBatch]])
     ]
 
     Logger.debug(fn -> "Starting State supervisor..." end)

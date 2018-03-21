@@ -15,7 +15,7 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
     vehicles: [3333, 4444],
     service_date: ~D[2017-09-02]
   }
-  @conflict3 %Conflict {
+  @conflict3 %Conflict{
     assign_type: :block,
     assign_id: "789",
     vehicles: [5555, 6666],
@@ -95,7 +95,7 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
       refute Conflicts.contains_conflict?(trips_only, @conflict3)
     end
   end
-  
+
   describe "contains_conflict?/2" do
     test "true when conflict exists" do
       conflicts = Conflicts.new([@conflict1])
@@ -121,7 +121,8 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
       pre_existing = Conflicts.new()
       current = Conflicts.new([@conflict2, @conflict3])
       {removed_conflicts, new_conflicts} = Conflicts.diff(pre_existing, current)
-      assert removed_conflicts == Conflicts.new() # empty
+      # empty
+      assert removed_conflicts == Conflicts.new()
       assert new_conflicts == Conflicts.new([@conflict2, @conflict3])
     end
   end
@@ -151,19 +152,23 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
       vehicles: [1111, 2222],
       service_date: ~D[2017-09-02]
     }
+
     conflict2 = %Conflict{
       assign_type: :block,
       assign_id: "456",
       vehicles: [3333, 4444],
       service_date: ~D[2017-09-02]
     }
-    conflict3 = %Conflict {
+
+    conflict3 = %Conflict{
       assign_type: :block,
       assign_id: "789",
       vehicles: [5555, 6666],
       service_date: ~D[2017-09-01]
     }
-    conflicts = Conflicts.new()
+
+    conflicts =
+      Conflicts.new()
       |> Conflicts.add(conflict1)
       |> Conflicts.add(conflict2)
       |> Conflicts.remove(conflict1)
@@ -171,7 +176,8 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
     assert Conflicts.contains_conflict?(conflicts, conflict2)
     refute Conflicts.contains_conflict?(conflicts, conflict1)
 
-    conflicts = conflicts
+    conflicts =
+      conflicts
       |> Conflicts.add(conflict3)
       |> Conflicts.remove_many([conflict2, conflict3])
 
@@ -186,12 +192,14 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
       vehicles: [1111, 2222],
       service_date: ~D[2017-09-02]
     }
+
     conflict2 = %Conflict{
       assign_type: :block,
       assign_id: "456",
       vehicles: [3333, 4444],
       service_date: ~D[2017-09-02]
     }
+
     conflicts = Conflicts.new([conflict1])
     assert Conflicts.contains_conflict?(conflicts, conflict1)
     refute Conflicts.contains_conflict?(conflicts, conflict2)
@@ -204,27 +212,30 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
       vehicles: [1111, 2222],
       service_date: ~D[2017-09-02]
     }
+
     conflict2 = %Conflict{
       assign_type: :block,
       assign_id: "456",
       vehicles: [3333, 4444],
       service_date: ~D[2017-09-02]
     }
-    conflict3 = %Conflict {
+
+    conflict3 = %Conflict{
       assign_type: :block,
       assign_id: "789",
       vehicles: [5555, 6666],
       service_date: ~D[2017-09-01]
     }
+
     conflicts = Conflicts.new([conflict1, conflict2, conflict3])
-    
+
     filtered_by_trip = Conflicts.filter_by(conflicts, :assign_type, :trip)
 
     assert Conflicts.contains_conflict?(filtered_by_trip, conflict1)
     refute Conflicts.contains_conflict?(filtered_by_trip, conflict2)
     refute Conflicts.contains_conflict?(filtered_by_trip, conflict3)
 
-    filtered_by_date =  Conflicts.filter_by(conflicts, :service_date, ~D[2017-09-02])
+    filtered_by_date = Conflicts.filter_by(conflicts, :service_date, ~D[2017-09-02])
 
     assert Conflicts.contains_conflict?(filtered_by_date, conflict1)
     assert Conflicts.contains_conflict?(filtered_by_date, conflict2)
@@ -238,13 +249,15 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
       vehicles: [1111, 2222],
       service_date: ~D[2017-09-02]
     }
+
     conflict2 = %Conflict{
       assign_type: :block,
       assign_id: "456",
       vehicles: [3333, 4444],
       service_date: ~D[2017-09-02]
     }
-    conflict3 = %Conflict {
+
+    conflict3 = %Conflict{
       assign_type: :block,
       assign_id: "789",
       vehicles: [5555, 6666],
@@ -255,7 +268,7 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
     current = Conflicts.new([conflict2, conflict3])
 
     {removed, new} = Conflicts.diff(pre_existing, current)
-  
+
     assert removed == Conflicts.new([conflict1])
     assert new == Conflicts.new([conflict3])
   end

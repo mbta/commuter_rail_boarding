@@ -5,7 +5,7 @@ defmodule TrainLoc.LogAnalyzer.BlockConflicts do
 
   """
 
-  @spec run(String.t) :: list
+  @spec run(String.t()) :: list
   def run(logs) do
     logs
     |> log_lines()
@@ -43,5 +43,4 @@ defmodule TrainLoc.LogAnalyzer.BlockConflicts do
   defp format_block({block_id, vehicle_ids}) do
     %{block_id: block_id, conflicts: %{vehicle_ids: MapSet.to_list(vehicle_ids)}}
   end
-
 end

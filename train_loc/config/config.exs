@@ -22,11 +22,9 @@ config :logger, :console,
   metadata: [:request_id],
   level: String.to_existing_atom(System.get_env("LOG_LEVEL") || "debug")
 
-config :goth,
-  json: {:system, "CREDENTIALS_JSON"}
+config :goth, json: {:system, "CREDENTIALS_JSON"}
 
-config :trainloc, APIFetcher,
-  connect_at_startup?: true
+config :trainloc, APIFetcher, connect_at_startup?: true
 
 config :trainloc,
   time_zone: "America/New_York",
@@ -40,4 +38,4 @@ config :trainloc,
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

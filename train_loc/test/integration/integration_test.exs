@@ -8,11 +8,11 @@ defmodule TrainLoc.IntegrationTest do
   setup do
     Application.ensure_all_started(:trainloc)
 
-    on_exit fn ->
+    on_exit(fn ->
       TrainLoc.Manager.reset()
       TrainLoc.Conflicts.State.reset()
       TrainLoc.Vehicles.State.reset()
-    end
+    end)
   end
 
   def run_test(test_module) do
@@ -23,12 +23,13 @@ defmodule TrainLoc.IntegrationTest do
     assert Map.size(TrainLoc.S3.InMemory.list_objects()) == 1
   end
 
-  @spec send_data([[String.t]]) :: any
+  @spec send_data([[String.t()]]) :: any
   defp send_data(test_data) do
     for msg_batch <- test_data do
       Enum.each(msg_batch, fn msg ->
         send(TrainLoc.Input.APIFetcher, %HTTPoison.AsyncChunk{chunk: msg})
       end)
+
       Logger.debug(fn -> "Batch sent." end)
     end
 

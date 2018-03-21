@@ -5,7 +5,9 @@ defmodule TrainLoc.S3.InMemory do
 
   @impl TrainLoc.S3
   def put_object(filename, body) do
-    start() # incase it wasn't started yet
+    # incase it wasn't started yet
+    start()
+
     Agent.update(@name, fn state ->
       Map.put(state, filename, body)
     end)
@@ -18,12 +20,14 @@ defmodule TrainLoc.S3.InMemory do
   end
 
   def get_object(filename) do
-    start() # incase it wasn't started yet
+    # incase it wasn't started yet
+    start()
     Agent.get(@name, fn state -> Map.get(state, filename) end)
   end
 
   def list_objects() do
-    start() # incase it wasn't started yet
-    Agent.get(@name, &(&1))
+    # incase it wasn't started yet
+    start()
+    Agent.get(@name, & &1)
   end
 end

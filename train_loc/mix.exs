@@ -2,20 +2,21 @@ defmodule TrainLoc.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :trainloc,
-     version: "0.1.0",
-     elixir: "~> 1.5",
-     elixirc_paths: elixirc_paths(Mix.env),
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: [
-       "coveralls": :test,
-       "coveralls.html": :test,
-       "coveralls.json": :test
-     ],
-     dialyzer: [ignore_warnings: "dialyzer.ignore-warnings"],
+    [
+      app: :trainloc,
+      version: "0.1.0",
+      elixir: "~> 1.5",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.html": :test,
+        "coveralls.json": :test
+      ],
+      dialyzer: [ignore_warnings: "dialyzer.ignore-warnings"]
     ]
   end
 
@@ -24,15 +25,17 @@ defmodule TrainLoc.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [
-      :goth,
-      :logger
+    [
+      extra_applications: [
+        :goth,
+        :logger
       ],
-    mod: {TrainLoc, []}]
+      mod: {TrainLoc, []}
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/integration"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Dependencies can be Hex packages:
   #

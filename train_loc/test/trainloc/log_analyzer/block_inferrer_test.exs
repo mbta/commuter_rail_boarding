@@ -10,10 +10,12 @@ defmodule TrainLoc.LogAnalyzer.BlockInferrerTest do
       2018-02-23 08:57:46.034 [info] Vehicle Assignment - id=2 trip="C" block="D"
       2018-02-23 08:56:46.034 [info] Vehicle Assignment - id=2 trip="D" block="D"
       """
+
       expected = [
         %{block_id: "B", trip_ids: ["B", "A"]},
-        %{block_id: "D", trip_ids: ["D", "C"]},
+        %{block_id: "D", trip_ids: ["D", "C"]}
       ]
+
       assert run(logs) == expected
     end
 
@@ -22,9 +24,11 @@ defmodule TrainLoc.LogAnalyzer.BlockInferrerTest do
       2018-02-23 08:58:46.034 [info] Vehicle Assignment - id=1 trip="A" block="A"
       2018-02-23 08:57:46.034 [info] Vehicle Assignment - id=1 trip="A" block="A"
       """
+
       expected = [
-        %{block_id: "A", trip_ids: ["A"]},
+        %{block_id: "A", trip_ids: ["A"]}
       ]
+
       assert run(logs) == expected
     end
 
@@ -40,9 +44,11 @@ defmodule TrainLoc.LogAnalyzer.BlockInferrerTest do
       2018-02-23 08:54:46.034 [info] Vehicle Assignment - id=1 trip="A" block="C"
       2018-02-23 08:53:46.034 [info] Vehicle Assignment - id=1 trip="C" block="C"
       """
+
       expected = [
-        %{block_id: "C", trip_ids: ["C", "A", "B"]},
+        %{block_id: "C", trip_ids: ["C", "A", "B"]}
       ]
+
       assert run(logs) == expected
     end
   end

@@ -10,7 +10,7 @@ defmodule TrainLoc.Vehicles.State do
 
   require Logger
 
-  #Client Interface
+  # Client Interface
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, :ok, opts)
@@ -51,7 +51,7 @@ defmodule TrainLoc.Vehicles.State do
     GenServer.call(pid, :await)
   end
 
-  #Server Callbacks
+  # Server Callbacks
 
   def init(_) do
     Logger.debug(fn -> "Starting #{__MODULE__}..." end)
@@ -61,22 +61,28 @@ defmodule TrainLoc.Vehicles.State do
   def handle_call(:all_vehicles, _from, vehicles) do
     {:reply, Vehicles.all_vehicles(vehicles), vehicles}
   end
+
   def handle_call(:all_ids, _from, vehicles) do
     {:reply, Vehicles.all_ids(vehicles), vehicles}
   end
+
   def handle_call({:get, vehicle_id}, _from, vehicles) do
     {:reply, Vehicles.get(vehicles, vehicle_id), vehicles}
   end
+
   def handle_call({:upsert_vehicles, new_vehicles}, _from, vehicles) do
     vehicles = Vehicles.upsert(vehicles, new_vehicles)
     {:reply, vehicles, vehicles}
   end
+
   def handle_call({:delete, vehicle_id}, _from, vehicles) do
     {:reply, :ok, Vehicles.delete(vehicles, vehicle_id)}
   end
+
   def handle_call(:get_duplicates, _from, vehicles) do
     {:reply, Vehicles.find_duplicate_logons(vehicles), vehicles}
   end
+
   def handle_call(:reset, _from, _vehicles) do
     {:reply, :ok, Vehicles.new()}
   end
@@ -85,7 +91,7 @@ defmodule TrainLoc.Vehicles.State do
     {:reply, true, state}
   end
 
-  #Catchalls
+  # Catchalls
 
   def handle_call(_, _from, vehicles) do
     {:reply, {:error, "Unknown callback."}, vehicles}

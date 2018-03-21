@@ -1,7 +1,5 @@
 use Mix.Config
 
-config :logger,
-  backends: [:console]
+config :logger, backends: [:console]
 
-config :logger, :console,
-  level: :debug
+config :logger, :console, level: :debug

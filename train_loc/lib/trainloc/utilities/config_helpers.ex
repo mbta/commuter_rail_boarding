@@ -25,6 +25,7 @@ defmodule TrainLoc.Utilities.ConfigHelpers do
   defp do_config({:system, envvar}) when is_binary(envvar) do
     System.get_env(envvar)
   end
+
   defp do_config(value) do
     value
   end

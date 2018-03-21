@@ -26,6 +26,7 @@ defmodule TrainLoc.Vehicles.PreviousBatch do
     if new_vehicles == old_vehicles do
       Logger.warn(fn -> only_old_locations_warning() end)
     end
+
     {:reply, :ok, new_vehicles}
   end
 end

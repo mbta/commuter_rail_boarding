@@ -55,11 +55,13 @@ defmodule TrainLoc.Manager do
 
   def handle_info({:events, events}, state) do
     for event <- events, event.event == "put" do
-      Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect event}" end)
+      Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect(event)}" end)
+
       case ManagerEvent.from_string(event.data) do
         {:ok, manager_event} ->
           update_vehicles(manager_event, state)
-        {:error, reason}  ->
+
+        {:error, reason} ->
           Logger.error(fn ->
             Logging.log_string("Manager Event Parsing Error", reason)
           end)
@@ -74,11 +76,15 @@ defmodule TrainLoc.Manager do
     {:noreply, state}
   end
 
-  defp update_vehicles(%ManagerEvent{} = manager_event, %{first_message?: first_message?, time_baseline: time_baseline_fn}) do
+  defp update_vehicles(%ManagerEvent{} = manager_event, %{
+         first_message?: first_message?,
+         time_baseline: time_baseline_fn
+       }) do
     manager_event.vehicles_json
     |> vehicles_from_data
     |> reject_stale_vehicles(time_baseline_fn.())
     |> VState.upsert_vehicles()
+
     all_conflicts = VState.get_duplicate_logons()
     {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
 
@@ -90,20 +96,24 @@ defmodule TrainLoc.Manager do
       Enum.each(new_conflicts, fn c ->
         Logger.warn(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
       end)
+
       Enum.each(removed_conflicts, fn c ->
         Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
       end)
     end
   end
-  
+
   def vehicles_from_data(data) when is_list(data) do
     Enum.flat_map(data, &vehicles_from_data/1)
   end
+
   def vehicles_from_data(json) when is_map(json) do
     vehicle = Vehicle.from_json(json)
+
     case VehicleValidator.validate(vehicle) do
       :ok ->
         [vehicle]
+
       {:error, reason} ->
         log_invalid_vehicle(reason)
         []
@@ -136,11 +146,16 @@ defmodule TrainLoc.Manager do
   end
 
   defp end_of_batch_logging(all_conflicts, all_vehicles) do
-    Logger.debug(fn -> "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids)} vehicles." end)
-    Logger.debug(fn -> "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active." end)
+    Logger.debug(fn ->
+      "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids())} vehicles."
+    end)
+
+    Logger.debug(fn ->
+      "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active."
+    end)
+
     Logger.info(fn -> "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}" end)
   end
-
 
   defp upload_vehicles_to_s3() do
     vehicles = VState.all_vehicles()

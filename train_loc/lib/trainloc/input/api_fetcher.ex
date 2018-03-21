@@ -27,17 +27,16 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   # Server functions
-  defstruct [
-    url:        nil,
-    send_to:    TrainLoc.Manager,
-    buffer:     "",
-    connected?: false,
-  ]
+  defstruct url: nil,
+            send_to: TrainLoc.Manager,
+            buffer: "",
+            connected?: false
 
   def init(url_or_mfa) do
     state = %__MODULE__{
-      url: url_or_mfa,
+      url: url_or_mfa
     }
+
     if config(APIFetcher, :connect_at_startup?), do: send(self(), :connect)
     {:ok, state}
   end
@@ -45,30 +44,38 @@ defmodule TrainLoc.Input.APIFetcher do
   def handle_info({:configure, new_state}, state) when is_map(new_state) do
     {:noreply, Enum.reduce(Map.keys(new_state), state, &Map.put(&2, &1, new_state[&1]))}
   end
+
   def handle_info(:connect, state) do
     url = compute_url(state)
     Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
+
     headers = [
-      {"Accept", "text/event-stream"},
+      {"Accept", "text/event-stream"}
     ]
+
     httpoison_opts = [
       recv_timeout: 60_000,
-      stream_to: self(),
+      stream_to: self()
     ]
+
     {:ok, _} = HTTPoison.get(url, headers, httpoison_opts)
     {:noreply, state}
   end
+
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
     Logger.debug(fn -> "#{__MODULE__} connected" end)
     {:noreply, state}
   end
+
   def handle_info(%HTTPoison.AsyncStatus{code: code}, state) when code != 200 do
-    log_keolis_error state, fn -> "HTTP status #{code}" end
+    log_keolis_error(state, fn -> "HTTP status #{code}" end)
     {:stop, :shutdown, state}
   end
+
   def handle_info(%HTTPoison.AsyncHeaders{}, state) do
     {:noreply, state}
   end
+
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state) do
     {event_blocks, buffer} = extract_event_blocks_from_buffer(state.buffer <> chunk)
     state = %{state | buffer: buffer}
@@ -79,16 +86,18 @@ defmodule TrainLoc.Input.APIFetcher do
 
     {:noreply, state}
   end
+
   def handle_info(%HTTPoison.Error{reason: reason}, state) do
-    log_keolis_error state, fn -> "HTTPoison.Error #{reason}" end
+    log_keolis_error(state, fn -> "HTTPoison.Error #{reason}" end)
     state = %{state | buffer: ""}
-    send self(), :connect
+    send(self(), :connect)
     {:noreply, state}
   end
+
   def handle_info(%HTTPoison.AsyncEnd{}, state) do
     Logger.info(fn -> "Keolis API Disconnected. Retrying..." end)
     state = %{state | buffer: ""}
-    send self(), :connect
+    send(self(), :connect)
     {:noreply, state}
   end
 
@@ -105,9 +114,11 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def extract_event_blocks_from_buffer(buffer) do
+    # separate events
+    # last one is new_buffer
     buffer
-    |> String.split("\n\n") # separate events
-    |> Enum.split(-1) # last one is new_buffer
+    |> String.split("\n\n")
+    |> Enum.split(-1)
     |> case do
       {events, [new_buffer]} -> {events, new_buffer}
     end
@@ -116,6 +127,7 @@ defmodule TrainLoc.Input.APIFetcher do
   defp compute_url(%{url: {m, f, a}}) do
     apply(m, f, a)
   end
+
   defp compute_url(%{url: url}) when is_binary(url) do
     url
   end
@@ -127,6 +139,7 @@ defmodule TrainLoc.Input.APIFetcher do
   def log_parsing_error(errors) when is_list(errors) do
     Enum.each(errors, &log_parsing_error/1)
   end
+
   def log_parsing_error(error) when is_map(error) do
     error
     |> Map.put(:error_type, "Parsing Error")
@@ -134,12 +147,14 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def send_events_for_processing(events, send_to) when is_list(events) do
-    Logger.info fn -> "#{__MODULE__} received #{length events} events" end
+    Logger.info(fn -> "#{__MODULE__} received #{length(events)} events" end)
+
     for event <- events do
       Logger.debug(fn ->
         inspect(event, limit: :infinity, printable_limit: :infinity)
       end)
     end
+
     send_events_to(events, send_to)
   end
 
@@ -147,6 +162,7 @@ defmodule TrainLoc.Input.APIFetcher do
     # return {:events, []} to keep return api/shape consistent
     {:events, []}
   end
+
   defp send_events_to(events, destination) do
     send(destination, {:events, events})
   end
@@ -155,8 +171,8 @@ defmodule TrainLoc.Input.APIFetcher do
     Logger.error(fn ->
       Logging.log_string("Keolis API Failure", fields)
     end)
-
   end
+
   def log_keolis_error(reason) when is_binary(reason) do
     log_keolis_error(%{error_type: reason})
   end
@@ -165,14 +181,16 @@ defmodule TrainLoc.Input.APIFetcher do
     log_empty_events_error()
     []
   end
+
   def parse_events_from_blocks(event_blocks) when is_list(event_blocks) do
     Enum.map(event_blocks, &ServerSentEvent.from_string/1)
   end
 
   defp log_keolis_error(state, message_fn) do
-    Logger.error fn ->
-      "#{__MODULE__} Keolis API Failure - url=#{inspect state.url} error_type=#{inspect message_fn.()}"
-    end
+    Logger.error(fn ->
+      "#{__MODULE__} Keolis API Failure - url=#{inspect(state.url)} error_type=#{
+        inspect(message_fn.())
+      }"
+    end)
   end
-
 end

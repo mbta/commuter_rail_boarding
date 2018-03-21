@@ -12,30 +12,31 @@ defmodule TrainLoc.Vehicles.Vehicles do
   require Logger
 
   @spec new() :: %{}
-  @spec new([Vehicle.t]) :: map
+  @spec new([Vehicle.t()]) :: map
   def new() do
     %{}
   end
+
   def new(vehicles) do
-    Enum.reduce(vehicles, %{}, fn(x, acc) -> Map.put(acc, x.vehicle_id, x) end)
+    Enum.reduce(vehicles, %{}, fn x, acc -> Map.put(acc, x.vehicle_id, x) end)
   end
 
-  @spec all_vehicles(map) :: [Vehicle.t]
+  @spec all_vehicles(map) :: [Vehicle.t()]
   def all_vehicles(map) do
     Map.values(map)
   end
 
-  @spec all_ids(map) :: [String.t]
+  @spec all_ids(map) :: [String.t()]
   def all_ids(map) do
     Map.keys(map)
   end
 
-  @spec get(map, Vehicle.t) :: Vehicle.t | nil
+  @spec get(map, Vehicle.t()) :: Vehicle.t() | nil
   def get(vehicles, vehicle_id) do
     Map.get(vehicles, vehicle_id)
   end
 
-  @spec put(map, Vehicle.t) :: map
+  @spec put(map, Vehicle.t()) :: map
   def put(vehicles, vehicle) do
     Map.put(vehicles, vehicle.vehicle_id, vehicle)
   end
@@ -44,17 +45,17 @@ defmodule TrainLoc.Vehicles.Vehicles do
   Updates or inserts vehicles into a map of 'old vehicles'.
 
   """
-  @spec upsert(map, [Vehicle.t]) :: map
+  @spec upsert(map, [Vehicle.t()]) :: map
   def upsert(old_vehicles, new_vehicles) do
     log_changed_assigns(old_vehicles, new_vehicles)
     # Convert the incoming list of vehicles to a map
-    Enum.reduce(new_vehicles, old_vehicles, fn(new_vehicle, acc) ->
+    Enum.reduce(new_vehicles, old_vehicles, fn new_vehicle, acc ->
       Vehicle.log_vehicle(new_vehicle)
       Map.put(acc, new_vehicle.vehicle_id, new_vehicle)
     end)
   end
 
-  @spec delete(map, String.t) :: map
+  @spec delete(map, String.t()) :: map
   def delete(vehicles, vehicle_id) do
     Map.delete(vehicles, vehicle_id)
   end
@@ -65,7 +66,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
 
   A conflict is when multiple vehicles are assigned to the same trip or block.
   """
-  @spec find_duplicate_logons(map) :: [Conflict.t]
+  @spec find_duplicate_logons(map) :: [Conflict.t()]
   def find_duplicate_logons(vehicles) do
     same_trip =
       vehicles
@@ -84,21 +85,31 @@ defmodule TrainLoc.Vehicles.Vehicles do
     Enum.concat(same_trip, same_block)
   end
 
-  @spec reject_group?({String.t, [Vehicle.t]}) :: boolean
-  defp reject_group?({_,[_]}), do: true
+  @spec reject_group?({String.t(), [Vehicle.t()]}) :: boolean
+  defp reject_group?({_, [_]}), do: true
   defp reject_group?({"0", _}), do: true
   defp reject_group?({"9999", _}), do: true
-  defp reject_group?({_,_}), do: false
+  defp reject_group?({_, _}), do: false
 
-  @spec log_changed_assigns(map, [Vehicle.t]) :: any
+  @spec log_changed_assigns(map, [Vehicle.t()]) :: any
   defp log_changed_assigns(old_vehicles, new_vehicles) do
     for new <- new_vehicles do
       old = Map.get(old_vehicles, new.vehicle_id, new)
+
       if old.block != new.block do
-        Logger.debug(fn -> "BLOCK CHANGE #{Time.format_datetime(new.timestamp)} - #{new.vehicle_id}: #{old.block}->#{new.block}" end)
+        Logger.debug(fn ->
+          "BLOCK CHANGE #{Time.format_datetime(new.timestamp)} - #{new.vehicle_id}: #{old.block}->#{
+            new.block
+          }"
+        end)
       end
+
       if old.trip != new.trip do
-        Logger.debug(fn -> "TRIP CHANGE #{Time.format_datetime(new.timestamp)} - #{new.vehicle_id}: #{old.trip}->#{new.trip}" end)
+        Logger.debug(fn ->
+          "TRIP CHANGE #{Time.format_datetime(new.timestamp)} - #{new.vehicle_id}: #{old.trip}->#{
+            new.trip
+          }"
+        end)
       end
     end
   end

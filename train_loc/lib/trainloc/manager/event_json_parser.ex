@@ -12,31 +12,33 @@ defmodule TrainLoc.Manager.EventJsonParser do
   alias TrainLoc.Manager.Event
 
   def parse(data) when is_binary(data) do
-    with \
-      {:ok, json}   <- Poison.decode(data),
-      vehicles_json <- extract_vehicles_json(json),
-      date          <- extract_date(json),
-      :ok           <- validate_vehicles_json(vehicles_json)
-    do
-      {:ok, %Event{
-        vehicles_json: vehicles_json,
-        date: date,
-      }}
+    with {:ok, json} <- Poison.decode(data),
+         vehicles_json <- extract_vehicles_json(json),
+         date <- extract_date(json),
+         :ok <- validate_vehicles_json(vehicles_json) do
+      {:ok,
+       %Event{
+         vehicles_json: vehicles_json,
+         date: date
+       }}
     else
       {:error, _} = err ->
         err
+
       _ ->
         {:error, :invalid_json}
     end
   end
+
   def parse(_) do
     {:error, :invalid_json}
   end
 
   defp validate_vehicles_json(vehicles_json) when is_list(vehicles_json) do
-    Enum.reduce(vehicles_json, :ok, fn 
+    Enum.reduce(vehicles_json, :ok, fn
       vehicle, :ok ->
         TrainLoc.Vehicles.JsonValidator.validate(vehicle)
+
       _, {:error, _} = err ->
         err
     end)
@@ -45,17 +47,21 @@ defmodule TrainLoc.Manager.EventJsonParser do
   def extract_vehicles_json(%{"data" => %{"results" => json}}) when is_map(json) do
     extract_vehicles_json(json)
   end
+
   def extract_vehicles_json(%{"vehicleid" => _} = json) do
     [json]
   end
+
   def extract_vehicles_json(json) when is_map(json) do
     Enum.reduce(json, [], fn
-      ({_key, %{"vehicleid" => _} = vehicle_json}, acc) ->
-        [ vehicle_json | acc ]
-      (_, acc) -> 
+      {_key, %{"vehicleid" => _} = vehicle_json}, acc ->
+        [vehicle_json | acc]
+
+      _, acc ->
         acc
     end)
   end
+
   def extract_vehicles_json(_) do
     nil
   end
@@ -63,11 +69,12 @@ defmodule TrainLoc.Manager.EventJsonParser do
   def extract_date(%{"data" => json}) do
     extract_date(json)
   end
+
   def extract_date(%{"date" => date}) do
     date
   end
+
   def extract_date(_) do
     nil
   end
-
 end

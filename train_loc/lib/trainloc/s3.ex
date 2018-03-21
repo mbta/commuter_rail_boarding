@@ -4,8 +4,8 @@ defmodule TrainLoc.S3 do
 
   put_file/2 uploads file to S3
   """
-  @type filename :: String.t
-  @type body :: String.t
+  @type filename :: String.t()
+  @type body :: String.t()
 
   @callback put_object(filename, body) :: {:ok, term} | {:error, term}
 end

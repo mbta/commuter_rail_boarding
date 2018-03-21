@@ -16,22 +16,21 @@ defmodule TrainLoc.Vehicles.Validator do
   A valid vehicle will result in an `:ok`.
   """
   def validate(%Vehicle{} = veh) do
-    with \
-      :ok <- must_be_non_neg_int(veh, :vehicle_id),
-      :ok <- must_be_datetime(veh, :timestamp),
-      :ok <- must_be_string(veh, :block),
-      :ok <- must_not_be_blank(veh, :block),
-      :ok <- must_be_string(veh, :trip),
-      :ok <- must_not_be_blank(veh, :trip),
-      :ok <- must_have_valid_latitude(veh),
-      :ok <- must_have_valid_longitude(veh),
-      :ok <- must_be_in_range(veh, :heading, 0..359),
-      :ok <- must_be_non_neg_int(veh, :speed),
-      :ok <- must_be_in_range(veh, :fix, 0..9)
-    do
+    with :ok <- must_be_non_neg_int(veh, :vehicle_id),
+         :ok <- must_be_datetime(veh, :timestamp),
+         :ok <- must_be_string(veh, :block),
+         :ok <- must_not_be_blank(veh, :block),
+         :ok <- must_be_string(veh, :trip),
+         :ok <- must_not_be_blank(veh, :trip),
+         :ok <- must_have_valid_latitude(veh),
+         :ok <- must_have_valid_longitude(veh),
+         :ok <- must_be_in_range(veh, :heading, 0..359),
+         :ok <- must_be_non_neg_int(veh, :speed),
+         :ok <- must_be_in_range(veh, :fix, 0..9) do
       :ok
     end
   end
+
   def validate(_other) do
     {:error, :not_a_vehicle}
   end
@@ -78,7 +77,7 @@ defmodule TrainLoc.Vehicles.Validator do
   end
 
   def must_be_in_range(veh, field, _.._ = range) do
-    in_range? = fn (x) -> x in range end
+    in_range? = fn x -> x in range end
     run_validation(veh, field, in_range?)
   end
 
@@ -89,9 +88,11 @@ defmodule TrainLoc.Vehicles.Validator do
 
   The northernmost station is Newburyport (42.8).
   """
-  def must_have_valid_latitude(%Vehicle{latitude: lat}) when is_float(lat) and lat >= 41.5 and lat <= 42.8 do
+  def must_have_valid_latitude(%Vehicle{latitude: lat})
+      when is_float(lat) and lat >= 41.5 and lat <= 42.8 do
     :ok
   end
+
   def must_have_valid_latitude(_) do
     @default_error
   end
@@ -106,9 +107,11 @@ defmodule TrainLoc.Vehicles.Validator do
   feed - either Rockport (-70.6) or Hyannis (-70.25). In this
   case, Hyannis (-70.25) was chosen because it is more permissive.
   """
-  def must_have_valid_longitude(%Vehicle{longitude: long}) when is_float(long) and long >= -72.0 and long <= -70.25 do
+  def must_have_valid_longitude(%Vehicle{longitude: long})
+      when is_float(long) and long >= -72.0 and long <= -70.25 do
     :ok
   end
+
   def must_have_valid_longitude(_) do
     @default_error
   end

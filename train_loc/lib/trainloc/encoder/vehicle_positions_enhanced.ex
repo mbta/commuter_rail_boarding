@@ -7,7 +7,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
 
   alias TrainLoc.Vehicles.Vehicle
 
-  @spec encode([Vehicle.t]) :: String.t
+  @spec encode([Vehicle.t()]) :: String.t()
   def encode(list) when is_list(list) do
     message = %{
       header: feed_header(),
@@ -42,18 +42,20 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
           longitude: vehicle.longitude,
           bearing: vehicle.heading,
           speed: miles_per_hour_to_meters_per_second(vehicle.speed),
-          fix: vehicle.fix,
+          fix: vehicle.fix
         },
-        timestamp: format_timestamp(vehicle.timestamp),
+        timestamp: format_timestamp(vehicle.timestamp)
       }
     }
   end
+
   defp build_entity(_), do: []
 
   defp entity_trip(%{trip: trip} = vehicle) when trip not in ["0", "9999"] do
     entity_trip = entity_trip(Map.delete(vehicle, :trip))
     Map.put(entity_trip, :trip_short_name, trip)
   end
+
   defp entity_trip(vehicle) do
     %{start_date: start_date(vehicle.timestamp)}
   end

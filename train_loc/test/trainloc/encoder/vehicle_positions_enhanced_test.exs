@@ -6,7 +6,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
 
   describe "encode/1" do
     test "produces valid GTFS-realtime enhanced JSON from list of vehicles" do
-      unix_timestamp = 1501844511
+      unix_timestamp = 1_501_844_511
       datetime_timestamp = DateTime.from_unix!(unix_timestamp)
 
       vehicles = [
@@ -53,6 +53,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
 
       json_contents = decoded_json["entity"]
       assert length(json_contents) == 3
+
       for {vehicle, idx} <- Enum.with_index(vehicles) do
         json_content = Enum.at(json_contents, idx)
         json_vehicle_data = json_content["vehicle"]
@@ -74,12 +75,13 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
     end
 
     test "omits 'trip_short_name' field if '0' or '9999'" do
-      unix_timestamp = 1501844511
+      unix_timestamp = 1_501_844_511
       datetime_timestamp = DateTime.from_unix!(unix_timestamp)
+
       vehicles = [
         %Vehicle{vehicle_id: 1, trip: "509", timestamp: datetime_timestamp},
         %Vehicle{vehicle_id: 2, trip: "0", timestamp: datetime_timestamp},
-        %Vehicle{vehicle_id: 3, trip: "9999", timestamp: datetime_timestamp},
+        %Vehicle{vehicle_id: 3, trip: "9999", timestamp: datetime_timestamp}
       ]
 
       json = VehiclePositionsEnhanced.encode(vehicles)
@@ -98,11 +100,18 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
   describe "start_date/1" do
     test "converts DateTime into accurate service date string" do
       test_datetime = %DateTime{
-        month: 2, day: 2, year: 2018,
-        hour: 3, minute: 30, second: 0,
-        std_offset: 0, utc_offset: -18000,
-        time_zone: "America/New_York", zone_abbr: "EST"
+        month: 2,
+        day: 2,
+        year: 2018,
+        hour: 3,
+        minute: 30,
+        second: 0,
+        std_offset: 0,
+        utc_offset: -18000,
+        time_zone: "America/New_York",
+        zone_abbr: "EST"
       }
+
       assert VehiclePositionsEnhanced.start_date(test_datetime) == "20180202"
       early_datetime = %DateTime{test_datetime | hour: 0}
       assert VehiclePositionsEnhanced.start_date(early_datetime) == "20180201"

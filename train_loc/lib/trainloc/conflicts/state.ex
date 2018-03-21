@@ -11,7 +11,7 @@ defmodule TrainLoc.Conflicts.State do
 
   require Logger
 
-  #Client Interface
+  # Client Interface
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, :ok, opts)
@@ -37,11 +37,13 @@ defmodule TrainLoc.Conflicts.State do
     GenServer.call(pid, {:filter_by, field, value})
   end
 
-  def set_conflicts(pid \\ __MODULE__, conflicts)    
+  def set_conflicts(pid \\ __MODULE__, conflicts)
+
   def set_conflicts(pid, conflicts) when is_list(conflicts) do
     conflicts = Conflicts.new(conflicts)
     set_conflicts(pid, conflicts)
   end
+
   def set_conflicts(pid, conflicts) do
     GenServer.call(pid, {:set, conflicts})
   end
@@ -57,7 +59,7 @@ defmodule TrainLoc.Conflicts.State do
     GenServer.call(pid, :await)
   end
 
-  #Server Callbacks
+  # Server Callbacks
 
   def init(_) do
     Logger.debug(fn -> "Starting #{__MODULE__}..." end)
@@ -94,10 +96,10 @@ defmodule TrainLoc.Conflicts.State do
   end
 
   def handle_call(:await, _from, state) do
-      {:reply, true, state}
+    {:reply, true, state}
   end
 
-  #Catchalls
+  # Catchalls
 
   def handle_call(_, _from, known_conflicts) do
     {:reply, {:error, "Unknown callback."}, known_conflicts}

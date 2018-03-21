@@ -2,34 +2,33 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
   use ExUnit.Case, async: true
   alias TrainLoc.Vehicles.{Validator, Vehicle}
   import TrainLoc.Utilities.ConfigHelpers
-  
 
   describe "must_be_non_neg_int/2" do
     test "fails on non-integer" do
       params = %{the_field: "123"}
       expected = {:error, :invalid_vehicle}
-      result = Validator.must_be_non_neg_int(params, :the_field) 
+      result = Validator.must_be_non_neg_int(params, :the_field)
       assert result == expected
     end
 
     test "fails on negative integer" do
       params = %{the_field: -1}
       expected = {:error, :invalid_vehicle}
-      result = Validator.must_be_non_neg_int(params, :the_field) 
+      result = Validator.must_be_non_neg_int(params, :the_field)
       assert result == expected
     end
 
     test "works on 0" do
       params = %{the_field: 0}
       expected = :ok
-      result = Validator.must_be_non_neg_int(params, :the_field) 
+      result = Validator.must_be_non_neg_int(params, :the_field)
       assert result == expected
     end
 
     test "works for non-neg-integer" do
       params = %{the_field: 1}
       expected = :ok
-      result = Validator.must_be_non_neg_int(params, :the_field) 
+      result = Validator.must_be_non_neg_int(params, :the_field)
       assert result == expected
     end
   end
@@ -38,14 +37,14 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     test "works for DateTime structs" do
       params = %{the_field: DateTime.utc_now()}
       expected = :ok
-      result = Validator.must_be_datetime(params, :the_field) 
+      result = Validator.must_be_datetime(params, :the_field)
       assert result == expected
     end
 
     test "fails for any non-DateTime-struct" do
       params = %{the_field: 0}
       expected = {:error, :invalid_vehicle}
-      result = Validator.must_be_datetime(params, :the_field) 
+      result = Validator.must_be_datetime(params, :the_field)
       assert result == expected
     end
   end
@@ -98,21 +97,21 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     test "works for an int in a range" do
       params = %{the_field: 1}
       expected = :ok
-      result = Validator.must_be_in_range(params, :the_field, 0..1) 
+      result = Validator.must_be_in_range(params, :the_field, 0..1)
       assert result == expected
     end
 
     test "fails for an non-int" do
       params = %{the_field: "not_an_int"}
       expected = {:error, :invalid_vehicle}
-      result = Validator.must_be_in_range(params, :the_field, 0..1) 
+      result = Validator.must_be_in_range(params, :the_field, 0..1)
       assert result == expected
     end
 
     test "fails for an int that is out of range" do
       params = %{the_field: 2}
       expected = {:error, :invalid_vehicle}
-      result = Validator.must_be_in_range(params, :the_field, 0..1) 
+      result = Validator.must_be_in_range(params, :the_field, 0..1)
       assert result == expected
     end
   end
@@ -177,9 +176,8 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     end
   end
 
-
   describe "validate/1" do
-    @time_format config(:time_format)    
+    @time_format config(:time_format)
     @valid_timestamp Timex.parse!("2018-01-05 11:38:50 America/New_York", @time_format)
     @valid_vehicle %Vehicle{
       block: "602",
@@ -190,7 +188,7 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
       speed: 14,
       timestamp: @valid_timestamp,
       trip: "612",
-      vehicle_id: 1827,
+      vehicle_id: 1827
     }
     test "works for valid structs" do
       assert Validator.validate(@valid_vehicle) == :ok
@@ -204,7 +202,8 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
       result =
         @valid_vehicle
         |> Map.put(:trip, nil)
-        |> Validator.validate
+        |> Validator.validate()
+
       assert result == {:error, :invalid_vehicle}
     end
   end

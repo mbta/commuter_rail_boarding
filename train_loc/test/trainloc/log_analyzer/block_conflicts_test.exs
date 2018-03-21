@@ -8,6 +8,7 @@ defmodule TrainLoc.LogAnalyzer.BlockConflictsTest do
       2018-02-23 08:59:46.034 [info] Vehicle Assignment - id=2 trip="B" block="B"
       2018-02-23 08:55:46.034 [info] Vehicle Assignment - id=1 trip="D" block="D"
       """
+
       assert run(logs) == []
     end
 
@@ -20,9 +21,10 @@ defmodule TrainLoc.LogAnalyzer.BlockConflictsTest do
       2018-02-23 08:56:46.034 [info] Vehicle Assignment - id=1 trip="E" block="D"
       2018-02-23 08:55:46.034 [info] Vehicle Assignment - id=1 trip="D" block="D"
       """
+
       assert run(logs) == [
-        %{block_id: "B", conflicts: %{vehicle_ids: ["2", "3"]}},
-      ]
+               %{block_id: "B", conflicts: %{vehicle_ids: ["2", "3"]}}
+             ]
     end
   end
 end

@@ -4,13 +4,16 @@ defmodule TrainLoc.UtilitiesConfigHelpersTest do
   import TrainLoc.Utilities.ConfigHelpers
 
   setup do
-    Application.put_env(:trainloc, __MODULE__,
+    Application.put_env(
+      :trainloc,
+      __MODULE__,
       environment_variable: {:system, "PATH"},
       value: :value
     )
-    on_exit fn ->
+
+    on_exit(fn ->
       Application.delete_env(:trainloc, __MODULE__)
-    end
+    end)
   end
 
   describe "config/2" do
