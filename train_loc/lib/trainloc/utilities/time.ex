@@ -21,13 +21,14 @@ defmodule TrainLoc.Utilities.Time do
 
   def parse_improper_unix(local_unix, timezone \\ config(:time_zone))
   def parse_improper_unix(local_unix, timezone) when is_integer(local_unix) do
+    date_time = DateTime.from_unix!(local_unix)
+
     offset =
       timezone
-      |> Timezone.get()
+      |> Timezone.get(date_time)
       |> Timezone.total_offset()
 
-    local_unix
-    |> Timex.from_unix()
+    date_time
     |> Timezone.convert(timezone)
     |> Timex.shift(seconds: offset * -1)
   end
