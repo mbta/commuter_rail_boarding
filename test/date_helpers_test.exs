@@ -5,14 +5,32 @@ defmodule DateHelpersTest do
 
   describe "service_date/1" do
     test "returns the current date if it's 3am or after" do
-      assert ~D[2017-01-01] = service_date(local_dt(~N[2017-01-01T03:00:00]))
-      assert ~D[2017-01-01] = service_date(local_dt(~N[2017-01-01T15:00:00]))
-      assert ~D[2017-01-01] = service_date(local_dt(~N[2017-01-01T23:59:59]))
+      assert ~D[2017-01-01] = service_date(local_dt!(~N[2017-01-01T03:00:00]))
+      assert ~D[2017-01-01] = service_date(local_dt!(~N[2017-01-01T15:00:00]))
+      assert ~D[2017-01-01] = service_date(local_dt!(~N[2017-01-01T23:59:59]))
     end
 
     test "returns the previous date if it's between midnight and 3am" do
-      assert ~D[2016-12-31] = service_date(local_dt(~N[2017-01-01T00:00:00]))
-      assert ~D[2016-12-31] = service_date(local_dt(~N[2017-01-01T02:59:59]))
+      assert ~D[2016-12-31] = service_date(local_dt!(~N[2017-01-01T00:00:00]))
+      assert ~D[2016-12-31] = service_date(local_dt!(~N[2017-01-01T02:59:59]))
+    end
+
+    test "handles both DST transitions" do
+      # spring forward
+      assert ~D[2018-03-10] = service_date(local_dt!(~N[2018-03-11T01:59:59]))
+      assert ~D[2018-03-10] = service_date(local_dt!(~N[2018-03-11T03:30:00]))
+      assert ~D[2018-03-11] = service_date(local_dt!(~N[2018-03-11T04:30:00]))
+      # fall back
+      {:ambiguous, %{possible_date_times: possibilities}} =
+        local_dt(~N[2018-11-04T01:30:00])
+
+      for local_dt <- possibilities do
+        utc_datetime = Calendar.DateTime.shift_zone!(local_dt, "Etc/UTC")
+        assert ~D[2018-11-03] = service_date(utc_datetime)
+      end
+
+      assert ~D[2018-11-04] = service_date(local_dt!(~N[2018-11-04T02:30:00]))
+      assert ~D[2018-11-04] = service_date(local_dt!(~N[2018-11-04T03:30:00]))
     end
   end
 
@@ -26,6 +44,18 @@ defmodule DateHelpersTest do
   end
 
   defp local_dt(%NaiveDateTime{} = ndt) do
-    DateTime.from_naive!(ndt, "Etc/UTC")
+    with {:ok, local_dt} <-
+           Calendar.DateTime.from_date_and_time_and_zone(
+             ndt,
+             ndt,
+             "America/New_York"
+           ) do
+      Calendar.DateTime.shift_zone(local_dt, "Etc/UTC")
+    end
+  end
+
+  defp local_dt!(%NaiveDateTime{} = ndt) do
+    {:ok, dt} = local_dt(ndt)
+    dt
   end
 end
