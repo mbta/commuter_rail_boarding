@@ -5,9 +5,6 @@ defmodule TrainLoc.Utilities.Time do
   use Timex
   import TrainLoc.Utilities.ConfigHelpers
 
-  # Week starts on Sunday
-  @week_start 7
-
   @type datetime :: DateTime.t() | Timex.AmbiguousDateTime.t() | {:error, term}
 
   @spec in_local_tz(DateTime.t()) :: datetime
@@ -19,15 +16,9 @@ defmodule TrainLoc.Utilities.Time do
     end
   end
 
-  @spec local_now() :: datetime
-  def local_now do
-    in_local_tz(DateTime.utc_now())
-  end
-
   @spec unix_now() :: integer
   def unix_now() do
-    local_now()
-    |> Timex.to_unix()
+    System.system_time(:seconds)
   end
 
   def parse_improper_unix(local_unix, timezone \\ config(:time_zone))
@@ -56,48 +47,13 @@ defmodule TrainLoc.Utilities.Time do
     |> DateTime.to_naive()
   end
 
-  @spec end_of_service_date(DateTime.t()) :: DateTime.t()
-  def end_of_service_date(current_time \\ local_now()) do
-    datetime =
-      current_time
-      |> Timex.end_of_day()
-      |> Timex.shift(hours: 3)
-
-    if current_time.hour < 3 do
-      Timex.shift(datetime, days: -1)
-    else
-      datetime
-    end
-  end
-
-  @spec end_of_week(DateTime.t()) :: DateTime.t()
-  def end_of_week(current_time \\ local_now()) do
-    week_end =
-      current_time
-      |> Timex.end_of_week(@week_start)
-      |> Timex.shift(hours: 3)
-
-    if current_time.hour < 3 and Timex.weekday(current_time) == @week_start do
-      Timex.shift(week_end, weeks: -1)
-    else
-      week_end
-    end
-  end
-
-  @spec first_day_of_week(DateTime.t()) :: Date.t()
-  def first_day_of_week(current_time \\ local_now()) do
-    current_time
-    |> get_service_date()
-    |> Timex.beginning_of_week(@week_start)
-  end
-
   @spec time_until(DateTime.t(), DateTime.t(), Timex.Comparable.granularity()) :: integer
   def time_until(time, from, units \\ :milliseconds) do
     Timex.diff(time, from, units)
   end
 
   @spec get_service_date(DateTime.t()) :: Date.t()
-  def get_service_date(current_time \\ local_now()) do
+  def get_service_date(current_time \\ DateTime.utc_now()) do
     dt =
       current_time
       |> in_local_tz
@@ -108,11 +64,6 @@ defmodule TrainLoc.Utilities.Time do
       end
 
     DateTime.to_date(dt)
-  end
-
-  @spec format_date(Date.t()) :: String.t()
-  def format_date(date) do
-    Date.to_iso8601(date)
   end
 
   @spec parse_date(String.t()) :: Date.t()
