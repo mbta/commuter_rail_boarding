@@ -18,12 +18,10 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   end
 
   defp feed_header do
-    timestamp = System.system_time(:seconds)
-
     %{
       gtfs_realtime_version: "1.0",
       incrementality: 0,
-      timestamp: timestamp
+      timestamp: unix_now()
     }
   end
 
