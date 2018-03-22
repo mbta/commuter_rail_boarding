@@ -8,10 +8,20 @@ defmodule TrainLoc.Utilities.Time do
   # Week starts on Sunday
   @week_start 7
 
-  @spec local_now(Timex.Types.valid_timezone()) ::
-          DateTime.t() | Timex.AmbiguousDateTime.t() | {:error, term}
-  def local_now(timezone \\ config(:time_zone)) do
-    Timex.now(timezone)
+  @type datetime :: DateTime.t() | Timex.AmbiguousDateTime.t() | {:error, term}
+
+  @spec in_local_tz(DateTime.t()) :: datetime
+  @spec in_local_tz(DateTime.t(), Timex.Types.valid_timezone()) :: datetime
+  def in_local_tz(dt, timezone \\ config(:time_zone)) do
+    case dt do
+      %DateTime{time_zone: ^timezone} -> dt
+      dt -> Timex.to_datetime(dt, timezone)
+    end
+  end
+
+  @spec local_now() :: datetime
+  def local_now do
+    in_local_tz(DateTime.utc_now())
   end
 
   @spec unix_now() :: integer
@@ -88,21 +98,21 @@ defmodule TrainLoc.Utilities.Time do
 
   @spec get_service_date(DateTime.t()) :: Date.t()
   def get_service_date(current_time \\ local_now()) do
-    datetime = Timex.beginning_of_day(current_time)
-
-    service_datetime =
-      if current_time.hour < 3 do
-        Timex.shift(datetime, days: -1)
-      else
-        datetime
+    dt =
+      current_time
+      |> in_local_tz
+      |> Timex.shift(hours: -3)
+      |> case do
+        %DateTime{} = dt -> dt
+        %Timex.AmbiguousDateTime{before: before} -> before
       end
 
-    Timex.to_date(service_datetime)
+    DateTime.to_date(dt)
   end
 
   @spec format_date(Date.t()) :: String.t()
   def format_date(date) do
-    Timex.format!(date, "{YYYY}-{0M}-{0D}")
+    Date.to_iso8601(date)
   end
 
   @spec parse_date(String.t()) :: Date.t()

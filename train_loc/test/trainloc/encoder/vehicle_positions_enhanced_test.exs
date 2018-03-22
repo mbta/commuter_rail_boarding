@@ -1,6 +1,6 @@
 defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
   use ExUnit.Case, async: true
-
+  import TrainLoc.Encoder.VehiclePositionsEnhanced
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Encoder.VehiclePositionsEnhanced
 
@@ -115,6 +115,27 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       assert VehiclePositionsEnhanced.start_date(test_datetime) == "20180202"
       early_datetime = %DateTime{test_datetime | hour: 0}
       assert VehiclePositionsEnhanced.start_date(early_datetime) == "20180201"
+    end
+
+    test "converts UTC datetimes into the appropriate service dates" do
+      # 1am EDT
+      dt = DateTime.from_naive!(~N[2018-03-22T05:00:00], "Etc/UTC")
+      assert start_date(dt) == "20180321"
+
+      # 4am EDT
+      dt = DateTime.from_naive!(~N[2018-03-22T08:00:00], "Etc/UTC")
+      assert start_date(dt) == "20180322"
+    end
+
+    test "converts UTC datestimes into service data around DST transitions" do
+      # spring forward
+      assert start_date(DateTime.from_naive!(~N[2018-03-11T06:59:59], "Etc/UTC")) == "20180310"
+      assert start_date(DateTime.from_naive!(~N[2018-03-11T07:00:00], "Etc/UTC")) == "20180311"
+      assert start_date(DateTime.from_naive!(~N[2018-03-11T08:30:00], "Etc/UTC")) == "20180311"
+      assert start_date(DateTime.from_naive!(~N[2018-11-04T06:59:59], "Etc/UTC")) == "20181103"
+      assert start_date(DateTime.from_naive!(~N[2018-11-04T07:00:00], "Etc/UTC")) == "20181103"
+      assert start_date(DateTime.from_naive!(~N[2018-11-04T08:30:00], "Etc/UTC")) == "20181104"
+      assert start_date(DateTime.from_naive!(~N[2018-11-04T09:30:00], "Etc/UTC")) == "20181104"
     end
   end
 
