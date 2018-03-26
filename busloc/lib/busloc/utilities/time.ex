@@ -17,7 +17,8 @@ defmodule Busloc.Utilities.Time do
         base_datetime,
         hour: to_integer(hour),
         minute: to_integer(minute),
-        second: to_integer(second)
+        second: to_integer(second),
+        microsecond: {0, 0}
       )
 
     cond do
