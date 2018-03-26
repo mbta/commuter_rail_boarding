@@ -21,7 +21,7 @@ defmodule Busloc.Vehicle do
           timestamp: non_neg_integer
         }
 
-  def from_transitmaster_map(map) do
+  def from_transitmaster_map(map, current_time \\ BuslocTime.now()) do
     %Busloc.Vehicle{
       vehicle_id: map.vehicle_id,
       block: map.block,
@@ -29,7 +29,7 @@ defmodule Busloc.Vehicle do
       longitude: map.longitude,
       heading: map.heading,
       source: :transitmaster,
-      timestamp: BuslocTime.parse_transitmaster_timestamp(map.timestamp)
+      timestamp: BuslocTime.parse_transitmaster_timestamp(map.timestamp, current_time)
     }
   end
 end

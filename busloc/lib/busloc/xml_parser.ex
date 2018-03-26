@@ -10,6 +10,7 @@ defmodule Busloc.XmlParser do
           timestamp: String.t()
         }
 
+  @spec parse_transitmaster_xml(String.t()) :: xpath_map
   def parse_transitmaster_xml(xml_string) do
     xpath_args = [
       vehicle_id: ~x".//vehicleId/text()"s,
@@ -20,7 +21,6 @@ defmodule Busloc.XmlParser do
       timestamp: ~x".//time/text()"s
     ]
 
-    xml_string
-    |> xpath(~x"//Vehicle"el, xpath_args)
+    xpath(xml_string, ~x"//Vehicle"el, xpath_args)
   end
 end
