@@ -55,8 +55,13 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
       assert :ok = Validator.must_have_valid_latitude(veh)
     end
 
-    test "errors non-floats" do
+    test "ok for nil" do
       veh = %Vehicle{latitude: nil, vehicle_id: 1}
+      assert :ok = Validator.must_have_valid_latitude(veh)
+    end
+
+    test "errors non-floats" do
+      veh = %Vehicle{latitude: :atom, vehicle_id: 1}
       assert {:error, :invalid_vehicle} = Validator.must_have_valid_latitude(veh)
     end
 
@@ -77,8 +82,13 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
       assert :ok = Validator.must_have_valid_longitude(veh)
     end
 
-    test "errors non-floats" do
+    test "ok for nil" do
       veh = %Vehicle{longitude: nil, vehicle_id: 1}
+      assert :ok = Validator.must_have_valid_longitude(veh)
+    end
+
+    test "errors non-floats" do
+      veh = %Vehicle{longitude: :atom, vehicle_id: 1}
       assert {:error, :invalid_vehicle} = Validator.must_have_valid_longitude(veh)
     end
 
