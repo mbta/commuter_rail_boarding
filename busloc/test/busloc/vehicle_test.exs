@@ -43,6 +43,7 @@ defmodule Busloc.VehicleTest do
         source: :transitmaster,
         timestamp: DateTime.from_naive!(~N[2018-03-28T20:15:12], "Etc/UTC")
       }
+
       actual = log_line(vehicle)
       assert actual =~ ~s(vehicle_id="veh_id")
       assert actual =~ ~s(block="50")

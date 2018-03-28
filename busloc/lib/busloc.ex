@@ -9,7 +9,7 @@ defmodule Busloc do
     children = [
       {Busloc.TmFetcher, url: config(TmFetcher, :url)}
     ]
+
     Supervisor.start_link(children, strategy: :one_for_one)
   end
-
 end

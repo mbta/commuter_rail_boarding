@@ -17,7 +17,7 @@ defmodule Busloc.TmFetcher do
 
   def init(url) do
     state = %{url: url}
-    send self, :timeout
+    send(self, :timeout)
     {:ok, state}
   end
 
@@ -27,10 +27,11 @@ defmodule Busloc.TmFetcher do
       |> get_xml()
       |> XmlParser.parse_transitmaster_xml()
       |> Enum.map(&Busloc.Vehicle.from_transitmaster_map/1)
+      |> Busloc.NextbusOutput.create_nextbus_xml_file()
       |> Enum.each(fn vehicle ->
         vehicle
         |> Busloc.Vehicle.log_line()
-        |> Logger.info
+        |> Logger.info()
       end)
 
     send_timeout()
