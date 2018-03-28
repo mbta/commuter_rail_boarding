@@ -31,4 +31,26 @@ defmodule Busloc.VehicleTest do
       assert expected == actual
     end
   end
+
+  describe "log_line/1" do
+    test "logs all the data from the vehicle" do
+      vehicle = %Vehicle{
+        vehicle_id: "veh_id",
+        block: "50",
+        latitude: 1.234,
+        longitude: -5.678,
+        heading: 29,
+        source: :transitmaster,
+        timestamp: DateTime.from_naive!(~N[2018-03-28T20:15:12], "Etc/UTC")
+      }
+      actual = log_line(vehicle)
+      assert actual =~ ~s(vehicle_id="veh_id")
+      assert actual =~ ~s(block="50")
+      assert actual =~ "latitude=1.234"
+      assert actual =~ "longitude=-5.678"
+      assert actual =~ "heading=29"
+      assert actual =~ "source=transitmaster"
+      assert actual =~ "timestamp=2018-03-28T20:15:12Z"
+    end
+  end
 end

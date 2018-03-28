@@ -2,6 +2,7 @@ defmodule Busloc.TmFetcher do
   use GenServer
 
   import Busloc.Utilities.ConfigHelpers
+  require Logger
 
   alias Busloc.XmlParser
 
@@ -16,16 +17,21 @@ defmodule Busloc.TmFetcher do
 
   def init(url) do
     state = %{url: url}
-    send_timeout()
+    send self, :timeout
     {:ok, state}
   end
 
   def handle_info(:timeout, %{url: url} = state) do
-    _parsed_xml =
+    :ok =
       url
       |> get_xml()
       |> XmlParser.parse_transitmaster_xml()
       |> Enum.map(&Busloc.Vehicle.from_transitmaster_map/1)
+      |> Enum.each(fn vehicle ->
+        vehicle
+        |> Busloc.Vehicle.log_line()
+        |> Logger.info
+      end)
 
     send_timeout()
     {:noreply, state}
