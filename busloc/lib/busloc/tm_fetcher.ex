@@ -23,9 +23,9 @@ defmodule Busloc.TmFetcher do
 
   def handle_info(:timeout, %{url: url} = state) do
     with {:ok, body} <- get_xml(url),
+         {:ok, vehicles} <- XmlParser.parse_transitmaster_xml(body),
          :ok <-
-           body
-           |> XmlParser.parse_transitmaster_xml()
+           vehicles
            |> Enum.map(&Busloc.Vehicle.from_transitmaster_map/1)
            |> Enum.map(&log_vehicle/1)
            |> Busloc.NextbusOutput.to_nextbus_xml()
@@ -44,7 +44,7 @@ defmodule Busloc.TmFetcher do
 
   # Helper Functions
 
-  @spec get_xml(String.t()) :: {:ok, String.t} | {:error, any}
+  @spec get_xml(String.t()) :: {:ok, String.t()} | {:error, any}
   def get_xml(url) do
     headers = [
       {"Accept", "text/xml"}
