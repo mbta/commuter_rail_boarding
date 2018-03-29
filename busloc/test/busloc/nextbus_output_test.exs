@@ -45,16 +45,17 @@ defmodule Busloc.NextbusOutputTest do
       }
 
       actual =
-        vehicle |> vehicle_to_element
+        vehicle
+        |> vehicle_to_element
         |> XmlBuilder.generate()
 
       expected = "<vehicle>
-\t<id>veh_id</id>
-\t<date>2018-03-28 20:15:12</date>
-\t<lat>1.234</lat>
-\t<lon>-5.678</lon>
-\t<direction>29</direction>
-\t<block>A50-123</block>
+  <id>veh_id</id>
+  <date>2018-03-28 20:15:12</date>
+  <lat>1.234</lat>
+  <lon>-5.678</lon>
+  <direction>29</direction>
+  <block>A50-123</block>
 </vehicle>"
 
       assert expected == actual
@@ -72,16 +73,17 @@ defmodule Busloc.NextbusOutputTest do
       }
 
       actual =
-        vehicle |> vehicle_to_element
+        vehicle
+        |> vehicle_to_element
         |> XmlBuilder.generate()
 
       expected = "<vehicle>
-\t<id>veh_id</id>
-\t<date>2018-03-29 00:15:12</date>
-\t<lat>1.234</lat>
-\t<lon>-5.678</lon>
-\t<direction>29</direction>
-\t<block>A50-123</block>
+  <id>veh_id</id>
+  <date>2018-03-29 00:15:12</date>
+  <lat>1.234</lat>
+  <lon>-5.678</lon>
+  <direction>29</direction>
+  <block>A50-123</block>
 </vehicle>"
 
       assert expected == actual
@@ -115,24 +117,24 @@ defmodule Busloc.NextbusOutputTest do
 
       expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <history>
-\t<vehicles>
-\t\t<vehicle>
-\t\t\t<id>0123</id>
-\t\t\t<date>2018-03-29 00:15:12</date>
-\t\t\t<lat>1.234</lat>
-\t\t\t<lon>-5.678</lon>
-\t\t\t<direction>29</direction>
-\t\t\t<block>A50-123</block>
-\t\t</vehicle>
-\t\t<vehicle>
-\t\t\t<id>6070</id>
-\t\t\t<date>2018-03-29 00:16:02</date>
-\t\t\t<lat>13.234</lat>
-\t\t\t<lon>-57.6789</lon>
-\t\t\t<direction>288</direction>
-\t\t\t<block>T350-71</block>
-\t\t</vehicle>
-\t</vehicles>
+  <vehicles>
+    <vehicle>
+      <id>0123</id>
+      <date>2018-03-29 00:15:12</date>
+      <lat>1.234</lat>
+      <lon>-5.678</lon>
+      <direction>29</direction>
+      <block>A50-123</block>
+    </vehicle>
+    <vehicle>
+      <id>6070</id>
+      <date>2018-03-29 00:16:02</date>
+      <lat>13.234</lat>
+      <lon>-57.6789</lon>
+      <direction>288</direction>
+      <block>T350-71</block>
+    </vehicle>
+  </vehicles>
 </history>"
 
       assert expected == actual

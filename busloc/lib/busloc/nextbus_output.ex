@@ -16,7 +16,9 @@ defmodule Busloc.NextbusOutput do
 
   @spec to_nextbus_xml([Busloc.Vehicle.t()]) :: String.t()
   def to_nextbus_xml(vehicles) do
-    doc(:history, [element(:vehicles, Enum.map(vehicles, &vehicle_to_element/1))])
+    doc = document(:history, [element(:vehicles, Enum.map(vehicles, &vehicle_to_element/1))])
+
+    generate(doc)
   end
 
   @spec vehicle_to_element(Busloc.Vehicle.t()) :: element

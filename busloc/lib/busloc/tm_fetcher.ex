@@ -17,7 +17,7 @@ defmodule Busloc.TmFetcher do
 
   def init(url) do
     state = %{url: url}
-    send(self, :timeout)
+    send(self(), :timeout)
     {:ok, state}
   end
 

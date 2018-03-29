@@ -27,7 +27,7 @@ defmodule Busloc.MixProject do
       {:httpoison, "~> 1.0"},
       {:sweet_xml, "~> 0.6"},
       {:timex, "~> 3.2"},
-      {:xml_builder, "~> 0.1"}
+      {:xml_builder, "~> 2.1", override: true}
     ]
   end
 end
