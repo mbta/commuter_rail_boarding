@@ -6,14 +6,6 @@ defmodule Busloc.NextbusOutput do
   """
   @type element :: {atom, nil, String.t() | [element]}
 
-  @spec create_nextbus_xml_file([Busloc.Vehicle.t()]) :: [Busloc.Vehicle.t()]
-  def create_nextbus_xml_file(vehicles) do
-    File.open!("nextbus.xml", [:write, :utf8])
-    |> IO.write(to_nextbus_xml(vehicles))
-
-    vehicles
-  end
-
   @spec to_nextbus_xml([Busloc.Vehicle.t()]) :: String.t()
   def to_nextbus_xml(vehicles) do
     doc = document(:history, [element(:vehicles, Enum.map(vehicles, &vehicle_to_element/1))])

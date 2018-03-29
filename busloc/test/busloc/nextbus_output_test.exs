@@ -3,35 +3,6 @@ defmodule Busloc.NextbusOutputTest do
   alias Busloc.Vehicle
   import Busloc.NextbusOutput
 
-  describe "create_nextbus_xml_file/1" do
-    test "write out Nextbus XML" do
-      vehicles = [
-        %Vehicle{
-          vehicle_id: "0123",
-          block: "A50-123",
-          latitude: 1.234,
-          longitude: -5.678,
-          heading: 29,
-          source: :transitmaster,
-          timestamp: Timex.to_datetime(~N[2018-03-28T20:15:12], "America/New_York")
-        },
-        %Vehicle{
-          vehicle_id: "6070",
-          block: "T350-71",
-          latitude: 13.234,
-          longitude: -57.6789,
-          heading: 288,
-          source: :transitmaster,
-          timestamp: Timex.to_datetime(~N[2018-03-28T20:16:02], "America/New_York")
-        }
-      ]
-
-      create_nextbus_xml_file(vehicles)
-
-      assert File.exists?("nextbus.xml")
-    end
-  end
-
   describe "vehicle_to_element/1" do
     test "convert a vehicle into NextBus-format XML" do
       vehicle = %Vehicle{

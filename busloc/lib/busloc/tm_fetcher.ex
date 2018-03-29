@@ -27,12 +27,9 @@ defmodule Busloc.TmFetcher do
       |> get_xml()
       |> XmlParser.parse_transitmaster_xml()
       |> Enum.map(&Busloc.Vehicle.from_transitmaster_map/1)
-      |> Busloc.NextbusOutput.create_nextbus_xml_file()
-      |> Enum.each(fn vehicle ->
-        vehicle
-        |> Busloc.Vehicle.log_line()
-        |> Logger.info()
-      end)
+      |> Enum.map(&log_vehicle/1)
+      |> Busloc.NextbusOutput.to_nextbus_xml()
+      |> Busloc.Uploader.upload()
 
     send_timeout()
     {:noreply, state}
@@ -52,5 +49,13 @@ defmodule Busloc.TmFetcher do
 
   defp send_timeout() do
     Process.send_after(self(), :timeout, config(TmFetcher, :fetch_rate))
+  end
+
+  defp log_vehicle(vehicle) do
+    Logger.info(fn ->
+      Busloc.Vehicle.log_line(vehicle)
+    end)
+
+    vehicle
   end
 end
