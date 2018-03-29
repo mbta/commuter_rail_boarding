@@ -1,5 +1,6 @@
 defmodule Busloc.XmlParser do
   import SweetXml
+  require Logger
 
   @type xpath_map :: %{
           vehicle_id: String.t(),
@@ -12,6 +13,23 @@ defmodule Busloc.XmlParser do
 
   @spec parse_transitmaster_xml(String.t()) :: {:ok, [xpath_map]} | {:error, :invalid_xml}
   def parse_transitmaster_xml(xml_string) do
+    parsed_doc = parse(xml_string, quiet: true)
+
+    vehicle_elements = xpath(parsed_doc, ~x"//Vehicle"el)
+
+    maps =
+      for element <- vehicle_elements,
+          {:ok, map} <- [vehicle_xpath(element)] do
+        map
+      end
+
+    {:ok, maps}
+  catch
+    :exit, _ ->
+      {:error, :invalid_xml}
+  end
+
+  defp vehicle_xpath(element) do
     xpath_args = [
       vehicle_id: ~x".//vehicleId/text()"s,
       block: ~x".//blockId/text()"s,
@@ -21,12 +39,14 @@ defmodule Busloc.XmlParser do
       timestamp: ~x".//time/text()"s
     ]
 
-    parsed_doc = parse(xml_string, quiet: true)
+    map = xmap(element, xpath_args)
+    {:ok, map}
+  rescue
+    error ->
+      Logger.warn(fn ->
+        "#{__MODULE__} unable to parse vehicle#{inspect(element)}: #{inspect(error)}"
+      end)
 
-    maps = xpath(parsed_doc, ~x"//Vehicle"el, xpath_args)
-    {:ok, maps}
-  catch
-    :exit, _ ->
-      {:error, :invalid_xml}
+      :error
   end
 end

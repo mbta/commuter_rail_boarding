@@ -21,8 +21,9 @@ defmodule Busloc.Vehicle do
           timestamp: DateTime.t()
         }
 
+  @spec from_transitmaster_map(map, DateTime.t()) :: {:ok, t} | {:error, any}
   def from_transitmaster_map(map, current_time \\ BuslocTime.now()) do
-    %Busloc.Vehicle{
+    vehicle = %Busloc.Vehicle{
       vehicle_id: map.vehicle_id,
       block: map.block,
       latitude: map.latitude,
@@ -31,6 +32,11 @@ defmodule Busloc.Vehicle do
       source: :transitmaster,
       timestamp: BuslocTime.parse_transitmaster_timestamp(map.timestamp, current_time)
     }
+
+    {:ok, vehicle}
+  rescue
+    error ->
+      {:error, error}
   end
 
   @spec log_line(t) :: String.t()

@@ -26,7 +26,7 @@ defmodule Busloc.TmFetcher do
          {:ok, vehicles} <- XmlParser.parse_transitmaster_xml(body),
          :ok <-
            vehicles
-           |> Enum.map(&Busloc.Vehicle.from_transitmaster_map/1)
+           |> Enum.flat_map(&from_transitmaster_map/1)
            |> Enum.map(&log_vehicle/1)
            |> Busloc.NextbusOutput.to_nextbus_xml()
            |> Busloc.Uploader.upload() do
@@ -57,6 +57,20 @@ defmodule Busloc.TmFetcher do
 
   defp send_timeout() do
     Process.send_after(self(), :timeout, config(TmFetcher, :fetch_rate))
+  end
+
+  defp from_transitmaster_map(map) do
+    case Busloc.Vehicle.from_transitmaster_map(map) do
+      {:ok, vehicle} ->
+        [vehicle]
+
+      error ->
+        Logger.warn(fn ->
+          "#{__MODULE__} unable to parse #{inspect(map)}: #{inspect(error)}"
+        end)
+
+        []
+    end
   end
 
   defp log_vehicle(vehicle) do
