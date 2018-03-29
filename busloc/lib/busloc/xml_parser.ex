@@ -15,15 +15,20 @@ defmodule Busloc.XmlParser do
   def parse_transitmaster_xml(xml_string) do
     parsed_doc = parse(xml_string, quiet: true)
 
-    vehicle_elements = xpath(parsed_doc, ~x"//Vehicle"el)
+    with array_element when not is_nil(array_element) <- xpath(parsed_doc, ~x"/ArrayOfVehicle"e) do
+      vehicle_elements = xpath(array_element, ~x"./Vehicle"el)
 
-    maps =
-      for element <- vehicle_elements,
-          {:ok, map} <- [vehicle_xpath(element)] do
-        map
-      end
+      maps =
+        for element <- vehicle_elements,
+            {:ok, map} <- [vehicle_xpath(element)] do
+          map
+        end
 
-    {:ok, maps}
+      {:ok, maps}
+    else
+      _ ->
+        {:error, :invalid_transitmaster}
+    end
   catch
     :exit, _ ->
       {:error, :invalid_xml}

@@ -70,5 +70,10 @@ defmodule Busloc.XmlParserTest do
       data = "asdf'p;sdiourf;apodsfj;lsdfnhasdjnvsfg"
       assert {:error, :invalid_xml} = parse_transitmaster_xml(data)
     end
+
+    test "returns an error when parsing XML that's not valid TM data" do
+      xml = ~s(<xml/>)
+      assert {:error, :invalid_transitmaster} = parse_transitmaster_xml(xml)
+    end
   end
 end
