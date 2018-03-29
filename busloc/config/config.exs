@@ -21,6 +21,7 @@ use Mix.Config
 #     config :logger, level: :info
 #
 config :busloc, TmFetcher,
+  start?: true,
   url: {:system, "TRANSITMASTER_URL"},
   fetch_rate: 5000
 
