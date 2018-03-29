@@ -15,21 +15,28 @@ defmodule Busloc.TmFetcher do
 
   # Server Callbacks
 
-  def init(url) do
+  def init(url) when is_binary(url) do
     state = %{url: url}
     send(self(), :timeout)
     {:ok, state}
   end
 
   def handle_info(:timeout, %{url: url} = state) do
-    :ok =
-      url
-      |> get_xml()
-      |> XmlParser.parse_transitmaster_xml()
-      |> Enum.map(&Busloc.Vehicle.from_transitmaster_map/1)
-      |> Enum.map(&log_vehicle/1)
-      |> Busloc.NextbusOutput.to_nextbus_xml()
-      |> Busloc.Uploader.upload()
+    with {:ok, body} <- get_xml(url),
+         :ok <-
+           body
+           |> XmlParser.parse_transitmaster_xml()
+           |> Enum.map(&Busloc.Vehicle.from_transitmaster_map/1)
+           |> Enum.map(&log_vehicle/1)
+           |> Busloc.NextbusOutput.to_nextbus_xml()
+           |> Busloc.Uploader.upload() do
+      :ok
+    else
+      error ->
+        Logger.warn(fn ->
+          "#{__MODULE__} error fetching #{inspect(url)} error=#{inspect(error)}"
+        end)
+    end
 
     send_timeout()
     {:noreply, state}
@@ -37,14 +44,15 @@ defmodule Busloc.TmFetcher do
 
   # Helper Functions
 
+  @spec get_xml(String.t()) :: {:ok, String.t} | {:error, any}
   def get_xml(url) do
     headers = [
       {"Accept", "text/xml"}
     ]
 
-    {:ok, xml_response} = HTTPoison.get(url, headers)
-
-    xml_response.body
+    with {:ok, xml_response} <- HTTPoison.get(url, headers) do
+      {:ok, xml_response.body}
+    end
   end
 
   defp send_timeout() do
