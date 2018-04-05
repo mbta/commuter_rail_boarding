@@ -62,7 +62,17 @@ defmodule Busloc.VehicleTest do
       assert actual =~ "heading=29"
       assert actual =~ "source=transitmaster"
       assert actual =~ "timestamp=2018-03-28T20:15:12Z"
-      assert actual =~ "stale=false"
+    end
+
+    test "logs if the time is invalid" do
+      now = DateTime.from_unix!(2000)
+
+      vehicle = %Vehicle{
+        timestamp: DateTime.from_unix!(0)
+      }
+
+      actual = log_line(vehicle, now)
+      assert actual =~ "invalid_time=stale"
     end
   end
 end

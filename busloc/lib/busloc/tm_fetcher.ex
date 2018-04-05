@@ -29,7 +29,7 @@ defmodule Busloc.TmFetcher do
            vehicles
            |> Enum.flat_map(&from_transitmaster_map/1)
            |> Enum.map(&log_vehicle(&1, now))
-           |> Enum.reject(&Busloc.Vehicle.stale?(&1, now))
+           |> Busloc.Filter.filter(now)
            |> Busloc.NextbusOutput.to_nextbus_xml()
            |> Busloc.Uploader.upload() do
       :ok
