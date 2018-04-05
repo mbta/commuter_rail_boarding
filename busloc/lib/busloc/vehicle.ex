@@ -21,6 +21,9 @@ defmodule Busloc.Vehicle do
           timestamp: DateTime.t()
         }
 
+  # 30 minutes
+  @stale_vehicle_timeout 1800
+
   @spec from_transitmaster_map(map, DateTime.t()) :: {:ok, t} | {:error, any}
   def from_transitmaster_map(map, current_time \\ BuslocTime.now()) do
     vehicle = %Busloc.Vehicle{
@@ -39,11 +42,29 @@ defmodule Busloc.Vehicle do
       {:error, error}
   end
 
-  @spec log_line(t) :: String.t()
-  def log_line(%__MODULE__{} = vehicle) do
+  @doc """
+  Returns whether the vehicle is stale (relative to the given time).
+
+      iex> one_second = DateTime.from_unix!(1)
+      iex> thirty_minutes = DateTime.from_unix!(1900)
+      iex> vehicle = %Vehicle{timestamp: one_second}
+      iex> stale?(vehicle, one_second)
+      false
+      iex> stale?(vehicle, thirty_minutes)
+      true
+  """
+  @spec stale?(t, DateTime.t()) :: boolean
+  def stale?(%__MODULE__{timestamp: timestamp}, now) do
+    diff = DateTime.diff(now, timestamp)
+    diff > @stale_vehicle_timeout
+  end
+
+  @spec log_line(t, DateTime.t()) :: String.t()
+  def log_line(%__MODULE__{} = vehicle, now) do
     log_parts =
       vehicle
       |> Map.from_struct()
+      |> Map.put(:stale, stale?(vehicle, now))
       |> Enum.map(&log_line_item/1)
       |> Enum.join(" ")
 

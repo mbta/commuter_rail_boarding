@@ -4,6 +4,8 @@ defmodule Busloc.VehicleTest do
   import Busloc.Vehicle
   alias Busloc.Utilities.Time, as: BuslocTime
 
+  doctest Busloc.Vehicle
+
   describe "from_transitmaster_map/2" do
     test "parses a map into a Vehicle struct" do
       map = %{
@@ -38,8 +40,10 @@ defmodule Busloc.VehicleTest do
     end
   end
 
-  describe "log_line/1" do
+  describe "log_line/2" do
     test "logs all the data from the vehicle" do
+      now = DateTime.from_naive!(~N[2018-03-28T20:15:12], "Etc/UTC")
+
       vehicle = %Vehicle{
         vehicle_id: "veh_id",
         block: "50",
@@ -47,10 +51,10 @@ defmodule Busloc.VehicleTest do
         longitude: -5.678,
         heading: 29,
         source: :transitmaster,
-        timestamp: DateTime.from_naive!(~N[2018-03-28T20:15:12], "Etc/UTC")
+        timestamp: now
       }
 
-      actual = log_line(vehicle)
+      actual = log_line(vehicle, now)
       assert actual =~ ~s(vehicle_id="veh_id")
       assert actual =~ ~s(block="50")
       assert actual =~ "latitude=1.234"
@@ -58,6 +62,7 @@ defmodule Busloc.VehicleTest do
       assert actual =~ "heading=29"
       assert actual =~ "source=transitmaster"
       assert actual =~ "timestamp=2018-03-28T20:15:12Z"
+      assert actual =~ "stale=false"
     end
   end
 end

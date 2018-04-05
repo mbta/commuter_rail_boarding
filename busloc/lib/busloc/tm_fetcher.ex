@@ -24,10 +24,12 @@ defmodule Busloc.TmFetcher do
   def handle_info(:timeout, %{url: url} = state) do
     with {:ok, body} <- get_xml(url),
          {:ok, vehicles} <- XmlParser.parse_transitmaster_xml(body),
+         now = DateTime.utc_now(),
          :ok <-
            vehicles
            |> Enum.flat_map(&from_transitmaster_map/1)
-           |> Enum.map(&log_vehicle/1)
+           |> Enum.map(&log_vehicle(&1, now))
+           |> Enum.reject(&Busloc.Vehicle.stale?(&1, now))
            |> Busloc.NextbusOutput.to_nextbus_xml()
            |> Busloc.Uploader.upload() do
       :ok
@@ -73,9 +75,9 @@ defmodule Busloc.TmFetcher do
     end
   end
 
-  defp log_vehicle(vehicle) do
+  defp log_vehicle(vehicle, now) do
     Logger.info(fn ->
-      Busloc.Vehicle.log_line(vehicle)
+      Busloc.Vehicle.log_line(vehicle, now)
     end)
 
     vehicle
