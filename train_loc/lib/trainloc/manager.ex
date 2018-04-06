@@ -94,7 +94,7 @@ defmodule TrainLoc.Manager do
 
     if not first_message? do
       Enum.each(new_conflicts, fn c ->
-        Logger.warn(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
+        Logger.info(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
       end)
 
       Enum.each(removed_conflicts, fn c ->
@@ -121,8 +121,8 @@ defmodule TrainLoc.Manager do
   end
 
   defp log_invalid_vehicle(reason) when is_atom(reason) do
-    Logger.error(fn ->
-      Logging.log_string("Manager Vehicle Validation Error", reason)
+    Logger.warn(fn ->
+      Logging.log_string("Manager Vehicle Validation Failed", reason)
     end)
   end
 
