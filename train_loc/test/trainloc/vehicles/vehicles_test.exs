@@ -13,65 +13,61 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
       vehicle1: %Vehicle{
         vehicle_id: 1712,
         timestamp: datetime,
-        block: "802",
-        trip: "509",
+        block: 802,
+        trip: 509,
         latitude: 42.24023,
         longitude: -71.12890,
         speed: 0,
-        heading: 188,
-        fix: 1
+        heading: 188
       },
       vehicle2: %Vehicle{
         vehicle_id: 1713,
         timestamp: datetime,
-        block: "803",
-        trip: "508",
+        block: 803,
+        trip: 508,
         latitude: 42.24023,
         longitude: -71.12890,
         speed: 7,
-        heading: 188,
-        fix: 1
+        heading: 188
       },
       vehicle3: %Vehicle{
         vehicle_id: 1714,
         timestamp: datetime,
-        block: "803",
-        trip: "508",
+        block: 803,
+        trip: 508,
         latitude: 42.24023,
         longitude: -71.12890,
         speed: 000,
-        heading: 188,
-        fix: 1
+        heading: 188
       },
       vehicle4: %Vehicle{
         vehicle_id: 1715,
         timestamp: datetime,
-        block: "802",
-        trip: "510",
+        block: 802,
+        trip: 510,
         latitude: 42.24023,
         longitude: -071.12890,
         speed: 000,
-        heading: 188,
-        fix: 1
+        heading: 188
       }
     }
 
     conflicts = [
       %Conflict{
         assign_type: :trip,
-        assign_id: "508",
+        assign_id: 508,
         vehicles: [1713, 1714],
         service_date: ~D[2017-08-04]
       },
       %Conflict{
         assign_type: :block,
-        assign_id: "802",
+        assign_id: 802,
         vehicles: [1712, 1715],
         service_date: ~D[2017-08-04]
       },
       %Conflict{
         assign_type: :block,
-        assign_id: "803",
+        assign_id: 803,
         vehicles: [1713, 1714],
         service_date: ~D[2017-08-04]
       }

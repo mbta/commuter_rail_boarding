@@ -7,32 +7,30 @@ defmodule TrainLoc.Manager.EventTest do
     raw_vehicle_json =
       Poison.encode!(%{
         "1633" => %{
-          "fix" => 1,
-          "heading" => 0,
-          "latitude" => 4_237_405,
-          "longitude" => -7_107_496,
-          "routename" => "",
-          "speed" => 0,
-          "updatetime" => 1_516_115_007,
-          "vehicleid" => 1633,
-          "workid" => 0
+          "Heading" => 0,
+          "Latitude" => 42.37405,
+          "Longitude" => -71.07496,
+          "TripID" => 0,
+          "Speed" => 0,
+          "Update Time" => "2018-01-16T15:03:27Z",
+          "VehicleID" => 1633,
+          "WorkID" => 0
         },
         "1632" => %{
-          "fix" => 1,
-          "heading" => 0,
-          "latitude" => 4_237_405,
-          "longitude" => -7_107_496,
-          "routename" => "blep",
-          "speed" => 0,
-          "updatetime" => 1_516_115_007,
-          "vehicleid" => 1632,
-          "workid" => 0
+          "Heading" => 0,
+          "Latitude" => 42.37405,
+          "Longitude" => -71.07496,
+          "TripID" => 123,
+          "Speed" => 0,
+          "Update Time" => "2018-01-16T15:03:27Z",
+          "VehicleID" => 1632,
+          "WorkID" => 0
         }
       })
 
     assert {:ok, %Event{vehicles_json: result, date: nil}} = Event.from_string(raw_vehicle_json)
     assert length(result) == 2
-    assert TestHelpers.match_any?(%{"vehicleid" => 1633}, result)
-    assert TestHelpers.match_any?(%{"vehicleid" => 1632}, result)
+    assert TestHelpers.match_any?(%{"VehicleID" => 1633}, result)
+    assert TestHelpers.match_any?(%{"VehicleID" => 1632}, result)
   end
 end

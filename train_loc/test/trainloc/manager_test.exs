@@ -1,11 +1,12 @@
 defmodule TrainLoc.ManagerTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
+  import TrainLoc.Utilities.ConfigHelpers
   alias TrainLoc.Manager
   alias TrainLoc.Input.ServerSentEvent
   alias TrainLoc.Vehicles.PreviousBatch
   alias TrainLoc.Vehicles.Vehicle
-  alias TrainLoc.Utilities.Time
+  alias TrainLoc.Utilities.Time, as: TrainLocTime
 
   setup do
     Application.ensure_all_started(:trainloc)
@@ -19,18 +20,15 @@ defmodule TrainLoc.ManagerTest do
 
   describe "`:events` callback logs 'only old locations in batch' warning" do
     test "logs warning if batch has same data as previous batch" do
-      unix_timestamp = DateTime.to_unix(DateTime.utc_now())
-
       vehicle_1_data = %{
-        "fix" => 3,
-        "heading" => 0,
-        "latitude" => 4_224_005,
-        "longitude" => -7_112_007,
-        "routename" => "some trip",
-        "speed" => 7,
-        "updatetime" => unix_timestamp,
-        "vehicleid" => 1712,
-        "workid" => 0
+        "Heading" => 0,
+        "Latitude" => 42.24005,
+        "Longitude" => -71.12007,
+        "TripID" => 123,
+        "Speed" => 7,
+        "Update Time" => generate_invalid_timestamp(),
+        "VehicleID" => 1712,
+        "WorkID" => 0
       }
 
       vehicle_1 = Vehicle.from_json(vehicle_1_data)
@@ -55,20 +53,19 @@ defmodule TrainLoc.ManagerTest do
     end
 
     test "doesn't log warning if batch has different data than previous batch" do
-      unix_timestamp = DateTime.to_unix(DateTime.utc_now())
-      datetime_timestamp = Time.parse_improper_unix(unix_timestamp)
+      timestamp = generate_invalid_timestamp()
+      datetime_timestamp = TrainLocTime.parse_improper_iso(timestamp)
 
       previous_batch = [
         %Vehicle{
-          fix: 3,
           heading: 0,
-          latitude: 42.24 / 100_000,
-          longitude: -71.12 / 100_000,
-          trip: "some trip",
+          latitude: 42.24,
+          longitude: -71.12,
+          trip: 123,
           speed: 7,
           timestamp: datetime_timestamp,
           vehicle_id: 1712,
-          block: "some block"
+          block: 234
         }
       ]
 
@@ -76,17 +73,16 @@ defmodule TrainLoc.ManagerTest do
 
       vehicle_1_data = %{
         data: %{
-          fix: 3,
           heading: 0,
           # <- different latitude than in 'previous batch'
           latitude: 92.24,
           # <- different longitude than in 'previous batch'
           longitude: -21.12,
-          routename: "some trip",
+          routename: 123,
           speed: 7,
-          updatetime: unix_timestamp,
+          updatetime: timestamp,
           vehicleid: 1712,
-          workid: "some block"
+          workid: 234
         }
       }
 
@@ -106,5 +102,17 @@ defmodule TrainLoc.ManagerTest do
 
       refute capture_log(fun) =~ PreviousBatch.only_old_locations_warning()
     end
+  end
+
+  defp generate_invalid_timestamp() do
+    local_offset =
+      :time_zone
+      |> config()
+      |> Timex.Timezone.get()
+      |> Timex.Timezone.total_offset()
+
+    DateTime.utc_now()
+    |> Timex.shift(seconds: local_offset)
+    |> Timex.format!("{ISO:Extended:Z}")
   end
 end

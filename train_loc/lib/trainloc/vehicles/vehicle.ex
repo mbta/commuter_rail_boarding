@@ -4,21 +4,20 @@ defmodule TrainLoc.Vehicles.Vehicle do
   """
 
   alias TrainLoc.Vehicles.Vehicle
-  alias TrainLoc.Utilities.Time
+  alias TrainLoc.Utilities.Time, as: TrainLocTime
 
   require Logger
 
   @enforce_keys [:vehicle_id]
   defstruct [
     :vehicle_id,
-    timestamp: 0,
-    block: 0,
-    trip: "0",
+    timestamp: DateTime.from_naive!(~N[1970-01-01T00:00:00], "Etc/UTC"),
+    block: "",
+    trip: "",
     latitude: 0.0,
     longitude: 0.0,
     heading: 0,
-    speed: 0,
-    fix: 0
+    speed: 0
   ]
 
   @typedoc """
@@ -37,7 +36,6 @@ defmodule TrainLoc.Vehicles.Vehicle do
   * `heading`: compass direction to which the "nose" of the vehicle is pointing,
     its orientation
   * `speed`: the vehicle's speed (miles per hour)
-  * `fix`: ID that represents the source of the data.
   """
   @type t :: %__MODULE__{
           vehicle_id: non_neg_integer,
@@ -47,22 +45,8 @@ defmodule TrainLoc.Vehicles.Vehicle do
           latitude: float | nil,
           longitude: float | nil,
           heading: 0..359,
-          speed: non_neg_integer,
-          fix: fix_id
+          speed: non_neg_integer
         }
-
-  @typedoc """
-  Represents the source of the data:
-
-  * `0`: 2D GPS
-  * `1`: 3D GPS
-  * `2`: 2D DGPS
-  * `3`: 3D DGPS
-  * `6`: DR (Dead Reckoning)
-  * `8`: Degraded DR
-  * `9`: Unknown
-  """
-  @type fix_id :: 1..9
 
   def from_json_object(obj) do
     from_json_elem({nil, obj})
@@ -74,7 +58,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
   end
 
   @spec from_json_elem({any, map}) :: [%Vehicle{}]
-  defp from_json_elem({_, veh_data = %{"vehicleid" => _vehicle_id}}) do
+  defp from_json_elem({_, veh_data = %{"VehicleID" => _vehicle_id}}) do
     [from_json(veh_data)]
   end
 
@@ -82,45 +66,37 @@ defmodule TrainLoc.Vehicles.Vehicle do
 
   def from_json(veh_data) when is_map(veh_data) do
     %__MODULE__{
-      vehicle_id: veh_data["vehicleid"],
-      timestamp: Time.parse_improper_unix(veh_data["updatetime"]),
-      block: to_string(veh_data["workid"]),
-      trip: process_trip(veh_data["routename"]),
-      latitude: degrees_from_json(veh_data["latitude"]),
-      longitude: degrees_from_json(veh_data["longitude"]),
-      heading: veh_data["heading"],
-      speed: veh_data["speed"],
-      fix: veh_data["fix"]
+      vehicle_id: veh_data["VehicleID"],
+      timestamp: TrainLocTime.parse_improper_iso(veh_data["Update Time"]),
+      block: process_trip_block(veh_data["WorkID"]),
+      trip: process_trip_block(veh_data["TripID"]),
+      latitude: process_lat_long(veh_data["Latitude"]),
+      longitude: process_lat_long(veh_data["Longitude"]),
+      heading: veh_data["Heading"],
+      speed: veh_data["Speed"]
     }
   end
 
-  defp degrees_from_json(0) do
-    # lat/long of 0 indicate an unknown value, best represented by nil
-    nil
+  defp process_lat_long(0), do: nil
+  defp process_lat_long(lat_long), do: lat_long
+
+  defp process_trip_block(trip_or_block) when is_integer(trip_or_block) do
+    trip_or_block
+    |> Integer.to_string()
+    |> String.pad_leading(3, ["0"])
   end
 
-  defp degrees_from_json(numerator) when is_integer(numerator) do
-    numerator / 100_000
-  end
-
-  defp degrees_from_json(_) do
-    nil
-  end
-
-  @spec process_trip(String.t()) :: String.t()
-  defp process_trip("NO TRAIN SELECTED"), do: "0"
-  defp process_trip(""), do: "0"
-  defp process_trip(" "), do: "0"
-  defp process_trip(routename), do: routename
+  defp process_trip_block(_), do: nil
 
   @spec log_string(%Vehicle{}) :: String.t()
   def log_string(v) do
-    "#{Time.format_datetime(v.timestamp)} - id:#{v.vehicle_id}, block:#{v.block}, trip:#{v.trip}"
+    "#{TrainLocTime.format_datetime(v.timestamp)} - id:#{v.vehicle_id}, block:#{v.block}, trip:#{
+      v.trip
+    }"
   end
 
-  def active_vehicle?(%__MODULE__{block: "0"}), do: false
-  def active_vehicle?(%__MODULE__{trip: "0"}), do: false
-  def active_vehicle?(%__MODULE__{trip: "9999"}), do: false
+  def active_vehicle?(%__MODULE__{block: "000"}), do: false
+  def active_vehicle?(%__MODULE__{trip: "000"}), do: false
   def active_vehicle?(%__MODULE__{}), do: true
 
   @doc """

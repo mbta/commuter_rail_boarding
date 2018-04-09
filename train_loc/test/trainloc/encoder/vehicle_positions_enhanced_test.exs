@@ -17,8 +17,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
           latitude: 49.24023,
           longitude: -76.12890,
           speed: 0,
-          heading: 188,
-          fix: 1
+          heading: 188
         },
         %Vehicle{
           vehicle_id: 1713,
@@ -27,8 +26,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
           latitude: 42.24023,
           longitude: -71.12890,
           speed: 7,
-          heading: 270,
-          fix: 1
+          heading: 270
         },
         %Vehicle{
           vehicle_id: 1714,
@@ -37,8 +35,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
           latitude: 52.24023,
           longitude: -61.12890,
           speed: 000,
-          heading: 0,
-          fix: 1
+          heading: 0
         }
       ]
 
@@ -69,19 +66,17 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         assert json_position_data["longitude"] == vehicle.longitude
         assert json_position_data["bearing"] == vehicle.heading
         assert json_position_data["speed"] == expected_speed
-        assert json_position_data["fix"] == vehicle.fix
         assert json_vehicle_data["timestamp"] == unix_timestamp
       end
     end
 
-    test "omits 'trip_short_name' field if '0' or '9999'" do
+    test "omits 'trip_short_name' field if '000'" do
       unix_timestamp = 1_501_844_511
       datetime_timestamp = DateTime.from_unix!(unix_timestamp)
 
       vehicles = [
         %Vehicle{vehicle_id: 1, trip: "509", timestamp: datetime_timestamp},
-        %Vehicle{vehicle_id: 2, trip: "0", timestamp: datetime_timestamp},
-        %Vehicle{vehicle_id: 3, trip: "9999", timestamp: datetime_timestamp}
+        %Vehicle{vehicle_id: 2, trip: "000", timestamp: datetime_timestamp}
       ]
 
       json = VehiclePositionsEnhanced.encode(vehicles)
@@ -89,11 +84,10 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       decoded_json = Poison.decode!(json)
 
       json_contents = decoded_json["entity"]
-      assert length(json_contents) == 3
-      [vehicle_1, vehicle_2, vehicle_3] = json_contents
+      assert length(json_contents) == 2
+      [vehicle_1, vehicle_2] = json_contents
       assert Map.has_key?(vehicle_1["vehicle"]["trip"], "trip_short_name")
       refute Map.has_key?(vehicle_2["vehicle"]["trip"], "trip_short_name")
-      refute Map.has_key?(vehicle_3["vehicle"]["trip"], "trip_short_name")
     end
   end
 

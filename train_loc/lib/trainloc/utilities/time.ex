@@ -21,35 +21,19 @@ defmodule TrainLoc.Utilities.Time do
     System.system_time(:seconds)
   end
 
-  def parse_improper_unix(local_unix, timezone \\ config(:time_zone))
+  @spec parse_improper_iso(String.t() | nil) :: datetime | nil
+  @spec parse_improper_iso(String.t() | nil, String.t()) :: datetime | nil
+  def parse_improper_iso(improper_iso, timezone \\ config(:time_zone))
 
-  def parse_improper_unix(local_unix, timezone) when is_integer(local_unix) do
-    date_time = DateTime.from_unix!(local_unix)
-
-    offset =
-      timezone
-      |> Timezone.get(date_time)
-      |> Timezone.total_offset()
-
-    date_time
-    |> Timezone.convert(timezone)
-    |> Timex.shift(seconds: offset * -1)
+  def parse_improper_iso(improper_iso, timezone) when is_binary(improper_iso) do
+    improper_iso
+    |> String.trim_trailing("Z")
+    |> NaiveDateTime.from_iso8601!()
+    |> Timex.to_datetime(timezone)
   end
 
-  def parse_improper_unix(_, _) do
+  def parse_improper_iso(nil, _timezone) do
     nil
-  end
-
-  @spec naive_parse_unix(integer) :: NaiveDateTime.t() | {:error, term}
-  def naive_parse_unix(unix) when is_integer(unix) do
-    unix
-    |> DateTime.from_unix!()
-    |> DateTime.to_naive()
-  end
-
-  @spec time_until(DateTime.t(), DateTime.t(), Timex.Comparable.granularity()) :: integer
-  def time_until(time, from, units \\ :milliseconds) do
-    Timex.diff(time, from, units)
   end
 
   @spec get_service_date(DateTime.t()) :: Date.t()
@@ -64,14 +48,6 @@ defmodule TrainLoc.Utilities.Time do
       end
 
     DateTime.to_date(dt)
-  end
-
-  @spec parse_date(String.t()) :: Date.t()
-  def parse_date(date_string) do
-    case Timex.parse(date_string, "{YYYY}-{0M}-0{D}") do
-      {:ok, date} -> date
-      {:error, _} -> Timex.epoch()
-    end
   end
 
   @spec format_datetime(DateTime.t()) :: String.t()

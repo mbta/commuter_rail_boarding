@@ -1,8 +1,0 @@
-08-04-2017 11:01:48 AM	Vehicle ID:1625 - Location[Operator:0, Workpiece:0, Pattern:0, GPS:>RPV54106+4237434-0710781800028012<]
-08-04-2017 11:01:48 AM	Vehicle ID:1651 - Initialize Pattern Ack[Operator:910, Workpiece:104, Pattern:109, Status:0, Seq:11]
-08-04-2017 11:01:49 AM	Vehicle ID:1822 - SAM Ack[ID:210, Type:0, Seq:1501833210]
-08-04-2017 11:01:49 AM	Vehicle ID:1716 - Location[Operator:910, Workpiece:0, Pattern:9999, GPS:>RPV54105+4233913-0710604100631811<]
-08-04-2017 11:01:50 AM	Vehicle ID:1717 - Location[Operator:910, Workpiece:0, Pattern:9999, GPS:>RPV54107+4234021-0710601900517712<]
-08-04-2017 11:01:50 AM	Vehicle ID:1644 - Location[Operator:910, Workpiece:154, Pattern:315, GPS:>RPV54107+4236658-0710628700517311<]
-08-04-2017 11:01:51 AM	Vehicle ID:1712 - Location[Operator:910, Workpiece:802, Pattern:509, GPS:>RPV54109+4224023-0711289000018812<]
-08-0

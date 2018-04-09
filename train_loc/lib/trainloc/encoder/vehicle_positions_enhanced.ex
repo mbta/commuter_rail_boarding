@@ -39,8 +39,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
           latitude: vehicle.latitude,
           longitude: vehicle.longitude,
           bearing: vehicle.heading,
-          speed: miles_per_hour_to_meters_per_second(vehicle.speed),
-          fix: vehicle.fix
+          speed: miles_per_hour_to_meters_per_second(vehicle.speed)
         },
         timestamp: format_timestamp(vehicle.timestamp)
       }
@@ -49,7 +48,11 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
 
   defp build_entity(_), do: []
 
-  defp entity_trip(%{trip: trip} = vehicle) when trip not in ["0", "9999"] do
+  defp entity_trip(%{trip: "000"} = vehicle) do
+    %{start_date: start_date(vehicle.timestamp)}
+  end
+
+  defp entity_trip(%{trip: trip} = vehicle) do
     entity_trip = entity_trip(Map.delete(vehicle, :trip))
     Map.put(entity_trip, :trip_short_name, trip)
   end

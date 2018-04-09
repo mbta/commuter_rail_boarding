@@ -4,15 +4,14 @@ defmodule TrainLoc.Vehicles.JsonValidatorTest do
   require TestHelpers
 
   @valid_json %{
-    "fix" => 1,
-    "heading" => 0,
-    "latitude" => 4_237_405,
-    "longitude" => -7_107_496,
-    "routename" => "",
-    "speed" => 0,
-    "updatetime" => 1_516_115_007,
-    "vehicleid" => 1633,
-    "workid" => 0
+    "Heading" => 0,
+    "Latitude" => 42.37405,
+    "Longitude" => -71.07496,
+    "TripID" => 0,
+    "Speed" => 0,
+    "Update Time" => "2018-01-16T15:03:27Z",
+    "VehicleID" => 1633,
+    "WorkID" => 0
   }
 
   describe "validate/1" do
@@ -27,7 +26,7 @@ defmodule TrainLoc.Vehicles.JsonValidatorTest do
     test "fails with a missing key" do
       result =
         @valid_json
-        |> Map.drop(["fix"])
+        |> Map.drop(["Heading"])
         |> validate()
 
       assert result == {:error, :invalid_vehicle_json}
@@ -36,7 +35,7 @@ defmodule TrainLoc.Vehicles.JsonValidatorTest do
     test "fails with an unexpected value" do
       result =
         @valid_json
-        |> Map.put("fix", "other")
+        |> Map.put("Heading", "other")
         |> validate()
 
       assert result == {:error, :invalid_vehicle_json}

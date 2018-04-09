@@ -6,6 +6,7 @@ defmodule TrainLoc.Vehicles.Validator do
   alias TrainLoc.Vehicles.Vehicle
 
   @default_error {:error, :invalid_vehicle}
+  @block_trip_min_length 3
 
   @doc """
   Validates a vehicles to ensure expected values.
@@ -20,13 +21,14 @@ defmodule TrainLoc.Vehicles.Validator do
          :ok <- must_be_datetime(veh, :timestamp),
          :ok <- must_be_string(veh, :block),
          :ok <- must_not_be_blank(veh, :block),
+         :ok <- must_have_min_length(veh, :block),
          :ok <- must_be_string(veh, :trip),
          :ok <- must_not_be_blank(veh, :trip),
+         :ok <- must_have_min_length(veh, :trip),
          :ok <- must_have_valid_latitude(veh),
          :ok <- must_have_valid_longitude(veh),
          :ok <- must_be_in_range(veh, :heading, 0..359),
-         :ok <- must_be_non_neg_int(veh, :speed),
-         :ok <- must_be_in_range(veh, :fix, 0..9) do
+         :ok <- must_be_non_neg_int(veh, :speed) do
       :ok
     end
   end
@@ -56,6 +58,12 @@ defmodule TrainLoc.Vehicles.Validator do
   def is_datetime?(%DateTime{}), do: true
   def is_datetime?(_), do: false
 
+  def is_long_enough?(string)
+      when is_binary(string) and byte_size(string) >= @block_trip_min_length,
+      do: true
+
+  def is_long_enough?(_), do: false
+
   def must_be_non_neg_int(veh, field) do
     run_validation(veh, field, &is_non_neg_int?/1)
   end
@@ -66,6 +74,10 @@ defmodule TrainLoc.Vehicles.Validator do
 
   def must_not_be_blank(veh, field) do
     run_validation(veh, field, &is_not_blank?/1)
+  end
+
+  def must_have_min_length(veh, field) do
+    run_validation(veh, field, &is_long_enough?/1)
   end
 
   def must_be_datetime(veh, field) do
