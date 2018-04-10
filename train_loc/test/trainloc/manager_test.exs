@@ -118,11 +118,11 @@ defmodule TrainLoc.ManagerTest do
       fun = fn ->
         Manager.vehicles_from_data(@invalid_json)
       end
-      
+
       assert capture_log(fun) =~ "Manager Vehicle Validation"
     end
   end
-  
+
   defp generate_invalid_timestamp() do
     local_offset =
       :time_zone
