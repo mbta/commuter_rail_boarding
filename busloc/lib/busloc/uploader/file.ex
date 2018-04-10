@@ -15,4 +15,9 @@ defmodule Busloc.Uploader.File do
 
     ret
   end
+
+  @impl Busloc.Uploader
+  def post_nextbus(binary) do
+    binary
+  end
 end

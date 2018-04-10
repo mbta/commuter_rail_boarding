@@ -31,6 +31,7 @@ defmodule Busloc.TmFetcher do
            |> Enum.map(&log_vehicle(&1, now))
            |> Busloc.Filter.filter(now)
            |> Busloc.NextbusOutput.to_nextbus_xml()
+           |> Busloc.Uploader.post_nextbus()
            |> Busloc.Uploader.upload() do
       :ok
     else
