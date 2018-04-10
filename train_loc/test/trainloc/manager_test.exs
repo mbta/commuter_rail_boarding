@@ -107,4 +107,22 @@ defmodule TrainLoc.ManagerTest do
       refute capture_log(fun) =~ PreviousBatch.only_old_locations_warning()
     end
   end
+
+  describe "vehicles_from_data/1" do
+    @invalid_json %{
+      "Latitude" => 42.37405,
+      "Longitude" => -71.07496,
+      "TripID" => 0,
+      "Speed" => 0,
+      "Update Time" => "2018-01-16T15:03:27Z",
+      "VehicleID" => 1633,
+      "WorkID" => 0
+    }
+    test "logs message if vehicle validation fails" do
+      fun = fn ->
+        Manager.vehicles_from_data(@invalid_json)
+      end
+      assert capture_log(fun) =~ "Manager Vehicle Validation"
+    end
+  end
 end
