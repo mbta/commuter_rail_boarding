@@ -191,7 +191,6 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     @valid_timestamp Timex.parse!("2018-01-05 11:38:50 America/New_York", @time_format)
     @valid_vehicle %Vehicle{
       block: "602",
-      fix: 1,
       heading: 48,
       latitude: 42.28179,
       longitude: -71.15936,

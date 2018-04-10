@@ -8,15 +8,14 @@ defmodule TrainLoc.Vehicles.VehicleTest do
 
   @time_format config(:time_format)
   @valid_vehicle_json %{
-    "fix" => 1,
-    "heading" => 48,
-    "latitude" => 4_228_179,
-    "longitude" => -7_115_936,
-    "routename" => "612",
-    "speed" => 14,
-    "updatetime" => 1_515_152_330,
-    "vehicleid" => 1827,
-    "workid" => 602
+    "Heading" => 48,
+    "Latitude" => 42.28179,
+    "Longitude" => -71.15936,
+    "TripID" => 612,
+    "Speed" => 14,
+    "Update Time" => "2018-01-05T11:38:50.000Z",
+    "VehicleID" => 1827,
+    "WorkID" => 602
   }
 
   # this DateTime is the parsed updatetime from above
@@ -24,15 +23,14 @@ defmodule TrainLoc.Vehicles.VehicleTest do
 
   test "converts single JSON object to Vehicle struct" do
     json_obj = %{
-      "fix" => 1,
-      "heading" => 48,
-      "latitude" => 4_228_179,
-      "longitude" => -7_115_936,
-      "routename" => "612",
-      "speed" => 14,
-      "updatetime" => 1_515_152_330,
-      "vehicleid" => 1827,
-      "workid" => 602
+      "Heading" => 48,
+      "Latitude" => 42.28179,
+      "Longitude" => -71.15936,
+      "TripID" => 612,
+      "Speed" => 14,
+      "Update Time" => "2018-01-05T11:38:50.000Z",
+      "VehicleID" => 1827,
+      "WorkID" => 602
     }
 
     assert Vehicle.from_json_object(json_obj) == [
@@ -44,8 +42,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
                latitude: 42.28179,
                longitude: -71.15936,
                speed: 14,
-               heading: 48,
-               fix: 1
+               heading: 48
              }
            ]
   end
@@ -53,37 +50,34 @@ defmodule TrainLoc.Vehicles.VehicleTest do
   test "converts batch JSON map to list of Vehicle structs" do
     json_map = %{
       "1633" => %{
-        "fix" => 1,
-        "heading" => 0,
-        "latitude" => 4_237_405,
-        "longitude" => -7_107_496,
-        "routename" => "",
-        "speed" => 0,
-        "updatetime" => 1_516_115_007,
-        "vehicleid" => 1633,
-        "workid" => 0
+        "Heading" => 0,
+        "Latitude" => 42.37405,
+        "Longitude" => -71.07496,
+        "TripID" => 0,
+        "Speed" => 0,
+        "Update Time" => "2018-01-16T15:03:27.000Z",
+        "VehicleID" => 1633,
+        "WorkID" => 0
       },
       "1643" => %{
-        "fix" => 1,
-        "heading" => 168,
-        "latitude" => 4_272_570,
-        "longitude" => -7_085_867,
-        "routename" => "170",
-        "speed" => 9,
-        "updatetime" => 1_516_114_997,
-        "vehicleid" => 1643,
-        "workid" => 202
+        "Heading" => 168,
+        "Latitude" => 42.72570,
+        "Longitude" => -70.85867,
+        "TripID" => 170,
+        "Speed" => 9,
+        "Update Time" => "2018-01-16T15:03:17.000Z",
+        "VehicleID" => 1643,
+        "WorkID" => 202
       },
       "1652" => %{
-        "fix" => 6,
-        "heading" => 318,
-        "latitude" => 4_236_698,
-        "longitude" => -7_106_314,
-        "routename" => "326",
-        "speed" => 10,
-        "updatetime" => 1_516_115_003,
-        "vehicleid" => 1652,
-        "workid" => 306
+        "Heading" => 318,
+        "Latitude" => 42.36698,
+        "Longitude" => -71.06314,
+        "TripID" => 326,
+        "Speed" => 10,
+        "Update Time" => "2018-01-16T15:03:23.000Z",
+        "VehicleID" => 1652,
+        "WorkID" => 306
       }
     }
 
@@ -91,13 +85,12 @@ defmodule TrainLoc.Vehicles.VehicleTest do
              %Vehicle{
                vehicle_id: 1633,
                timestamp: Timex.parse!("2018-01-16 15:03:27 America/New_York", @time_format),
-               block: "0",
-               trip: "0",
+               block: "000",
+               trip: "000",
                latitude: 42.37405,
                longitude: -71.07496,
                speed: 0,
-               heading: 0,
-               fix: 1
+               heading: 0
              },
              %Vehicle{
                vehicle_id: 1643,
@@ -107,8 +100,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
                latitude: 42.72570,
                longitude: -70.85867,
                speed: 9,
-               heading: 168,
-               fix: 1
+               heading: 168
              },
              %Vehicle{
                vehicle_id: 1652,
@@ -118,15 +110,14 @@ defmodule TrainLoc.Vehicles.VehicleTest do
                latitude: 42.36698,
                longitude: -71.06314,
                speed: 10,
-               heading: 318,
-               fix: 6
+               heading: 318
              }
            ]
   end
 
   describe "log_vehicle/1" do
     test "with valid vehicle" do
-      iso_8601 = "2015-01-23T23:50:07Z"
+      iso_8601 = "2015-01-23T23:50:07.000Z"
       {:ok, datetime, 0} = DateTime.from_iso8601(iso_8601)
 
       vehicle = %Vehicle{
@@ -137,8 +128,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
         latitude: 42.36698,
         longitude: -71.06314,
         speed: 10,
-        heading: 318,
-        fix: 6
+        heading: 318
       }
 
       fun = fn -> Vehicle.log_vehicle(vehicle) end
@@ -146,7 +136,6 @@ defmodule TrainLoc.Vehicles.VehicleTest do
       expected_logger_message =
         "Vehicle - " <>
           "block=#{vehicle.block} " <>
-          "fix=#{vehicle.fix} " <>
           "heading=#{vehicle.heading} " <>
           "latitude=#{vehicle.latitude} " <>
           "longitude=#{vehicle.longitude} " <>
@@ -162,7 +151,6 @@ defmodule TrainLoc.Vehicles.VehicleTest do
     test "works on valid json" do
       expected = %Vehicle{
         block: "602",
-        fix: 1,
         heading: 48,
         latitude: 42.28179,
         longitude: -71.15936,
@@ -180,8 +168,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
       invalid_json = %{"other" => nil}
 
       expected = %Vehicle{
-        block: "",
-        fix: nil,
+        block: nil,
         heading: nil,
         latitude: nil,
         longitude: nil,
@@ -196,17 +183,34 @@ defmodule TrainLoc.Vehicles.VehicleTest do
     end
 
     test "converts lat/long of 0 to nil" do
-      json = %{@valid_vehicle_json | "latitude" => 0, "longitude" => 0}
+      json = %{@valid_vehicle_json | "Latitude" => 0, "Longitude" => 0}
 
       expected = %Vehicle{
         block: "602",
-        fix: 1,
         heading: 48,
         latitude: nil,
         longitude: nil,
         speed: 14,
         timestamp: @valid_timestamp,
         trip: "612",
+        vehicle_id: 1827
+      }
+
+      got = Vehicle.from_json(json)
+      assert got == expected
+    end
+
+    test "zero-pads trip/block to 3 characters" do
+      json = %{@valid_vehicle_json | "WorkID" => 9, "TripID" => 10}
+
+      expected = %Vehicle{
+        block: "009",
+        heading: 48,
+        latitude: 42.28179,
+        longitude: -71.15936,
+        speed: 14,
+        timestamp: @valid_timestamp,
+        trip: "010",
         vehicle_id: 1827
       }
 

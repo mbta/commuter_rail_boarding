@@ -5,19 +5,18 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
   require TestHelpers
 
   @valid_map %{
-    "fix" => 1,
-    "heading" => 0,
-    "latitude" => 4_237_405,
-    "longitude" => -7_107_496,
-    "routename" => "",
-    "speed" => 0,
-    "updatetime" => 1_516_115_007,
-    "vehicleid" => 1633,
-    "workid" => 0
+    "Heading" => 0,
+    "Latitude" => 42.37405,
+    "Longitude" => -71.07496,
+    "TripID" => 0,
+    "Speed" => 0,
+    "Update Time" => "2018-01-16T15:03:27Z",
+    "VehicleID" => 1633,
+    "WorkID" => 0
   }
   @valid_json Poison.encode!(@valid_map)
-  @missing_key @valid_map |> Map.drop(["speed"]) |> Poison.encode!()
-  @bad_value @valid_map |> Map.put("fix", "other") |> Poison.encode!()
+  @bad_value @valid_map |> Map.put("Heading", "other") |> Poison.encode!()
+  @missing_key @valid_map |> Map.drop(["Speed"]) |> Poison.encode!()
 
   describe "parse/1" do
     test "works on a valid json string" do
@@ -45,28 +44,26 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
   describe "extract_vehicles_json/1" do
     test "works with a vehicle json map" do
       vehicle_json_map = %{
-        "fix" => 1,
-        "heading" => 0,
-        "latitude" => 4_237_405,
-        "longitude" => -7_107_496,
-        "routename" => "",
-        "speed" => 0,
-        "updatetime" => 1_516_115_007,
-        "vehicleid" => 1633,
-        "workid" => 0
+        "Heading" => 0,
+        "Latitude" => 42.37405,
+        "Longitude" => -71.07496,
+        "TripID" => 0,
+        "Speed" => 0,
+        "Update Time" => "2018-01-16T15:03:27Z",
+        "VehicleID" => 1633,
+        "WorkID" => 0
       }
 
       assert extract_vehicles_json(vehicle_json_map) == [
                %{
-                 "fix" => 1,
-                 "heading" => 0,
-                 "latitude" => 4_237_405,
-                 "longitude" => -7_107_496,
-                 "routename" => "",
-                 "speed" => 0,
-                 "updatetime" => 1_516_115_007,
-                 "vehicleid" => 1633,
-                 "workid" => 0
+                 "Heading" => 0,
+                 "Latitude" => 42.37405,
+                 "Longitude" => -71.07496,
+                 "TripID" => 0,
+                 "Speed" => 0,
+                 "Update Time" => "2018-01-16T15:03:27Z",
+                 "VehicleID" => 1633,
+                 "WorkID" => 0
                }
              ]
     end
@@ -74,29 +71,27 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
     test "works with a vehicle json wrapping map" do
       vehicle_json_map = %{
         "1633" => %{
-          "fix" => 1,
-          "heading" => 0,
-          "latitude" => 4_237_405,
-          "longitude" => -7_107_496,
-          "routename" => "",
-          "speed" => 0,
-          "updatetime" => 1_516_115_007,
-          "vehicleid" => 1633,
-          "workid" => 0
+          "Heading" => 0,
+          "Latitude" => 42.37405,
+          "Longitude" => -71.07496,
+          "TripID" => 0,
+          "Speed" => 0,
+          "Update Time" => "2018-01-16T15:03:27Z",
+          "VehicleID" => 1633,
+          "WorkID" => 0
         }
       }
 
       assert extract_vehicles_json(vehicle_json_map) == [
                %{
-                 "fix" => 1,
-                 "heading" => 0,
-                 "latitude" => 4_237_405,
-                 "longitude" => -7_107_496,
-                 "routename" => "",
-                 "speed" => 0,
-                 "updatetime" => 1_516_115_007,
-                 "vehicleid" => 1633,
-                 "workid" => 0
+                 "Heading" => 0,
+                 "Latitude" => 42.37405,
+                 "Longitude" => -71.07496,
+                 "TripID" => 0,
+                 "Speed" => 0,
+                 "Update Time" => "2018-01-16T15:03:27Z",
+                 "VehicleID" => 1633,
+                 "WorkID" => 0
                }
              ]
     end

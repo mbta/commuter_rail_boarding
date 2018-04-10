@@ -48,13 +48,13 @@ defmodule TrainLoc.Manager.EventJsonParser do
     extract_vehicles_json(json)
   end
 
-  def extract_vehicles_json(%{"vehicleid" => _} = json) do
+  def extract_vehicles_json(%{"VehicleID" => _} = json) do
     [json]
   end
 
   def extract_vehicles_json(json) when is_map(json) do
     Enum.reduce(json, [], fn
-      {_key, %{"vehicleid" => _} = vehicle_json}, acc ->
+      {_key, %{"VehicleID" => _} = vehicle_json}, acc ->
         [vehicle_json | acc]
 
       _, acc ->
