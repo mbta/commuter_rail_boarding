@@ -24,7 +24,7 @@ defmodule TrainLoc.Vehicles.PreviousBatch do
 
   def handle_call({:put, new_vehicles}, _from, old_vehicles) do
     if new_vehicles == old_vehicles do
-      Logger.warn(fn -> only_old_locations_warning() end)
+      Logger.error(fn -> only_old_locations_warning() end)
     end
 
     {:reply, :ok, new_vehicles}
