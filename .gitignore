@@ -1,3 +1,5 @@
 .DS_Store
 AVLData.txt
 /log/*.log
+/deps/
+/_build
