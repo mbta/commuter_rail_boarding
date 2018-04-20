@@ -42,7 +42,14 @@ defmodule TrainLoc.Manager do
     Logger.debug(fn -> "Starting #{__MODULE__}..." end)
     {time_mod, time_fn} = config(:time_baseline_fn)
     time_baseline_fn = fn -> apply(time_mod, time_fn, []) end
-    {:ok, %{first_message?: true, time_baseline: time_baseline_fn}}
+    excluded_vehicles = MapSet.new(config(:excluded_vehicles))
+
+    {:ok,
+     %{
+       first_message?: true,
+       time_baseline: time_baseline_fn,
+       excluded_vehicles: excluded_vehicles
+     }}
   end
 
   def handle_call(:reset, _from, state) do
@@ -78,9 +85,11 @@ defmodule TrainLoc.Manager do
 
   defp update_vehicles(%ManagerEvent{} = manager_event, %{
          first_message?: first_message?,
-         time_baseline: time_baseline_fn
+         time_baseline: time_baseline_fn,
+         excluded_vehicles: excluded_vehicles
        }) do
     manager_event.vehicles_json
+    |> Enum.reject(&(&1["VehicleID"] in excluded_vehicles))
     |> vehicles_from_data
     |> reject_stale_vehicles(time_baseline_fn.())
     |> VState.upsert_vehicles()

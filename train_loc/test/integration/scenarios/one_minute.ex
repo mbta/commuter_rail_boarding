@@ -11,11 +11,12 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
   Each batch is a list of mock message strings that will be sent together
   """
   def test_messages do
-    # using vehicles 0, 1533-1637, and 4043440397
+    # using vehicles 0, 1509-1637, and 4043440397
     [
       [
         "event: put\ndata:{\"path\":\"/\",\"data\":{\"processResults\":{\"date\":\"January 29, 2018 2:23:00 PM\",\"results\":16},\"results\":" <>
           "{\"0\":{\"Heading\":0,\"ID\":1,\"Latitude\":0,\"Longitude\":0,\"TripID\":0,\"Speed\":0,\"Update Time\":\"1970-01-01T00:00:00.000Z\",\"VehicleID\":0,\"WorkID\":0}," <>
+          "\"1509\":{\"Heading\":0,\"ID\":0,\"Latitude\":41.29148,\"Longitude\":-72.92814,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:22:45.000Z\",\"VehicleID\":1509,\"WorkID\":0}," <>
           "\"1533\":{\"Heading\":0,\"ID\":2,\"Latitude\":42.24005,\"Longitude\":-71.13007,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-19T05:06:36.000Z\",\"VehicleID\":1533,\"WorkID\":0}," <>
           "\"1625\":{\"Heading\":0,\"ID\":3,\"Latitude\":42.37393,\"Longitude\":-71.07462,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:22:45.000Z\",\"VehicleID\":1625,\"WorkID\":0}," <>
           "\"1626\":{\"Heading\":0,\"ID\":4,\"Latitude\":42.37433,\"Longitude\":-71.07749,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:22:45.000Z\",\"VehicleID\":1626,\"WorkID\":0}," <>
@@ -35,6 +36,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
       [
         "event: put\ndata:{\"path\":\"/\",\"data\":null}\n\n" <>
           "event: put\ndata:{\"path\":\"/results/0\",\"data\":{\"Heading\":0,\"ID\":17,\"Latitude\":0,\"Longitude\":0,\"TripID\":0,\"Speed\":0,\"Update Time\":\"1970-01-01T00:00:00.000Z\",\"VehicleID\":0,\"WorkID\":0}}\n\n",
+        "event: put\ndata:{\"path\":\"/results/1509\",\"data\":{\"Heading\":0,\"ID\":0,\"Latitude\":41.29148,\"Longitude\":-72.92814,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:22:59.000Z\",\"VehicleID\":1509,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1533\",\"data\":{\"Heading\":0,\"ID\":18,\"Latitude\":42.24005,\"Longitude\":-71.13007,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-19T05:06:36.000Z\",\"VehicleID\":1533,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1625\",\"data\":{\"Heading\":0,\"ID\":19,\"Latitude\":42.37393,\"Longitude\":-71.07462,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:22:59.000Z\",\"VehicleID\":1625,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1626\",\"data\":{\"Heading\":0,\"ID\":20,\"Latitude\":42.37433,\"Longitude\":-71.07749,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:23:00.000Z\",\"VehicleID\":1626,\"WorkID\":0}}\n\n",
@@ -55,6 +57,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
       [
         "event: put\ndata:{\"path\":\"/\",\"data\":null}\n\n",
         "event: put\ndata:{\"path\":\"/results/0\",\"data\":{\"Heading\":0,\"ID\":33,\"Latitude\":0,\"Longitude\":0,\"TripID\":0,\"Speed\":0,\"Update Time\":\"1970-01-01T00:00:00.000Z\",\"VehicleID\":0,\"WorkID\":0}}\n\n",
+        "event: put\ndata:{\"path\":\"/results/1509\",\"data\":{\"Heading\":0,\"ID\":0,\"Latitude\":41.29148,\"Longitude\":-72.92814,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:23:15.000Z\",\"VehicleID\":1509,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1533\",\"data\":{\"Heading\":0,\"ID\":34,\"Latitude\":42.24005,\"Longitude\":-71.13007,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-19T05:06:36.000Z\",\"VehicleID\":1533,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1625\",\"data\":{\"Heading\":0,\"ID\":35,\"Latitude\":42.37393,\"Longitude\":-71.07462,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:23:15.000Z\",\"VehicleID\":1625,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1626\",\"data\":{\"Heading\":0,\"ID\":36,\"Latitude\":42.37433,\"Longitude\":-71.07749,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:23:15.000Z\",\"VehicleID\":1626,\"WorkID\":0}}\n\n",
@@ -74,6 +77,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
       ],
       [
         "event: put\ndata:{\"path\":\"/\",\"data\":null}\n\n",
+        "event: put\ndata:{\"path\":\"/results/1509\",\"data\":{\"Heading\":0,\"ID\":0,\"Latitude\":41.29148,\"Longitude\":-72.92814,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:23:30.000Z\",\"VehicleID\":1509,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1533\",\"data\":{\"Heading\":0,\"ID\":49,\"Latitude\":42.24005,\"Longitude\":-71.13007,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-19T05:06:36.000Z\",\"VehicleID\":1533,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1625\",\"data\":{\"Heading\":0,\"ID\":50,\"Latitude\":42.37393,\"Longitude\":-71.07462,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:23:30.000Z\",\"VehicleID\":1625,\"WorkID\":0}}\n\n",
         "event: put\ndata:{\"path\":\"/results/1626\",\"data\":{\"Heading\":0,\"ID\":51,\"Latitude\":42.37433,\"Longitude\":-71.07749,\"TripID\":0,\"Speed\":0,\"Update Time\":\"2018-01-29T14:23:30.000Z\",\"VehicleID\":1626,\"WorkID\":0}}\n\n",
