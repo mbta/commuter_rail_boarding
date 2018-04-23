@@ -21,7 +21,8 @@ defmodule Busloc.NextbusOutput do
       element(:lat, vehicle.latitude),
       element(:lon, vehicle.longitude),
       element(:direction, vehicle.heading),
-      element(:block, vehicle.block)
+      element(:block, vehicle.block),
+      element(:vehstatus, "f")
     ])
   end
 
