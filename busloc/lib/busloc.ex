@@ -2,17 +2,19 @@ defmodule Busloc do
   @moduledoc """
   Documentation for Busloc.
   """
+  use Application
+  import Busloc.Utilities.ConfigHelpers
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    children =
+      if config(TmFetcher, :start?) do
+        [
+          {Busloc.TmFetcher, url: config(TmFetcher, :url)}
+        ]
+      else
+        []
+      end
 
-  ## Examples
-
-      iex> Busloc.hello
-      :world
-
-  """
-  def hello do
-    :world
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end
