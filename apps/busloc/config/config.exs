@@ -26,7 +26,7 @@ config :busloc, TmFetcher,
   fetch_rate: 5000
 
 config :busloc,
-  uploader: Busloc.Uploader.File,
+  uploaders: [Busloc.Uploader.File],
   time_zone: "America/New_York"
 
 # It is also possible to import configuration files, relative to this

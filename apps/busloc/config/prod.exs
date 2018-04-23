@@ -1,11 +1,15 @@
 use Mix.Config
 
-config :busloc, :uploader, Busloc.Uploader.Web
+config :busloc, :uploaders, [
+  Busloc.Uploader.S3,
+  Busloc.Uploader.Nextbus
+]
 
-config :busloc, Uploader.Web,
+config :busloc, Uploader.S3,
   bucket_name: {:system, "S3_BUCKET"},
-  bucket_prefix: {:system, "S3_BUCKET_PREFIX"},
-  nextbus_url: {:system, "NEXTBUS_URL"}
+  bucket_prefix: {:system, "S3_BUCKET_PREFIX"}
+
+config :busloc, Uploader.Nextbus, nextbus_url: {:system, "NEXTBUS_URL"}
 
 config :logger, backends: [{Logger.Backend.Splunk, :splunk}, :console]
 

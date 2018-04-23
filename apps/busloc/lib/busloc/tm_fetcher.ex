@@ -24,16 +24,13 @@ defmodule Busloc.TmFetcher do
   def handle_info(:timeout, %{url: url} = state) do
     with {:ok, body} <- get_xml(url),
          {:ok, vehicles} <- XmlParser.parse_transitmaster_xml(body),
-         now = DateTime.utc_now(),
-         :ok <-
-           vehicles
-           |> Enum.flat_map(&from_transitmaster_map/1)
-           |> Enum.map(&log_vehicle(&1, now))
-           |> Busloc.Filter.filter(now)
-           |> Busloc.NextbusOutput.to_nextbus_xml()
-           |> Busloc.Uploader.post_nextbus()
-           |> Busloc.Uploader.upload() do
-      :ok
+         now = DateTime.utc_now() do
+      vehicles
+      |> Enum.flat_map(&from_transitmaster_map/1)
+      |> Enum.map(&log_vehicle(&1, now))
+      |> Busloc.Filter.filter(now)
+      |> Busloc.NextbusOutput.to_nextbus_xml()
+      |> Busloc.Uploader.upload()
     else
       error ->
         Logger.warn(fn ->
