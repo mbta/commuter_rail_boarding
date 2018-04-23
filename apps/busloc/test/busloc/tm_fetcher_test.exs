@@ -9,6 +9,18 @@ defmodule Busloc.TmFetcherTest do
       state = %{url: "https://httpbin.org/"}
       assert {:noreply, _state} = handle_info(:timeout, state)
     end
+
+    test "uploads data" do
+      bypass = Bypass.open()
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      state = %{url: "http://127.0.0.1:#{bypass.port}"}
+      assert {:noreply, _state} = handle_info(:timeout, state)
+      assert_receive {:upload, <<_::binary>>}
+    end
   end
 
   describe "get_xml/1" do
