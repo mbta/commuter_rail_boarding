@@ -27,6 +27,7 @@ defmodule Busloc.NextbusOutputTest do
   <lon>-5.678</lon>
   <direction>29</direction>
   <block>A50-123</block>
+  <vehstatus>f</vehstatus>
 </vehicle>"
 
       assert expected == actual
@@ -55,6 +56,7 @@ defmodule Busloc.NextbusOutputTest do
   <lon>-5.678</lon>
   <direction>29</direction>
   <block>A50-123</block>
+  <vehstatus>f</vehstatus>
 </vehicle>"
 
       assert expected == actual
@@ -96,6 +98,7 @@ defmodule Busloc.NextbusOutputTest do
       <lon>-5.678</lon>
       <direction>29</direction>
       <block>A50-123</block>
+      <vehstatus>f</vehstatus>
     </vehicle>
     <vehicle>
       <id>6070</id>
@@ -104,6 +107,7 @@ defmodule Busloc.NextbusOutputTest do
       <lon>-57.6789</lon>
       <direction>288</direction>
       <block>T350-71</block>
+      <vehstatus>f</vehstatus>
     </vehicle>
   </vehicles>
 </history>"
