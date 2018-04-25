@@ -29,7 +29,7 @@ config :train_loc, APIFetcher, connect_at_startup?: true
 config :train_loc,
   time_zone: "America/New_York",
   time_baseline_fn: {TrainLoc.Utilities.Time, :unix_now},
-  excluded_vehicles: [1509, 1505],
+  excluded_vehicles: [1509, 1505, 1520],
   firebase_url: {:system, "FIREBASE_URL"},
   s3_api: TrainLoc.S3.InMemory
 
