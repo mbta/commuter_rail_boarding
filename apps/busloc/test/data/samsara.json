@@ -1,0 +1,76 @@
+{
+  "vehicles": [
+    {
+      "id": 212014918101455,
+      "name": "1718",
+      "time": 1525100949275,
+      "latitude": 42.340632833,
+      "longitude": -71.058374,
+      "heading": 0,
+      "speed": 0,
+      "location": "Boston, MA",
+      "onTrip": false,
+      "vin": ""
+    },
+    {
+      "id": 212014918101459,
+      "name": "1708",
+      "time": 1525094257320,
+      "latitude": 42.303110833,
+      "longitude": -71.109865333,
+      "heading": 0,
+      "speed": 0,
+      "location": "Washington Street, Boston, MA",
+      "onTrip": false,
+      "vin": ""
+    },
+    {
+      "id": 212014918110051,
+      "name": "1709",
+      "time": 1525093595340,
+      "latitude": 42.30273828,
+      "longitude": -71.10981257,
+      "heading": 0,
+      "speed": 0,
+      "location": "Washington Street, Boston, MA",
+      "onTrip": false,
+      "vin": ""
+    },
+    {
+      "id": 212014918110094,
+      "name": "1696",
+      "time": 1525101314877,
+      "latitude": 42.28877387,
+      "longitude": -71.12563738,
+      "heading": 41.6,
+      "speed": 5.994410144752204,
+      "location": "Boston, MA",
+      "onTrip": true,
+      "vin": ""
+    },
+    {
+      "id": 212014918110524,
+      "name": "1717",
+      "time": 1525094250031,
+      "latitude": 42.341293559,
+      "longitude": -71.05820933,
+      "heading": 0,
+      "speed": 0,
+      "location": "Boston, MA",
+      "onTrip": false,
+      "vin": ""
+    },
+    {
+      "id": 212014918110991,
+      "name": "1710",
+      "time": 1525101295182,
+      "latitude": 42.30146823,
+      "longitude": -71.11179968,
+      "heading": 0,
+      "speed": 0,
+      "location": "Arborway, Boston, MA",
+      "onTrip": true,
+      "vin": ""
+    }
+  ]
+}

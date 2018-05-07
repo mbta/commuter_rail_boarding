@@ -13,7 +13,7 @@ defmodule Busloc.Vehicle do
 
   @type t :: %__MODULE__{
           vehicle_id: String.t(),
-          block: String.t(),
+          block: String.t() | nil,
           latitude: float,
           longitude: float,
           heading: 0..359,
@@ -42,6 +42,18 @@ defmodule Busloc.Vehicle do
   rescue
     error ->
       {:error, error}
+  end
+
+  def from_samsara_json(json) do
+    %Busloc.Vehicle{
+      vehicle_id: json["name"],
+      block: nil,
+      latitude: json["latitude"],
+      longitude: json["longitude"],
+      heading: round(json["heading"]),
+      source: :samsara,
+      timestamp: DateTime.from_unix!(json["time"], :milliseconds)
+    }
   end
 
   @doc """

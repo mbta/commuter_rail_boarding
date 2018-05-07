@@ -1,25 +1,30 @@
-defmodule Busloc.TmFetcherTest do
+defmodule Busloc.Fetcher.TmFetcherTest do
   @moduledoc false
   use ExUnit.Case, async: true
-  import Busloc.TmFetcher
+  import Busloc.Fetcher.TmFetcher
 
   describe "handle_info(:timeout)" do
+    setup do
+      start_supervised!({Busloc.State, name: Busloc.State})
+      bypass = Bypass.open()
+      {:ok, state} = init("http://127.0.0.1:#{bypass.port}")
+      %{state: state, bypass: bypass}
+    end
+
     @tag :capture_log
-    test "does not crash on invalid TransitMaster XML" do
-      state = %{url: "https://httpbin.org/"}
+    test "does not crash on invalid TransitMaster XML", %{state: state} do
+      state = %{state | url: "https://httpbin.org/"}
       assert {:noreply, _state} = handle_info(:timeout, state)
     end
 
-    test "uploads data" do
-      bypass = Bypass.open()
-
+    @tag :capture_log
+    test "stores data in Busloc.State", %{state: state, bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
       end)
 
-      state = %{url: "http://127.0.0.1:#{bypass.port}"}
       assert {:noreply, _state} = handle_info(:timeout, state)
-      assert_receive {:upload, <<_::binary>>}
+      refute Busloc.State.get_all() == []
     end
   end
 

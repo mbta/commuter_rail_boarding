@@ -75,4 +75,34 @@ defmodule Busloc.VehicleTest do
       assert actual =~ "invalid_time=stale"
     end
   end
+
+  describe "from_samsara_json/1" do
+    test "parses Poison map to Vehicle struct" do
+      json_map = %{
+        "heading" => 0,
+        "id" => 212_014_918_101_455,
+        "latitude" => 42.340632833,
+        "location" => "Boston, MA",
+        "longitude" => -71.058374,
+        "name" => "1718",
+        "onTrip" => false,
+        "speed" => 0,
+        "time" => 1_525_100_949_275,
+        "vin" => ""
+      }
+
+      expected = %Vehicle{
+        block: nil,
+        heading: 0,
+        latitude: 42.340632833,
+        longitude: -71.058374,
+        source: :samsara,
+        timestamp: DateTime.from_naive!(~N[2018-04-30 15:09:09.275], "Etc/UTC"),
+        vehicle_id: "1718"
+      }
+
+      actual = from_samsara_json(json_map)
+      assert actual == expected
+    end
+  end
 end

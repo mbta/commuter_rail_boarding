@@ -1,5 +1,5 @@
 use Mix.Config
 
-config :busloc, TmFetcher, start?: false
+config :busloc, start?: false
 
-config :busloc, :uploaders, [Busloc.TestUploader]
+config :busloc, uploaders: [Busloc.TestUploader]

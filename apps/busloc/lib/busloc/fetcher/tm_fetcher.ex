@@ -1,4 +1,4 @@
-defmodule Busloc.TmFetcher do
+defmodule Busloc.Fetcher.TmFetcher do
   use GenServer
 
   import Busloc.Utilities.ConfigHelpers
@@ -28,9 +28,7 @@ defmodule Busloc.TmFetcher do
       vehicles
       |> Enum.flat_map(&from_transitmaster_map/1)
       |> Enum.map(&log_vehicle(&1, now))
-      |> Busloc.Filter.filter(now)
-      |> Busloc.NextbusOutput.to_nextbus_xml()
-      |> Busloc.Uploader.upload()
+      |> Busloc.State.set()
     else
       error ->
         Logger.warn(fn ->

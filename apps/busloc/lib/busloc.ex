@@ -7,14 +7,17 @@ defmodule Busloc do
 
   def start(_type, _args) do
     children =
-      if config(TmFetcher, :start?) do
+      if config(:start?) do
         [
-          {Busloc.TmFetcher, url: config(TmFetcher, :url)}
+          {Busloc.State, name: Busloc.State},
+          {Busloc.Fetcher.TmFetcher, url: config(TmFetcher, :url)},
+          {Busloc.Fetcher.SamsaraFetcher, url: config(SamsaraFetcher, :url)},
+          {Busloc.Publisher, []}
         ]
       else
         []
       end
 
-    Supervisor.start_link(children, strategy: :one_for_one)
+    Supervisor.start_link(children, strategy: :rest_for_one)
   end
 end

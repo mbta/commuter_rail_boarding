@@ -21,11 +21,18 @@ use Mix.Config
 #     config :logger, level: :info
 #
 config :busloc, TmFetcher,
-  start?: true,
   url: {:system, "TRANSITMASTER_URL"},
   fetch_rate: 5000
 
+config :busloc, SamsaraFetcher,
+  url: {:system, "SAMSARA_URL"},
+  post_body: "{\"groupId\":2155}",
+  fetch_rate: 1000
+
+config :busloc, Publisher, fetch_rate: 5000
+
 config :busloc,
+  start?: true,
   uploaders: [Busloc.Uploader.File],
   time_zone: "America/New_York"
 

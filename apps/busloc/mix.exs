@@ -34,6 +34,7 @@ defmodule Busloc.MixProject do
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:httpoison, "~> 1.0"},
+      {:poison, "~> 3.1"},
       {:sweet_xml, "~> 0.6"},
       {:timex, "~> 3.1"},
       {:xml_builder, "~> 2.1", override: true},
