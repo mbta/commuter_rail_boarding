@@ -6,55 +6,52 @@ defmodule Busloc.State do
   """
 
   use GenServer
-  alias Busloc.Vehicle
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    name = Keyword.fetch!(opts, :name)
+    GenServer.start_link(__MODULE__, name, opts)
   end
 
   @doc """
   This function is called by Busloc.SamsaraFetcher to update the location and timestamp
   of a Vehicle. The vehicle's block assignment will not change.
   """
-  def update(pid \\ __MODULE__, vehicle) when is_map(vehicle) do
-    GenServer.call(pid, {:update, vehicle})
+  def update(table \\ __MODULE__, vehicle) when is_map(vehicle) do
+    case :ets.lookup(table, vehicle.vehicle_id) do
+      [{_, old_vehicle}] ->
+        if Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
+          new_vehicle = %{vehicle | block: old_vehicle.block}
+          true = :ets.insert(table, {new_vehicle.vehicle_id, new_vehicle})
+        else
+          :ok
+        end
+
+      [] ->
+        :ets.insert(table, {vehicle.vehicle_id, vehicle})
+    end
   end
 
   @doc """
   This function is called by Busloc.TmFetcher to reset the state with updated locations
   and block assignments.
   """
-  def set(pid \\ __MODULE__, vehicles) when is_list(vehicles) do
-    GenServer.call(pid, {:set, vehicles})
+  def set(table \\ __MODULE__, vehicles) when is_list(vehicles) do
+    inserts = for vehicle <- vehicles, do: {vehicle.vehicle_id, vehicle}
+    true = :ets.delete_all_objects(table)
+    true = :ets.insert(table, inserts)
+    :ok
   end
 
-  def get_all(pid \\ __MODULE__) do
-    GenServer.call(pid, :get_all)
+  def get_all(table \\ __MODULE__) do
+    :ets.select(table, [{{:_, :"$1"}, [], [:"$1"]}])
   end
 
-  def init(_) do
-    {:ok, %{}}
-  end
-
-  def handle_call({:update, %Vehicle{vehicle_id: id} = new_vehicle}, _from, vehicles) do
-    vehicles =
-      Map.update(vehicles, id, new_vehicle, fn old_vehicle ->
-        if Timex.after?(new_vehicle.timestamp, old_vehicle.timestamp) do
-          %{new_vehicle | block: old_vehicle.block}
-        else
-          old_vehicle
-        end
-      end)
-
-    {:reply, :ok, vehicles}
-  end
-
-  def handle_call({:set, vehicles}, _from, _old_vehicles) do
-    new_vehicles = Map.new(vehicles, fn %Vehicle{vehicle_id: id} = veh -> {id, veh} end)
-    {:reply, :ok, new_vehicles}
-  end
-
-  def handle_call(:get_all, _from, vehicles) do
-    {:reply, Map.values(vehicles), vehicles}
+  def init(table) do
+    # set: items have a unique ID
+    # named_table: so we can refer to the table by the given name
+    # public: so that any process can write to it
+    # write_concurrency: faster processing of simultaneous writes
+    ^table = :ets.new(table, [:set, :named_table, :public, {:write_concurrency, true}])
+    {:ok, :ignored}
   end
 end
