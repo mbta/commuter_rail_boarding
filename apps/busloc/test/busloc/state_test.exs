@@ -129,5 +129,30 @@ defmodule Busloc.StateTest do
       state = get_all(:set_table)
       assert Enum.sort(state) == Enum.sort(new_vehicles)
     end
+
+    test "doesn't cause an empty read" do
+      vehicle = %Vehicle{
+        vehicle_id: "5"
+      }
+
+      set(:set_table, [vehicle])
+
+      # spawn a task to repeatedly set the table
+      loop = fn loop ->
+        try do
+          set(:set_table, [vehicle])
+          loop.(loop)
+        rescue
+          ArgumentError -> :ok
+        end
+      end
+
+      Task.async(fn -> loop.(loop) end)
+
+      for _ <- 0..200 do
+        refute get_all(:set_table) == []
+        Process.sleep(1)
+      end
+    end
   end
 end

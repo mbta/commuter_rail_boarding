@@ -36,14 +36,25 @@ defmodule Busloc.State do
   and block assignments.
   """
   def set(table \\ __MODULE__, vehicles) when is_list(vehicles) do
-    inserts = for vehicle <- vehicles, do: {vehicle.vehicle_id, vehicle}
-    true = :ets.delete_all_objects(table)
-    true = :ets.insert(table, inserts)
+    # insert new items
+    inserts = Map.new(vehicles, &{&1.vehicle_id, &1})
+    true = :ets.insert(table, Map.to_list(inserts))
+    # delete any items which weren't part of the update
+    delete_specs =
+      for id <- get_all_ids(table), not Map.has_key?(inserts, id) do
+        {{id, :_}, [], [true]}
+      end
+
+    _ = :ets.select_delete(table, delete_specs)
     :ok
   end
 
   def get_all(table \\ __MODULE__) do
     :ets.select(table, [{{:_, :"$1"}, [], [:"$1"]}])
+  end
+
+  defp get_all_ids(table) do
+    :ets.select(table, [{{:"$1", :_}, [], [:"$1"]}])
   end
 
   def init(table) do
