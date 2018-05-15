@@ -22,7 +22,7 @@ defmodule Busloc.State do
   This function is called by Busloc.SamsaraFetcher to update the location and timestamp
   of a Vehicle. The vehicle's block assignment will not change.
   """
-  def update(table \\ __MODULE__, vehicle) when is_map(vehicle) do
+  def update(table, vehicle) when is_map(vehicle) do
     case :ets.lookup(table, vehicle.vehicle_id) do
       [{_, old_vehicle}] ->
         if Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
@@ -41,7 +41,7 @@ defmodule Busloc.State do
   This function is called by Busloc.TmFetcher to reset the state with updated locations
   and block assignments.
   """
-  def set(table \\ __MODULE__, vehicles) when is_list(vehicles) do
+  def set(table, vehicles) when is_list(vehicles) do
     # insert new items
     inserts = Map.new(vehicles, &{&1.vehicle_id, &1})
     true = :ets.insert(table, Map.to_list(inserts))
@@ -55,7 +55,7 @@ defmodule Busloc.State do
     :ok
   end
 
-  def get_all(table \\ __MODULE__) do
+  def get_all(table) do
     :ets.select(table, [{{:_, :"$1"}, [], [:"$1"]}])
   end
 

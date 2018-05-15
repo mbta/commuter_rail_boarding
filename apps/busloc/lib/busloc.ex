@@ -9,7 +9,7 @@ defmodule Busloc do
     children =
       if config(:start?) do
         [
-          {Busloc.State, name: Busloc.State},
+          {Busloc.State, name: :transitmaster_state},
           {Busloc.State, name: :eyeride_state},
           {Busloc.Fetcher.TmFetcher, url: config(TmFetcher, :url)},
           {Busloc.Fetcher.SamsaraFetcher, url: config(SamsaraFetcher, :url)},
@@ -18,7 +18,7 @@ defmodule Busloc do
            email: config(EyerideFetcher, :email),
            password: config(EyerideFetcher, :password),
            state: :eyeride_state},
-          {Busloc.Publisher, states: [Busloc.State, :eyeride_state]}
+          {Busloc.Publisher, states: [:transitmaster_state, :eyeride_state]}
         ]
       else
         []

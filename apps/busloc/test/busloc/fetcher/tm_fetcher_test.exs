@@ -15,7 +15,7 @@ defmodule Busloc.Fetcher.TmFetcherTest do
 
   describe "handle_info(:timeout)" do
     setup do
-      start_supervised!({Busloc.State, name: Busloc.State})
+      start_supervised!({Busloc.State, name: :transitmaster_state})
       bypass = Bypass.open()
       {:ok, state} = init("http://127.0.0.1:#{bypass.port}")
       %{state: state, bypass: bypass}
@@ -34,7 +34,7 @@ defmodule Busloc.Fetcher.TmFetcherTest do
       end)
 
       assert {:noreply, _state} = handle_info(:timeout, state)
-      refute Busloc.State.get_all() == []
+      refute Busloc.State.get_all(:transitmaster_state) == []
     end
   end
 
