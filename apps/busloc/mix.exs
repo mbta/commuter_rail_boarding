@@ -38,6 +38,7 @@ defmodule Busloc.MixProject do
       {:sweet_xml, "~> 0.6"},
       {:timex, "~> 3.1"},
       {:xml_builder, "~> 2.1", override: true},
+      {:plug, "~> 1.5"},
       {:logger_splunk_backend, github: "mbta/logger_splunk_backend", only: :prod},
       {:bypass, "~> 0.8", only: :test}
     ]

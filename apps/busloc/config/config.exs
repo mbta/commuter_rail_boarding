@@ -30,6 +30,12 @@ config :busloc, SamsaraFetcher,
   post_body: "{\"groupId\":2155}",
   fetch_rate: 1000
 
+config :busloc, EyerideFetcher,
+  host: {:system, "EYERIDE_HOST"},
+  email: {:system, "EYERIDE_EMAIL"},
+  password: {:system, "EYERIDE_PASSWORD"},
+  fetch_rate: 2000
+
 config :busloc, Publisher, fetch_rate: 5000
 
 config :busloc,
