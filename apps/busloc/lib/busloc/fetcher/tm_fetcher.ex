@@ -21,6 +21,11 @@ defmodule Busloc.Fetcher.TmFetcher do
     {:ok, state}
   end
 
+  def init(nil) do
+    Logger.warn("not starting TmFetcher: no URL configured")
+    :ignore
+  end
+
   def handle_info(:timeout, %{url: url} = state) do
     with {:ok, body} <- get_xml(url),
          {:ok, vehicles} <- XmlParser.parse_transitmaster_xml(body),

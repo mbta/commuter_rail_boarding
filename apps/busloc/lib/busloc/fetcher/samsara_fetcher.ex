@@ -18,6 +18,11 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
     {:ok, state}
   end
 
+  def init(nil) do
+    Logger.warn("not starting SamsaraFetcher: no URL configured")
+    :ignore
+  end
+
   def handle_info(:timeout, %{url: url} = state) do
     url
     |> HTTPoison.post!(config(SamsaraFetcher, :post_body))

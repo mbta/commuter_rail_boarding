@@ -2,6 +2,13 @@ defmodule Busloc.Fetcher.SamsaraFetcherTest do
   use ExUnit.Case
   import Busloc.Fetcher.SamsaraFetcher
 
+  describe "init/1" do
+    @tag :capture_log
+    test "doesn't start if the URL is nil" do
+      assert init(nil) == :ignore
+    end
+  end
+
   describe "handle_info(:timeout)" do
     setup do
       start_supervised!({Busloc.State, name: Busloc.State})

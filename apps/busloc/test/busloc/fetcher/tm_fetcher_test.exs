@@ -6,6 +6,13 @@ defmodule Busloc.Fetcher.TmFetcherTest do
   import Busloc.Utilities.ConfigHelpers
   alias Busloc.Utilities.Time, as: BuslocTime
 
+  describe "init/1" do
+    @tag :capture_log
+    test "doesn't start if the URL is nil" do
+      assert init(nil) == :ignore
+    end
+  end
+
   describe "handle_info(:timeout)" do
     setup do
       start_supervised!({Busloc.State, name: Busloc.State})
