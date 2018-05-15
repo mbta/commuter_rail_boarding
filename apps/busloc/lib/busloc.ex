@@ -12,6 +12,10 @@ defmodule Busloc do
           {Busloc.State, name: Busloc.State},
           {Busloc.Fetcher.TmFetcher, url: config(TmFetcher, :url)},
           {Busloc.Fetcher.SamsaraFetcher, url: config(SamsaraFetcher, :url)},
+          {Busloc.Fetcher.EyerideFetcher,
+           host: config(EyerideFetcher, :host),
+           email: config(EyerideFetcher, :email),
+           password: config(EyerideFetcher, :password)},
           {Busloc.Publisher, []}
         ]
       else
