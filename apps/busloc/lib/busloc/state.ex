@@ -12,6 +12,12 @@ defmodule Busloc.State do
     GenServer.start_link(__MODULE__, name, opts)
   end
 
+  def child_spec(opts) do
+    name = Keyword.fetch!(opts, :name)
+    spec = super(opts)
+    %{spec | id: name}
+  end
+
   @doc """
   This function is called by Busloc.SamsaraFetcher to update the location and timestamp
   of a Vehicle. The vehicle's block assignment will not change.

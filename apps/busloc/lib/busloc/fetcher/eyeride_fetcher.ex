@@ -11,7 +11,7 @@ defmodule Busloc.Fetcher.EyerideFetcher do
   require Logger
   alias Busloc.Vehicle
 
-  defstruct ~w(host headers)a
+  defstruct ~w(host headers state_module)a
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, opts)
@@ -22,7 +22,8 @@ defmodule Busloc.Fetcher.EyerideFetcher do
       {:ok, host} when is_binary(host) ->
         state = %__MODULE__{
           host: host,
-          headers: headers(opts)
+          headers: headers(opts),
+          state_module: Keyword.get(opts, :state, Busloc.State)
         }
 
         send(self(), :timeout)
@@ -35,14 +36,16 @@ defmodule Busloc.Fetcher.EyerideFetcher do
   end
 
   def handle_info(:timeout, state) do
-    state
-    |> url()
-    |> HTTPoison.get!(state.headers)
-    |> Map.get(:body)
-    |> Poison.decode!()
-    |> Enum.map(&Vehicle.from_eyeride_json/1)
-    |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
-    |> Enum.each(&Busloc.State.update/1)
+    vehicles =
+      state
+      |> url()
+      |> HTTPoison.get!(state.headers)
+      |> Map.get(:body)
+      |> Poison.decode!()
+      |> Enum.map(&Vehicle.from_eyeride_json/1)
+      |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
+
+    :ok = Busloc.State.set(state.state_module, vehicles)
 
     Process.send_after(self(), :timeout, config(EyerideFetcher, :fetch_rate))
     {:noreply, state}

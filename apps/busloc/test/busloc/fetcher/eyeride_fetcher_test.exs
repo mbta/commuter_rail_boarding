@@ -36,7 +36,7 @@ defmodule Busloc.Fetcher.EyerideFetcherTest do
 
   describe "handle_info(:timeout)" do
     setup do
-      start_supervised!({Busloc.State, name: Busloc.State})
+      start_supervised!({Busloc.State, name: :eyeride_test_state})
       :ok
     end
 
@@ -55,9 +55,16 @@ defmodule Busloc.Fetcher.EyerideFetcherTest do
         end
       end)
 
-      {:ok, state} = init(host: "127.0.0.1:#{bypass.port}", email: "", password: "")
+      {:ok, state} =
+        init(
+          host: "127.0.0.1:#{bypass.port}",
+          email: "",
+          password: "",
+          state: :eyeride_test_state
+        )
+
       assert {:noreply, _state} = handle_info(:timeout, state)
-      refute Busloc.State.get_all() == []
+      refute Busloc.State.get_all(:eyeride_test_state) == []
     end
   end
 end
