@@ -28,6 +28,7 @@ defmodule Busloc.Fetcher.TmFetcher do
       vehicles
       |> Enum.flat_map(&from_transitmaster_map/1)
       |> Enum.map(&log_vehicle(&1, now))
+      |> log_if_all_stale()
       |> Busloc.State.set()
     else
       error ->
@@ -51,6 +52,17 @@ defmodule Busloc.Fetcher.TmFetcher do
     with {:ok, xml_response} <- HTTPoison.get(url, headers) do
       {:ok, xml_response.body}
     end
+  end
+
+  def log_if_all_stale(vehicles) do
+    max_time = vehicles |> Enum.map(&Timex.to_unix(&1.timestamp)) |> Enum.max()
+    current_time = System.system_time(:seconds)
+
+    if current_time - max_time > config(TmFetcher, :stale_seconds) do
+      Logger.warn(fn -> "#{__MODULE__}: Transitmaster data is stale." end)
+    end
+
+    vehicles
   end
 
   defp send_timeout() do

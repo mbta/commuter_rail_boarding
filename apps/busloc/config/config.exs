@@ -22,7 +22,8 @@ use Mix.Config
 #
 config :busloc, TmFetcher,
   url: {:system, "TRANSITMASTER_URL"},
-  fetch_rate: 5000
+  fetch_rate: 5000,
+  stale_seconds: 1800
 
 config :busloc, SamsaraFetcher,
   url: {:system, "SAMSARA_URL"},

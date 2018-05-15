@@ -1,7 +1,10 @@
 defmodule Busloc.Fetcher.TmFetcherTest do
   @moduledoc false
   use ExUnit.Case, async: true
+  import ExUnit.CaptureLog
   import Busloc.Fetcher.TmFetcher
+  import Busloc.Utilities.ConfigHelpers
+  alias Busloc.Utilities.Time, as: BuslocTime
 
   describe "handle_info(:timeout)" do
     setup do
@@ -35,6 +38,39 @@ defmodule Busloc.Fetcher.TmFetcherTest do
 
     test "returns {:error, _} if the response fails" do
       assert {:error, _} = get_xml("http://doesnotexist.example/")
+    end
+  end
+
+  describe "log_if_all_stale/1" do
+    test "logs if all TransitMaster vehicles are stale" do
+      stale_time = Timex.shift(BuslocTime.now(), seconds: -config(TmFetcher, :stale_seconds) - 5)
+
+      vehicles = [
+        %Busloc.Vehicle{
+          vehicle_id: "1111",
+          block: "A123-45",
+          latitude: 42.2222,
+          longitude: -71.1111,
+          heading: 45,
+          source: :transitmaster,
+          timestamp: stale_time
+        },
+        %Busloc.Vehicle{
+          vehicle_id: "2222",
+          block: "B98-765",
+          latitude: 42.1111,
+          longitude: -71.2222,
+          heading: 135,
+          source: :transitmaster,
+          timestamp: stale_time
+        }
+      ]
+
+      fun = fn -> log_if_all_stale(vehicles) end
+
+      expected_log = "Transitmaster data is stale."
+
+      assert capture_log(fun) =~ expected_log
     end
   end
 end
