@@ -105,4 +105,42 @@ defmodule Busloc.VehicleTest do
       assert actual == expected
     end
   end
+
+  describe "from_eyeride_json/1" do
+    setup do
+      json_map = %{
+        "id" => "cbd2f411-7107-45f3-9a99-4d31ea6e8bed",
+        "bus" => "43915",
+        "created_at" => "2018-05-15T10:28:17Z",
+        "ins" => 0,
+        "outs" => 0,
+        "gps" => %{
+          "type" => "Point",
+          "coordinates" => [
+            42.41673,
+            -71.1075
+          ]
+        },
+        "route_name" =>
+          "MBTA Route 710 North Medford-Medford Square, Meadow Glen Mall or Wellington Station",
+        "speed" => "0.000",
+        "route_header" => "Doonan St",
+        "direction" => "W"
+      }
+
+      {:ok, %{json_map: json_map}}
+    end
+
+    test "parses Poison map to Vehicle struct", %{json_map: json_map} do
+      timestamp = DateTime.from_naive!(~N[2018-05-15T10:28:17], "Etc/UTC")
+
+      assert %Vehicle{
+               latitude: 42.41673,
+               longitude: -71.1075,
+               source: :eyeride,
+               timestamp: ^timestamp,
+               vehicle_id: "43915"
+             } = from_eyeride_json(json_map)
+    end
+  end
 end

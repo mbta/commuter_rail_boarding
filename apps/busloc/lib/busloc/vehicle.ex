@@ -17,7 +17,7 @@ defmodule Busloc.Vehicle do
           latitude: float,
           longitude: float,
           heading: 0..359,
-          source: :transitmaster | :samsara | :saucon,
+          source: :transitmaster | :samsara | :saucon | :eyeride,
           timestamp: DateTime.t()
         }
 
@@ -53,6 +53,21 @@ defmodule Busloc.Vehicle do
       heading: round(json["heading"]),
       source: :samsara,
       timestamp: DateTime.from_unix!(json["time"], :milliseconds)
+    }
+  end
+
+  @spec from_eyeride_json(map) :: t
+  def from_eyeride_json(json) do
+    [latitude, longitude] = json["gps"]["coordinates"]
+    {:ok, utc_dt, _} = DateTime.from_iso8601(json["created_at"])
+
+    %__MODULE__{
+      vehicle_id: json["bus"],
+      latitude: latitude,
+      longitude: longitude,
+      heading: 359,
+      timestamp: utc_dt,
+      source: :eyeride
     }
   end
 

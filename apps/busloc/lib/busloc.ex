@@ -9,15 +9,14 @@ defmodule Busloc do
     children =
       if config(:start?) do
         [
-          {Busloc.State, name: Busloc.State},
-          {Busloc.Fetcher.TmFetcher, url: config(TmFetcher, :url)},
-          {Busloc.Fetcher.SamsaraFetcher, url: config(SamsaraFetcher, :url)},
-          {Busloc.Publisher, []}
+          Busloc.Supervisor.Eyeride,
+          Busloc.Supervisor.Transitmaster,
+          {Busloc.Publisher, states: [:transitmaster_state, :eyeride_state]}
         ]
       else
         []
       end
 
-    Supervisor.start_link(children, strategy: :rest_for_one)
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end

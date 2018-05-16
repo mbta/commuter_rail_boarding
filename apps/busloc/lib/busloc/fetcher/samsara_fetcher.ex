@@ -18,6 +18,11 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
     {:ok, state}
   end
 
+  def init(nil) do
+    Logger.warn("not starting SamsaraFetcher: no URL configured")
+    :ignore
+  end
+
   def handle_info(:timeout, %{url: url} = state) do
     url
     |> HTTPoison.post!(config(SamsaraFetcher, :post_body))
@@ -26,7 +31,7 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
     |> Map.get("vehicles")
     |> Enum.map(&Vehicle.from_samsara_json/1)
     |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
-    |> Enum.each(&Busloc.State.update/1)
+    |> Enum.each(&Busloc.State.update(:transitmaster_state, &1))
 
     Process.send_after(self(), :timeout, config(SamsaraFetcher, :fetch_rate))
     {:noreply, state}

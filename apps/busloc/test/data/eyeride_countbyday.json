@@ -1,0 +1,56 @@
+[
+  {
+    "id": "a285160e-8ac5-4e46-bb38-23fe2f517307",
+    "bus": "43916",
+    "created_at": "2018-04-30T19:41:25Z",
+    "ins": 0,
+    "outs": 0,
+    "gps": {
+      "type": "Point",
+      "coordinates": [
+        42.82218,
+        -71.404632
+      ]
+    },
+    "route_name": null,
+    "speed": "0.047",
+    "route_header": null,
+    "direction": "W"
+  },
+  {
+    "id": "8351bb76-752c-4f7f-a07f-987e1e00b9f9",
+    "bus": "43699",
+    "created_at": "2017-11-02T18:08:03Z",
+    "ins": 0,
+    "outs": 0,
+    "gps": {
+      "type": "Point",
+      "coordinates": [
+        42.414717,
+        -71.108102
+      ]
+    },
+    "route_name": null,
+    "speed": "0.022",
+    "route_header": null,
+    "direction": null
+  },
+  {
+    "id": "cbd2f411-7107-45f3-9a99-4d31ea6e8bed",
+    "bus": "43915",
+    "created_at": "2018-05-15T10:28:17Z",
+    "ins": 0,
+    "outs": 0,
+    "gps": {
+      "type": "Point",
+      "coordinates": [
+        42.41673,
+        -71.1075
+      ]
+    },
+    "route_name": "MBTA Route 710 North Medford-Medford Square, Meadow Glen Mall or Wellington Station",
+    "speed": "0.000",
+    "route_header": "Doonan St",
+    "direction": "W"
+  }
+]

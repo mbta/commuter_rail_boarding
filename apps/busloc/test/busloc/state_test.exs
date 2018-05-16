@@ -5,11 +5,11 @@ defmodule Busloc.StateTest do
 
   describe "update/2" do
     setup do
-      {:ok, pid} = start_link()
-      {:ok, %{pid: pid}}
+      start_supervised!({Busloc.State, name: :update_table})
+      :ok
     end
 
-    test "Stores and retrieves single vehicle", %{pid: pid} do
+    test "Stores and retrieves single vehicle" do
       vehicle = %Vehicle{
         vehicle_id: "1234",
         block: nil,
@@ -20,12 +20,12 @@ defmodule Busloc.StateTest do
         timestamp: DateTime.utc_now()
       }
 
-      update(pid, vehicle)
-      from_state = get_all(pid)
+      update(:update_table, vehicle)
+      from_state = get_all(:update_table)
       assert from_state == [vehicle]
     end
 
-    test "updates existing vehicle if timestamp is newer", %{pid: pid} do
+    test "updates existing vehicle if timestamp is newer" do
       timestamp = DateTime.utc_now()
 
       vehicle1 = %Vehicle{
@@ -48,13 +48,13 @@ defmodule Busloc.StateTest do
         timestamp: Timex.shift(timestamp, minutes: 1)
       }
 
-      update(pid, vehicle1)
-      update(pid, vehicle2)
-      state = get_all(pid)
+      update(:update_table, vehicle1)
+      update(:update_table, vehicle2)
+      state = get_all(:update_table)
       assert state == [%{vehicle2 | block: "A123-456"}]
     end
 
-    test "doesn't update if the timestamp is older", %{pid: pid} do
+    test "doesn't update if the timestamp is older" do
       timestamp = DateTime.utc_now()
 
       vehicle1 = %Vehicle{
@@ -77,20 +77,20 @@ defmodule Busloc.StateTest do
         timestamp: Timex.shift(timestamp, minutes: -1)
       }
 
-      update(pid, vehicle1)
-      update(pid, vehicle2)
-      state = get_all(pid)
+      update(:update_table, vehicle1)
+      update(:update_table, vehicle2)
+      state = get_all(:update_table)
       assert state == [vehicle1]
     end
   end
 
   describe "set/2" do
     setup do
-      {:ok, pid} = start_link()
-      {:ok, %{pid: pid}}
+      start_supervised!({Busloc.State, name: :set_table})
+      :ok
     end
 
-    test "overwrites previous state", %{pid: pid} do
+    test "overwrites previous state" do
       timestamp = DateTime.utc_now()
 
       vehicle1 = %Vehicle{
@@ -124,10 +124,35 @@ defmodule Busloc.StateTest do
         }
       ]
 
-      update(pid, vehicle1)
-      set(pid, new_vehicles)
-      state = get_all(pid)
-      assert state == new_vehicles
+      update(:set_table, vehicle1)
+      set(:set_table, new_vehicles)
+      state = get_all(:set_table)
+      assert Enum.sort(state) == Enum.sort(new_vehicles)
+    end
+
+    test "doesn't cause an empty read" do
+      vehicle = %Vehicle{
+        vehicle_id: "5"
+      }
+
+      set(:set_table, [vehicle])
+
+      # spawn a task to repeatedly set the table
+      loop = fn loop ->
+        try do
+          set(:set_table, [vehicle])
+          loop.(loop)
+        rescue
+          ArgumentError -> :ok
+        end
+      end
+
+      Task.async(fn -> loop.(loop) end)
+
+      for _ <- 0..200 do
+        refute get_all(:set_table) == []
+        Process.sleep(1)
+      end
     end
   end
 end
