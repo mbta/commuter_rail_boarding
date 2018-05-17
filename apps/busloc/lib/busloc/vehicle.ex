@@ -74,7 +74,7 @@ defmodule Busloc.Vehicle do
   @doc """
   Returns a vehicle.
   """
-  @spec from_saucon_json_vehicle(map, String.t) :: t
+  @spec from_saucon_json_vehicle(map, String.t()) :: t
   def from_saucon_json_vehicle(json, blockId) do
     %Busloc.Vehicle{
       vehicle_id: "saucon" <> json["name"],
@@ -92,18 +92,22 @@ defmodule Busloc.Vehicle do
   """
   @spec from_saucon_json(map) :: [t]
   def from_saucon_json(json) do
-    blockId = cond do
-      json["routeId"] == 88001007 ->  # "Wollaston Shuttle"
-        "Shuttle005"
-      json["routeId"] == 88001007 ->  # "Braintree- North Quincy Shuttle"
-        "Shuttle002"
-      true ->
-        nil
-    end
+    blockId =
+      cond do
+        # "Wollaston Shuttle"
+        json["routeId"] == 88_001_007 ->
+          "Shuttle005"
+
+        # "Braintree- North Quincy Shuttle"
+        json["routeId"] == 88_001_007 ->
+          "Shuttle002"
+
+        true ->
+          nil
+      end
 
     Enum.map(json["vehiclesOnRoute"], &from_saucon_json_vehicle(&1, blockId))
   end
-
 
   @doc """
   Returns whether the vehicle has a valid time (relative to the given time).

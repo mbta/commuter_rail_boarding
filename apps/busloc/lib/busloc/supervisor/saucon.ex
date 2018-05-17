@@ -7,9 +7,7 @@ defmodule Busloc.Supervisor.Saucon do
   def start_link do
     children = [
       {Busloc.State, name: :saucon_state},
-      {Busloc.Fetcher.SauconFetcher,
-       url: config(SauconFetcher, :url)
-      }
+      {Busloc.Fetcher.SauconFetcher, url: config(SauconFetcher, :url)}
     ]
 
     Supervisor.start_link(children, strategy: :rest_for_one)

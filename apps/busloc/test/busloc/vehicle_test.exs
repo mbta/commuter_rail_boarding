@@ -147,12 +147,12 @@ defmodule Busloc.VehicleTest do
   describe "from_saucon_json/1" do
     test "parses Poison map to Vehicle struct" do
       json_map = %{
-        "cid" => 294359758,
+        "cid" => 294_359_758,
         "name" => "Wollaston Shuttle",
-        "routeId" => 88001007,
+        "routeId" => 88_001_007,
         "vehiclesOnRoute" => [
           %{
-            "assetId" => 1030243129,
+            "assetId" => 1_030_243_129,
             "course" => 335.5,
             "lat" => 42.2517056,
             "lon" => -71.0057856,
@@ -165,9 +165,9 @@ defmodule Busloc.VehicleTest do
                 "predictedArrivalTime" => nil,
                 "predictedDepartureTime" => nil,
                 "scheduledArrivalTime" => nil,
-                "scheduledDepartureTime" => 1526029200000,
+                "scheduledDepartureTime" => 1_526_029_200_000,
                 "sequence" => 0,
-                "stopId" => 3833839,
+                "stopId" => 3_833_839,
                 "timezone" => "US/Eastern"
               },
               %{
@@ -177,17 +177,17 @@ defmodule Busloc.VehicleTest do
                 "predictedArrivalTime" => nil,
                 "predictedDepartureTime" => nil,
                 "scheduledArrivalTime" => nil,
-                "scheduledDepartureTime" => 1526029800000,
+                "scheduledDepartureTime" => 1_526_029_800_000,
                 "sequence" => 1,
-                "stopId" => 3833870,
+                "stopId" => 3_833_870,
                 "timezone" => "US/Eastern"
               }
             ],
             "speed" => 22.6703,
-            "timestamp" => 1526074417638
+            "timestamp" => 1_526_074_417_638
           },
           %{
-            "assetId" => 1030243129,
+            "assetId" => 1_030_243_129,
             "course" => 335.5,
             "lat" => 42.2517056,
             "lon" => -71.0057856,
@@ -200,9 +200,9 @@ defmodule Busloc.VehicleTest do
                 "predictedArrivalTime" => nil,
                 "predictedDepartureTime" => nil,
                 "scheduledArrivalTime" => nil,
-                "scheduledDepartureTime" => 1526033400000,
+                "scheduledDepartureTime" => 1_526_033_400_000,
                 "sequence" => 0,
-                "stopId" => 3833840,
+                "stopId" => 3_833_840,
                 "timezone" => "US/Eastern"
               },
               %{
@@ -212,17 +212,17 @@ defmodule Busloc.VehicleTest do
                 "predictedArrivalTime" => nil,
                 "predictedDepartureTime" => nil,
                 "scheduledArrivalTime" => nil,
-                "scheduledDepartureTime" => 1526034000000,
+                "scheduledDepartureTime" => 1_526_034_000_000,
                 "sequence" => 1,
-                "stopId" => 3833871,
+                "stopId" => 3_833_871,
                 "timezone" => "US/Eastern"
               }
             ],
             "speed" => 22.6703,
-            "timestamp" => 1526074417638
+            "timestamp" => 1_526_074_417_638
           },
           %{
-            "assetId" => 1030107840,
+            "assetId" => 1_030_107_840,
             "course" => 162.2,
             "lat" => 42.2768192,
             "lon" => -71.0308544,
@@ -235,9 +235,9 @@ defmodule Busloc.VehicleTest do
                 "predictedArrivalTime" => nil,
                 "predictedDepartureTime" => nil,
                 "scheduledArrivalTime" => nil,
-                "scheduledDepartureTime" => 1526029200000,
+                "scheduledDepartureTime" => 1_526_029_200_000,
                 "sequence" => 0,
-                "stopId" => 3833839,
+                "stopId" => 3_833_839,
                 "timezone" => "US/Eastern"
               },
               %{
@@ -247,14 +247,14 @@ defmodule Busloc.VehicleTest do
                 "predictedArrivalTime" => nil,
                 "predictedDepartureTime" => nil,
                 "scheduledArrivalTime" => nil,
-                "scheduledDepartureTime" => 1526029800000,
+                "scheduledDepartureTime" => 1_526_029_800_000,
                 "sequence" => 1,
-                "stopId" => 3833870,
+                "stopId" => 3_833_870,
                 "timezone" => "US/Eastern"
               }
             ],
             "speed" => 0.0,
-            "timestamp" => 1526073969329
+            "timestamp" => 1_526_073_969_329
           }
         ]
       }
