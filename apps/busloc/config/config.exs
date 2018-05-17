@@ -36,6 +36,10 @@ config :busloc, EyerideFetcher,
   password: {:system, "EYERIDE_PASSWORD"},
   fetch_rate: 2000
 
+config :busloc, SauconFetcher,
+  url: {:system, "SAUCON_URL"},
+  fetch_rate: 5000
+
 config :busloc, Publisher, fetch_rate: 5000
 
 config :busloc,

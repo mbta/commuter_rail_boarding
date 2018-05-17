@@ -72,6 +72,40 @@ defmodule Busloc.Vehicle do
   end
 
   @doc """
+  Returns a vehicle.
+  """
+  @spec from_saucon_json_vehicle(map, String.t) :: t
+  def from_saucon_json_vehicle(json, blockId) do
+    %Busloc.Vehicle{
+      vehicle_id: "saucon" <> json["name"],
+      block: blockId,
+      latitude: json["lat"],
+      longitude: json["lon"],
+      heading: round(json["course"]),
+      source: :saucon,
+      timestamp: DateTime.from_unix!(json["timestamp"], :milliseconds)
+    }
+  end
+
+  @doc """
+  Returns a list of vehicles onb a particular route.
+  """
+  @spec from_saucon_json(map) :: [t]
+  def from_saucon_json(json) do
+    blockId = cond do
+      json["routeId"] == 88001007 ->  # "Wollaston Shuttle"
+        "Shuttle005"
+      json["routeId"] == 88001007 ->  # "Braintree- North Quincy Shuttle"
+        "Shuttle002"
+      true ->
+        nil
+    end
+
+    Enum.map(json["vehiclesOnRoute"], &from_saucon_json_vehicle(&1, blockId))
+  end
+
+
+  @doc """
   Returns whether the vehicle has a valid time (relative to the given time).
 
   Currently, we allow vehicles to be #{@stale_vehicle_timeout / 60} minutes
