@@ -26,8 +26,8 @@ defmodule Busloc.State do
     case :ets.lookup(table, vehicle.vehicle_id) do
       [{_, old_vehicle}] ->
         if Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
-          new_vehicle = %{vehicle | block: old_vehicle.block}
-          true = :ets.insert(table, {new_vehicle.vehicle_id, new_vehicle})
+          merged_vehicle = merge(old_vehicle, vehicle)
+          true = :ets.insert(table, {vehicle.vehicle_id, merged_vehicle})
         else
           :ok
         end
@@ -35,6 +35,15 @@ defmodule Busloc.State do
       [] ->
         :ets.insert(table, {vehicle.vehicle_id, vehicle})
     end
+  end
+
+  defp merge(old_vehicle, new_vehicle) do
+    %{
+      new_vehicle
+      | block: new_vehicle.block || old_vehicle.block,
+        route: new_vehicle.route || old_vehicle.route,
+        trip: new_vehicle.trip || old_vehicle.trip
+    }
   end
 
   @doc """
