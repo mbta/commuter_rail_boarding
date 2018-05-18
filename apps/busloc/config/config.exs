@@ -47,6 +47,12 @@ config :busloc,
   uploaders: [Busloc.Uploader.File],
   time_zone: "America/New_York"
 
+config :busloc, Saucon,
+  route_ids: %{
+    88_001_007 => "Shuttle005",
+    88_001_008 => "Shuttle002"
+  }
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.

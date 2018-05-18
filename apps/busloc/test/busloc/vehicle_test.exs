@@ -261,28 +261,31 @@ defmodule Busloc.VehicleTest do
 
       expected = [
         %Vehicle{
-          block: "Shuttle005",
+          block: nil,
           heading: 336,
           latitude: 42.2517056,
           longitude: -71.0057856,
+          route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
           vehicle_id: "saucon165"
         },
         %Vehicle{
-          block: "Shuttle005",
+          block: nil,
           heading: 336,
           latitude: 42.2517056,
           longitude: -71.0057856,
+          route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
           vehicle_id: "saucon165"
         },
         %Vehicle{
-          block: "Shuttle005",
+          block: nil,
           heading: 162,
           latitude: 42.2768192,
           longitude: -71.0308544,
+          route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:26:09.329], "Etc/UTC"),
           vehicle_id: "saucon130"

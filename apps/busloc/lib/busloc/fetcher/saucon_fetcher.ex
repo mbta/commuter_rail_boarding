@@ -24,14 +24,16 @@ defmodule Busloc.Fetcher.SauconFetcher do
   end
 
   def handle_info(:timeout, %{url: url} = state) do
-    url
-    |> HTTPoison.get!()
-    |> Map.get(:body)
-    |> Poison.decode!()
-    |> Map.get("predictedRoute")
-    |> Enum.flat_map(&Vehicle.from_saucon_json/1)
-    |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
-    |> Enum.each(&Busloc.State.update(:saucon_state, &1))
+    vehicles =
+      url
+      |> HTTPoison.get!()
+      |> Map.get(:body)
+      |> Poison.decode!()
+      |> Map.get("predictedRoute")
+      |> Enum.flat_map(&Vehicle.from_saucon_json/1)
+      |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
+
+    Busloc.State.set(:saucon_state, vehicles)
 
     Process.send_after(self(), :timeout, config(SauconFetcher, :fetch_rate))
     {:noreply, state}
