@@ -1,0 +1,31 @@
+defmodule Busloc.Fetcher.SauconFetcherTest do
+  use ExUnit.Case
+  import Busloc.Fetcher.SauconFetcher
+
+  describe "init/1" do
+    @tag :capture_log
+    test "doesn't start if the URL is nil" do
+      assert init(nil) == :ignore
+    end
+  end
+
+  describe "handle_info(:timeout)" do
+    setup do
+      start_supervised!({Busloc.State, name: :saucon_state})
+      :ok
+    end
+
+    @tag :capture_log
+    test "updates vehicle state" do
+      bypass = Bypass.open()
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/saucon.json"))
+      end)
+
+      {:ok, state} = init("http://127.0.0.1:#{bypass.port}")
+      assert {:noreply, _state} = handle_info(:timeout, state)
+      refute Busloc.State.get_all(:saucon_state) == []
+    end
+  end
+end

@@ -4,6 +4,7 @@ defmodule Busloc.Vehicle do
   defstruct [
     :vehicle_id,
     :block,
+    :route,
     :latitude,
     :longitude,
     :heading,
@@ -14,6 +15,7 @@ defmodule Busloc.Vehicle do
   @type t :: %__MODULE__{
           vehicle_id: String.t(),
           block: String.t() | nil,
+          route: String.t() | nil,
           latitude: float,
           longitude: float,
           heading: 0..359,
@@ -69,6 +71,39 @@ defmodule Busloc.Vehicle do
       timestamp: utc_dt,
       source: :eyeride
     }
+  end
+
+  @doc """
+  Returns a vehicle.
+  """
+  @spec from_saucon_json_vehicle(map, String.t()) :: t
+  def from_saucon_json_vehicle(json, routeId) do
+    %Busloc.Vehicle{
+      vehicle_id: "saucon" <> json["name"],
+      route: routeId,
+      latitude: json["lat"],
+      longitude: json["lon"],
+      heading: round(json["course"]),
+      source: :saucon,
+      timestamp: DateTime.from_unix!(json["timestamp"], :milliseconds)
+    }
+  end
+
+  for {saucon_route_number, route_id} <- Application.get_env(:busloc, Saucon)[:route_ids] do
+    defp saucon_route_translate(unquote(saucon_route_number)), do: unquote(route_id)
+  end
+
+  defp saucon_route_translate(_), do: nil
+
+  @doc """
+  Returns a list of vehicles on a particular route.
+  """
+  @spec from_saucon_json(map) :: [t]
+  def from_saucon_json(json) do
+    Enum.map(
+      json["vehiclesOnRoute"],
+      &from_saucon_json_vehicle(&1, saucon_route_translate(json["routeId"]))
+    )
   end
 
   @doc """

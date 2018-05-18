@@ -36,12 +36,22 @@ config :busloc, EyerideFetcher,
   password: {:system, "EYERIDE_PASSWORD"},
   fetch_rate: 2000
 
+config :busloc, SauconFetcher,
+  url: {:system, "SAUCON_URL"},
+  fetch_rate: 5000
+
 config :busloc, Publisher, fetch_rate: 5000
 
 config :busloc,
   start?: true,
   uploaders: [Busloc.Uploader.File],
   time_zone: "America/New_York"
+
+config :busloc, Saucon,
+  route_ids: %{
+    88_001_007 => "Shuttle005",
+    88_001_008 => "Shuttle002"
+  }
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

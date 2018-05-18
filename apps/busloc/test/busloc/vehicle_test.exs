@@ -143,4 +143,157 @@ defmodule Busloc.VehicleTest do
              } = from_eyeride_json(json_map)
     end
   end
+
+  describe "from_saucon_json/1" do
+    test "parses Poison map to Vehicle struct" do
+      json_map = %{
+        "cid" => 294_359_758,
+        "name" => "Wollaston Shuttle",
+        "routeId" => 88_001_007,
+        "vehiclesOnRoute" => [
+          %{
+            "assetId" => 1_030_243_129,
+            "course" => 335.5,
+            "lat" => 42.2517056,
+            "lon" => -71.0057856,
+            "name" => "165",
+            "predictedStops" => [
+              %{
+                "actualArrivalTime" => nil,
+                "actualDepartureTime" => nil,
+                "name" => "North Quincy MBTA Station",
+                "predictedArrivalTime" => nil,
+                "predictedDepartureTime" => nil,
+                "scheduledArrivalTime" => nil,
+                "scheduledDepartureTime" => 1_526_029_200_000,
+                "sequence" => 0,
+                "stopId" => 3_833_839,
+                "timezone" => "US/Eastern"
+              },
+              %{
+                "actualArrivalTime" => nil,
+                "actualDepartureTime" => nil,
+                "name" => "Wollaston - Hancock St @ Woodbine St",
+                "predictedArrivalTime" => nil,
+                "predictedDepartureTime" => nil,
+                "scheduledArrivalTime" => nil,
+                "scheduledDepartureTime" => 1_526_029_800_000,
+                "sequence" => 1,
+                "stopId" => 3_833_870,
+                "timezone" => "US/Eastern"
+              }
+            ],
+            "speed" => 22.6703,
+            "timestamp" => 1_526_074_417_638
+          },
+          %{
+            "assetId" => 1_030_243_129,
+            "course" => 335.5,
+            "lat" => 42.2517056,
+            "lon" => -71.0057856,
+            "name" => "165",
+            "predictedStops" => [
+              %{
+                "actualArrivalTime" => nil,
+                "actualDepartureTime" => nil,
+                "name" => "North Quincy MBTA Station",
+                "predictedArrivalTime" => nil,
+                "predictedDepartureTime" => nil,
+                "scheduledArrivalTime" => nil,
+                "scheduledDepartureTime" => 1_526_033_400_000,
+                "sequence" => 0,
+                "stopId" => 3_833_840,
+                "timezone" => "US/Eastern"
+              },
+              %{
+                "actualArrivalTime" => nil,
+                "actualDepartureTime" => nil,
+                "name" => "Wollaston - Hancock St @ Woodbine St",
+                "predictedArrivalTime" => nil,
+                "predictedDepartureTime" => nil,
+                "scheduledArrivalTime" => nil,
+                "scheduledDepartureTime" => 1_526_034_000_000,
+                "sequence" => 1,
+                "stopId" => 3_833_871,
+                "timezone" => "US/Eastern"
+              }
+            ],
+            "speed" => 22.6703,
+            "timestamp" => 1_526_074_417_638
+          },
+          %{
+            "assetId" => 1_030_107_840,
+            "course" => 162.2,
+            "lat" => 42.2768192,
+            "lon" => -71.0308544,
+            "name" => "130",
+            "predictedStops" => [
+              %{
+                "actualArrivalTime" => nil,
+                "actualDepartureTime" => nil,
+                "name" => "North Quincy MBTA Station",
+                "predictedArrivalTime" => nil,
+                "predictedDepartureTime" => nil,
+                "scheduledArrivalTime" => nil,
+                "scheduledDepartureTime" => 1_526_029_200_000,
+                "sequence" => 0,
+                "stopId" => 3_833_839,
+                "timezone" => "US/Eastern"
+              },
+              %{
+                "actualArrivalTime" => nil,
+                "actualDepartureTime" => nil,
+                "name" => "Wollaston - Hancock St @ Woodbine St",
+                "predictedArrivalTime" => nil,
+                "predictedDepartureTime" => nil,
+                "scheduledArrivalTime" => nil,
+                "scheduledDepartureTime" => 1_526_029_800_000,
+                "sequence" => 1,
+                "stopId" => 3_833_870,
+                "timezone" => "US/Eastern"
+              }
+            ],
+            "speed" => 0.0,
+            "timestamp" => 1_526_073_969_329
+          }
+        ]
+      }
+
+      expected = [
+        %Vehicle{
+          block: nil,
+          heading: 336,
+          latitude: 42.2517056,
+          longitude: -71.0057856,
+          route: "Shuttle005",
+          source: :saucon,
+          timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
+          vehicle_id: "saucon165"
+        },
+        %Vehicle{
+          block: nil,
+          heading: 336,
+          latitude: 42.2517056,
+          longitude: -71.0057856,
+          route: "Shuttle005",
+          source: :saucon,
+          timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
+          vehicle_id: "saucon165"
+        },
+        %Vehicle{
+          block: nil,
+          heading: 162,
+          latitude: 42.2768192,
+          longitude: -71.0308544,
+          route: "Shuttle005",
+          source: :saucon,
+          timestamp: DateTime.from_naive!(~N[2018-05-11 21:26:09.329], "Etc/UTC"),
+          vehicle_id: "saucon130"
+        }
+      ]
+
+      actual = from_saucon_json(json_map)
+      assert actual == expected
+    end
+  end
 end

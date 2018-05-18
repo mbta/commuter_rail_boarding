@@ -10,8 +10,9 @@ defmodule Busloc do
       if config(:start?) do
         [
           Busloc.Supervisor.Eyeride,
+          Busloc.Supervisor.Saucon,
           Busloc.Supervisor.Transitmaster,
-          {Busloc.Publisher, states: [:transitmaster_state, :eyeride_state]}
+          {Busloc.Publisher, states: [:transitmaster_state, :eyeride_state, :saucon_state]}
         ]
       else
         []
