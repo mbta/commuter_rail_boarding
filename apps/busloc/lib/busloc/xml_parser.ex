@@ -38,6 +38,7 @@ defmodule Busloc.XmlParser do
     xpath_args = [
       vehicle_id: ~x".//vehicleId/text()"s,
       route: ~x".//routeId/text()"s,
+      trip: ~x".//trip/text()"s,
       block: ~x".//blockId/text()"s,
       latitude: ~x".//lat/text()"f,
       longitude: ~x".//lon/text()"f,

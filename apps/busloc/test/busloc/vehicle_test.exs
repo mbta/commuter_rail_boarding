@@ -11,6 +11,7 @@ defmodule Busloc.VehicleTest do
       map = %{
         block: "A60-36",
         route: "9",
+        trip: "36680082",
         heading: 135,
         latitude: 42.3218438,
         longitude: -71.1777327,
@@ -25,6 +26,7 @@ defmodule Busloc.VehicleTest do
          %Vehicle{
            vehicle_id: "0401",
            route: "9",
+           trip: "36680082",
            block: "A60-36",
            latitude: 42.3218438,
            longitude: -71.1777327,

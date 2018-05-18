@@ -5,6 +5,7 @@ defmodule Busloc.Vehicle do
     :vehicle_id,
     :block,
     :route,
+    :trip,
     :latitude,
     :longitude,
     :heading,
@@ -16,6 +17,7 @@ defmodule Busloc.Vehicle do
           vehicle_id: String.t(),
           block: String.t() | nil,
           route: String.t() | nil,
+          trip: String.t() | nil,
           latitude: float,
           longitude: float,
           heading: 0..359,
@@ -33,6 +35,7 @@ defmodule Busloc.Vehicle do
     vehicle = %Busloc.Vehicle{
       vehicle_id: map.vehicle_id,
       route: map.route,
+      trip: map.trip,
       block: map.block,
       latitude: map.latitude,
       longitude: map.longitude,
