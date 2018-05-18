@@ -65,6 +65,7 @@ defmodule Busloc.Vehicle do
 
     %__MODULE__{
       vehicle_id: json["bus"],
+      route: first_number(json["route_name"]),
       latitude: latitude,
       longitude: longitude,
       heading: 359,
@@ -73,14 +74,28 @@ defmodule Busloc.Vehicle do
     }
   end
 
+  defp first_number(<<x::binary-1, _::binary>> = binary) when x in ~w(0 1 2 3 4 5 6 7 8 9) do
+    case Integer.parse(binary) do
+      {route_id, _} -> Integer.to_string(route_id)
+    end
+  end
+
+  defp first_number(<<_::binary-1, rest::binary>>) do
+    first_number(rest)
+  end
+
+  defp first_number(_) do
+    nil
+  end
+
   @doc """
   Returns a vehicle.
   """
   @spec from_saucon_json_vehicle(map, String.t()) :: t
-  def from_saucon_json_vehicle(json, routeId) do
+  def from_saucon_json_vehicle(json, route_id) do
     %Busloc.Vehicle{
       vehicle_id: "saucon" <> json["name"],
-      route: routeId,
+      route: route_id,
       latitude: json["lat"],
       longitude: json["lon"],
       heading: round(json["course"]),

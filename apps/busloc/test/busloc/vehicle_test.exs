@@ -139,7 +139,8 @@ defmodule Busloc.VehicleTest do
                longitude: -71.1075,
                source: :eyeride,
                timestamp: ^timestamp,
-               vehicle_id: "43915"
+               vehicle_id: "43915",
+               route: "710"
              } = from_eyeride_json(json_map)
     end
   end
