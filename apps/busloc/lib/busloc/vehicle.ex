@@ -32,6 +32,7 @@ defmodule Busloc.Vehicle do
   def from_transitmaster_map(map, current_time \\ BuslocTime.now()) do
     vehicle = %Busloc.Vehicle{
       vehicle_id: map.vehicle_id,
+      route: map.route,
       block: map.block,
       latitude: map.latitude,
       longitude: map.longitude,

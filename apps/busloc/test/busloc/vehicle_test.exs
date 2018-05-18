@@ -10,6 +10,7 @@ defmodule Busloc.VehicleTest do
     test "parses a map into a Vehicle struct" do
       map = %{
         block: "A60-36",
+        route: "9",
         heading: 135,
         latitude: 42.3218438,
         longitude: -71.1777327,
@@ -23,6 +24,7 @@ defmodule Busloc.VehicleTest do
         {:ok,
          %Vehicle{
            vehicle_id: "0401",
+           route: "9",
            block: "A60-36",
            latitude: 42.3218438,
            longitude: -71.1777327,
