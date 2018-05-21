@@ -3,30 +3,34 @@ defmodule Busloc.Publisher do
   import Busloc.Utilities.ConfigHelpers
   require Logger
 
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts)
+  def start_link(config) do
+    GenServer.start_link(__MODULE__, config)
   end
 
-  def init(opts) do
-    state_modules = Keyword.get(opts, :states, [Busloc.State])
-    send(self(), :timeout)
-    {:ok, state_modules}
+  def init(config) do
+    schedule_timeout!()
+    {:ok, config}
   end
 
-  def handle_info(:timeout, state_modules) do
+  def handle_info(:timeout, config) do
     Logger.debug(fn -> "#{__MODULE__}: Fetching vehicle data to publish..." end)
-    :ok = upload(state_modules, DateTime.utc_now())
-    Process.send_after(self(), :timeout, config(Publisher, :fetch_rate))
-    {:noreply, state_modules}
+    :ok = upload(config, DateTime.utc_now())
+    schedule_timeout!()
+    {:noreply, config}
   end
 
-  def upload(state_modules, now) do
-    state_modules
-    |> Enum.flat_map(&Busloc.State.get_all/1)
-    |> Busloc.Filter.filter(now)
-    |> Busloc.NextbusOutput.to_nextbus_xml()
-    |> Busloc.Uploader.upload()
+  def upload(config, now) do
+    :ok =
+      config.states
+      |> Enum.flat_map(&Busloc.State.get_all/1)
+      |> Busloc.Filter.filter(now)
+      |> config.encoder.encode()
+      |> config.uploader.upload(config)
 
     :ok
+  end
+
+  defp schedule_timeout! do
+    Process.send_after(self(), :timeout, config(Publisher, :fetch_rate))
   end
 end

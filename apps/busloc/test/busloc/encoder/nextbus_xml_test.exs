@@ -1,7 +1,7 @@
-defmodule Busloc.NextbusOutputTest do
+defmodule Busloc.Encoder.NextbusXmlTest do
   use ExUnit.Case, async: true
   alias Busloc.Vehicle
-  import Busloc.NextbusOutput
+  import Busloc.Encoder.NextbusXml
 
   describe "vehicle_to_element/1" do
     test "convert a vehicle into NextBus-format XML" do
@@ -63,7 +63,7 @@ defmodule Busloc.NextbusOutputTest do
     end
   end
 
-  describe "to_nextbus_xml/1" do
+  describe "encode/1" do
     test "convert list of vehicles into NextBus-format XML" do
       vehicles = [
         %Vehicle{
@@ -86,7 +86,7 @@ defmodule Busloc.NextbusOutputTest do
         }
       ]
 
-      actual = to_nextbus_xml(vehicles)
+      actual = encode(vehicles)
 
       expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <history>

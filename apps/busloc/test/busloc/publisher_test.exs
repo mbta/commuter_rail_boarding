@@ -9,28 +9,27 @@ defmodule Busloc.PublisherTest do
     end
 
     @tag :capture_log
-    test "Publishes data from Busloc.State by default" do
-      {:ok, state} = init([])
-
-      assert {:noreply, _state} = handle_info(:timeout, state)
-      assert_receive {:upload, <<_::binary>>}
-    end
-
-    @tag :capture_log
     test "publishes data from multiple states" do
       start_supervised!({Busloc.State, name: :publisher_test_state})
 
-      {:ok, state} = init(states: [Busloc.State, :publisher_test_state])
+      config = %{
+        states: [Busloc.State, :publisher_test_state],
+        uploader: Busloc.TestUploader,
+        encoder: Busloc.Encoder.NextbusXml,
+        filename: "nextbus.xml"
+      }
+
+      {:ok, state} = init(config)
 
       assert {:noreply, state} = handle_info(:timeout, state)
-      assert_receive {:upload, <<pre_set::binary>>}
+      assert_receive {:upload, <<pre_set::binary>>, ^config}
 
       Busloc.State.set(:publisher_test_state, [
         %Busloc.Vehicle{vehicle_id: "test", timestamp: DateTime.utc_now()}
       ])
 
       assert {:noreply, _state} = handle_info(:timeout, state)
-      assert_receive {:upload, <<post_set::binary>>}
+      assert_receive {:upload, <<post_set::binary>>, ^config}
 
       refute pre_set == post_set
     end

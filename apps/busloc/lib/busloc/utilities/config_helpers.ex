@@ -12,21 +12,21 @@ defmodule Busloc.Utilities.ConfigHelpers do
   def config(key) do
     :busloc
     |> Application.get_env(key)
-    |> do_config
+    |> interpolate
   end
 
   def config(parent, key) do
     :busloc
     |> Application.get_env(parent)
     |> Keyword.get(key)
-    |> do_config
+    |> interpolate
   end
 
-  defp do_config({:system, envvar}) when is_binary(envvar) do
+  def interpolate({:system, envvar}) when is_binary(envvar) do
     System.get_env(envvar)
   end
 
-  defp do_config(value) do
+  def interpolate(value) do
     value
   end
 end

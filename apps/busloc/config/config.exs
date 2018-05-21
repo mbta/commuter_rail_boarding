@@ -44,7 +44,14 @@ config :busloc, Publisher, fetch_rate: 5000
 
 config :busloc,
   start?: true,
-  uploaders: [Busloc.Uploader.File],
+  uploaders: [
+    %{
+      states: [:transitmaster_state, :eyeride_state, :saucon_state],
+      uploader: Busloc.Uploader.File,
+      encoder: Busloc.Encoder.NextbusXml,
+      filename: "nextbus.xml"
+    }
+  ],
   time_zone: "America/New_York"
 
 config :busloc, Saucon,

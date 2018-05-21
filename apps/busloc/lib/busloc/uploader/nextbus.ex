@@ -3,19 +3,16 @@ defmodule Busloc.Uploader.Nextbus do
   Uploader which writes the file to Nextbus.
   """
   @behaviour Busloc.Uploader
-  import Busloc.Utilities.ConfigHelpers
   require Logger
 
   @impl Busloc.Uploader
-  def upload(binary) do
-    nextbus_url = config(Uploader.Nextbus, :nextbus_url)
-
-    case HTTPoison.post(nextbus_url, binary) do
+  def upload(binary, config) do
+    case HTTPoison.post(config.url, binary) do
       {:ok, response} ->
-        Logger.debug(fn -> "Posted to #{nextbus_url} response=#{response.body}" end)
+        Logger.debug(fn -> "Posted to #{config.url} response=#{response.body}" end)
 
       {:error, reason} ->
-        Logger.error(fn -> "Unable to post to Nextbus: reason=#{reason}" end)
+        Logger.error(fn -> "Unable to post to #{config.url}: reason=#{inspect(reason)}" end)
     end
 
     :ok

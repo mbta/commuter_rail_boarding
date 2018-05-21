@@ -6,11 +6,11 @@ defmodule Busloc.Uploader.File do
   require Logger
 
   @impl Busloc.Uploader
-  def upload(binary) do
-    ret = File.write!("nextbus.xml", binary, [:write, :utf8])
+  def upload(binary, config) do
+    ret = File.write!(config.filename, binary, [:write, :utf8])
 
     Logger.info(fn ->
-      "#{__MODULE__} wrote #{byte_size(binary)} bytes: #{inspect(ret)}"
+      "#{__MODULE__} wrote #{byte_size(binary)} bytes to #{config.filename}: #{inspect(ret)}"
     end)
 
     ret
