@@ -31,6 +31,8 @@ defmodule Busloc.StateTest do
       vehicle1 = %Vehicle{
         vehicle_id: "1234",
         block: "A123-456",
+        route: "123",
+        trip: "456",
         latitude: 42.345,
         longitude: -71.43,
         heading: 45,
@@ -40,7 +42,6 @@ defmodule Busloc.StateTest do
 
       vehicle2 = %Vehicle{
         vehicle_id: "1234",
-        block: nil,
         latitude: 42.456,
         longitude: -71.98,
         heading: 90,
@@ -51,7 +52,7 @@ defmodule Busloc.StateTest do
       update(:update_table, vehicle1)
       update(:update_table, vehicle2)
       state = get_all(:update_table)
-      assert state == [%{vehicle2 | block: "A123-456"}]
+      assert state == [%{vehicle2 | route: "123", trip: "456", block: "A123-456"}]
     end
 
     test "doesn't update if the timestamp is older" do

@@ -10,6 +10,8 @@ defmodule Busloc.VehicleTest do
     test "parses a map into a Vehicle struct" do
       map = %{
         block: "A60-36",
+        route: "9",
+        trip: "36680082",
         heading: 135,
         latitude: 42.3218438,
         longitude: -71.1777327,
@@ -23,6 +25,8 @@ defmodule Busloc.VehicleTest do
         {:ok,
          %Vehicle{
            vehicle_id: "0401",
+           route: "9",
+           trip: "36680082",
            block: "A60-36",
            latitude: 42.3218438,
            longitude: -71.1777327,
@@ -139,7 +143,8 @@ defmodule Busloc.VehicleTest do
                longitude: -71.1075,
                source: :eyeride,
                timestamp: ^timestamp,
-               vehicle_id: "43915"
+               vehicle_id: "43915",
+               route: "710"
              } = from_eyeride_json(json_map)
     end
   end
