@@ -50,6 +50,12 @@ config :busloc,
       uploader: Busloc.Uploader.File,
       encoder: Busloc.Encoder.NextbusXml,
       filename: "nextbus.xml"
+    },
+    %{
+      states: [:transitmaster_state, :eyeride_state, :saucon_state],
+      uploader: Busloc.Uploader.File,
+      encoder: Busloc.Encoder.VehiclePositionsEnhanced,
+      filename: "VehiclePositions_enhanced.json"
     }
   ],
   time_zone: "America/New_York"

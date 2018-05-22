@@ -12,6 +12,14 @@ config :busloc,
     },
     %{
       states: [:transitmaster_state, :eyeride_state, :saucon_state],
+      uploader: Busloc.Uploader.S3,
+      encoder: Busloc.Encoder.VehiclePositionsEnhanced,
+      filename: "VehiclePositions_enhanced.json",
+      bucket_name: {:system, "S3_BUCKET"},
+      bucket_prefix: {:system, "S3_BUCKET_PREFIX"}
+    },
+    %{
+      states: [:transitmaster_state, :eyeride_state, :saucon_state],
       uploader: Busloc.Uploader.Nextbus,
       encoder: Busloc.Encoder.NextbusXml,
       url: {:system, "NEXTBUS_URL"}
