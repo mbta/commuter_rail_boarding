@@ -28,7 +28,16 @@ defmodule Busloc.Uploader.S3 do
       path_name,
       binary,
       acl: :public_read,
-      content_type: "text/xml"
+      content_type: content_type(config.filename)
     )
   end
+
+  defp content_type(filename) do
+    do_content_type(Path.extname(filename))
+  end
+
+  defp do_content_type(".json"), do: "application/json"
+  defp do_content_type(".xml"), do: "text/xml"
+  defp do_content_type(".pb"), do: "application/x-protobuf"
+  defp do_content_type(_), do: "application/octet-stream"
 end

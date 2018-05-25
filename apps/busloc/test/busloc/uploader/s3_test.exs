@@ -22,5 +22,16 @@ defmodule Busloc.Uploader.S3Test do
                }
              } = request
     end
+
+    test "calculates the content type based on the filename" do
+      request =
+        s3_request("body", %{
+          bucket_name: "bucket",
+          bucket_prefix: "prefix/path",
+          filename: "enhanced.json"
+        })
+
+      assert request.headers["content-type"] == "application/json"
+    end
   end
 end
