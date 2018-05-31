@@ -58,7 +58,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
 
       assert actual_entity.vehicle.trip == %{
                trip_id: v.trip,
-               route_id: v.route
+               route_id: v.route,
+               schedule_relationship: :SCHEDULED
              }
 
       assert actual_entity.vehicle.vehicle == %{
@@ -73,6 +74,14 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
 
       assert actual_entity.vehicle.block_id == v.block
       assert actual_entity.vehicle.timestamp == DateTime.to_unix(v.timestamp)
+    end
+
+    test "without a trip ID, we generate a trip ID" do
+      v = %Vehicle{vehicle_id: "veh", timestamp: DateTime.utc_now()}
+      actual_entity = entity(v)
+
+      assert %{trip_id: <<_::binary>>, schedule_relationship: :UNSCHEDULED} =
+               actual_entity.vehicle.trip
     end
   end
 end

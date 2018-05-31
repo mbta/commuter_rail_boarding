@@ -37,8 +37,9 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
       is_deleted: false,
       vehicle: %{
         trip: %{
-          trip_id: vehicle.trip,
-          route_id: vehicle.route
+          trip_id: trip_id(vehicle),
+          route_id: vehicle.route,
+          schedule_relationship: schedule_relationship(vehicle)
         },
         vehicle: %{
           id: vehicle.vehicle_id
@@ -53,5 +54,21 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
         timestamp: unix_timestamp
       }
     }
+  end
+
+  defp trip_id(%{trip: trip_id}) when is_binary(trip_id) do
+    trip_id
+  end
+
+  defp trip_id(%{vehicle_id: vehicle_id}) do
+    "BL-#{:erlang.phash2(vehicle_id)}"
+  end
+
+  defp schedule_relationship(vehicle) do
+    if is_binary(vehicle.trip) do
+      :SCHEDULED
+    else
+      :UNSCHEDULED
+    end
   end
 end
