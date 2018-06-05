@@ -69,7 +69,8 @@ defmodule TripUpdatesTest do
   describe "trip/1" do
     test "builds trip information from the status" do
       status = %BoardingStatus{
-        scheduled_time: DateTime.from_naive!(~N[2017-02-05T09:10:11], "Etc/UTC"),
+        scheduled_time:
+          DateTime.from_naive!(~N[2017-02-05T09:10:11], "Etc/UTC"),
         route_id: "route",
         trip_id: "trip",
         direction_id: 1

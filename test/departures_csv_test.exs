@@ -66,7 +66,11 @@ TimeStamp,Origin,Trip,Destination,ScheduledTime,Lateness,Track,Status\r
       }
 
       statuses = [
-        %{status | predicted_time: DateTime.from_unix!(50), status: :all_aboard},
+        %{
+          status
+          | predicted_time: DateTime.from_unix!(50),
+            status: :all_aboard
+        },
         %{status | predicted_time: DateTime.from_unix!(100)},
         %{status | predicted_time: DateTime.from_unix!(50)}
       ]
