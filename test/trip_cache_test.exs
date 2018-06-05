@@ -6,11 +6,11 @@ defmodule TripCacheTest do
 
   @route_id "CR-Lowell"
   @trip_name "348"
-  @trip_id "CR-Weekday-Fall-17-348"
+  @trip_id "CR-Weekday-Spring-18-348"
   @direction_id 1
 
   describe "route_direction_id/1" do
-    @route_1_trip_id "35795189"
+    @route_1_trip_id "37696974"
     test "returns {:ok, route_id, direction_id} for a valid trip" do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
     end
