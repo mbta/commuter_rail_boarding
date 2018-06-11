@@ -131,6 +131,52 @@ defmodule Busloc.StateTest do
       assert Enum.sort(state) == Enum.sort(new_vehicles)
     end
 
+    test "an update with older TM data does not overwrite newer Samsara data" do
+      vehicle_id = "1234"
+
+      tm_vehicle = %Vehicle{
+        vehicle_id: vehicle_id,
+        block: "A123-45",
+        latitude: 2,
+        longitude: 2,
+        heading: 2,
+        source: :transitmaster,
+        timestamp: DateTime.from_unix!(0)
+      }
+
+      samsara_vehicle = %Vehicle{
+        vehicle_id: vehicle_id,
+        latitude: 1,
+        longitude: 1,
+        heading: 1,
+        source: :samsara,
+        timestamp: DateTime.from_unix!(2)
+      }
+
+      tm_vehicle_update = %Vehicle{
+        vehicle_id: vehicle_id,
+        block: "B987-65",
+        latitude: 2,
+        longitude: 2,
+        heading: 2,
+        source: :transitmaster,
+        timestamp: DateTime.from_unix!(1)
+      }
+
+      set(:set_table, [tm_vehicle])
+      update(:set_table, samsara_vehicle)
+      set(:set_table, [tm_vehicle_update])
+
+      [merged_vehicle] = get_all(:set_table)
+
+      assert %Vehicle{
+               block: "B987-65",
+               latitude: 1,
+               longitude: 1,
+               heading: 1
+             } = merged_vehicle
+    end
+
     test "doesn't cause an empty read" do
       vehicle = %Vehicle{
         vehicle_id: "5"

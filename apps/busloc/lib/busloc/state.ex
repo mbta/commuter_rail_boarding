@@ -23,26 +23,22 @@ defmodule Busloc.State do
   of a Vehicle. The vehicle's block assignment will not change.
   """
   def update(table, vehicle) when is_map(vehicle) do
-    case :ets.lookup(table, vehicle.vehicle_id) do
-      [{_, old_vehicle}] ->
-        if Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
-          merged_vehicle = merge(old_vehicle, vehicle)
-          true = :ets.insert(table, {vehicle.vehicle_id, merged_vehicle})
-        else
-          :ok
-        end
-
-      [] ->
-        :ets.insert(table, {vehicle.vehicle_id, vehicle})
+    if old_vehicle = get(table, vehicle.vehicle_id) do
+      if Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
+        merged_vehicle = merge_keeping_block(old_vehicle, vehicle)
+        true = :ets.insert(table, {vehicle.vehicle_id, merged_vehicle})
+      end
+    else
+      :ets.insert(table, {vehicle.vehicle_id, vehicle})
     end
   end
 
-  defp merge(old_vehicle, new_vehicle) do
+  defp merge_keeping_block(old_vehicle, new_vehicle) do
     %{
       new_vehicle
-      | block: new_vehicle.block || old_vehicle.block,
-        route: new_vehicle.route || old_vehicle.route,
-        trip: new_vehicle.trip || old_vehicle.trip
+      | block: old_vehicle.block || new_vehicle.block,
+        route: old_vehicle.route || new_vehicle.route,
+        trip: old_vehicle.trip || new_vehicle.trip
     }
   end
 
@@ -52,7 +48,21 @@ defmodule Busloc.State do
   """
   def set(table, vehicles) when is_list(vehicles) do
     # insert new items
-    inserts = Map.new(vehicles, &{&1.vehicle_id, &1})
+    inserts =
+      for vehicle <- vehicles, into: %{} do
+        old_vehicle = get(table, vehicle.vehicle_id)
+
+        vehicle =
+          if old_vehicle && vehicle.timestamp &&
+               Timex.after?(old_vehicle.timestamp, vehicle.timestamp) do
+            merge_keeping_block(vehicle, old_vehicle)
+          else
+            vehicle
+          end
+
+        {vehicle.vehicle_id, vehicle}
+      end
+
     true = :ets.insert(table, Map.to_list(inserts))
     # delete any items which weren't part of the update
     delete_specs =
@@ -62,6 +72,13 @@ defmodule Busloc.State do
 
     _ = :ets.select_delete(table, delete_specs)
     :ok
+  end
+
+  def get(table, id) do
+    case :ets.lookup(table, id) do
+      [{^id, item}] -> item
+      [] -> nil
+    end
   end
 
   def get_all(table) do
