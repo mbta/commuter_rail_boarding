@@ -4,6 +4,8 @@ defmodule Busloc.XmlParser do
 
   @type xpath_map :: %{
           vehicle_id: String.t(),
+          route: String.t(),
+          trip: String.t(),
           block: String.t(),
           latitude: float,
           longitude: float,
