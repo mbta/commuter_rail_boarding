@@ -46,26 +46,5 @@ defmodule Busloc.Waiver do
   """
   @type remark :: String.t()
 
-  @spec log_line(t) :: String.t()
-  def log_line(%__MODULE__{} = waiver) do
-    log_parts =
-      waiver
-      |> Map.from_struct()
-      |> Enum.map(&log_line_item/1)
-      |> Enum.join(" ")
-
-    "Waiver - #{log_parts}"
-  end
-
-  defp log_line_item({key, value}) when is_binary(value) do
-    "#{key}=#{inspect(value)}"
-  end
-
-  defp log_line_item({key, %DateTime{} = value}) do
-    "#{key}=#{DateTime.to_iso8601(value)}"
-  end
-
-  defp log_line_item({key, value}) do
-    "#{key}=#{value}"
-  end
+  defdelegate log_line(waiver), to: Busloc.LogHelper, as: :log_struct
 end
