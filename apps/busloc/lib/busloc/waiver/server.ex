@@ -2,12 +2,13 @@ defmodule Busloc.Waiver.Server do
   @moduledoc """
   Server to periodically query the TransitMaster DB for waiver data.
   """
+  @frequency 60_000
+  @cmd Application.get_env(:busloc, Waiver)[:cmd]
+
   use GenServer
   alias Busloc.Waiver
-  alias Busloc.Waiver.{Cmd, Parse}
+  alias Busloc.Waiver.Parse
   require Logger
-
-  @frequency 60_000
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -15,7 +16,7 @@ defmodule Busloc.Waiver.Server do
 
   @impl GenServer
   def init([]) do
-    if Cmd.can_connect?() do
+    if @cmd.can_connect?() do
       state = %{updated_at: DateTime.utc_now()}
       {_, state} = handle_info(:timeout, state)
       {:ok, state}
@@ -31,7 +32,7 @@ defmodule Busloc.Waiver.Server do
 
   @impl GenServer
   def handle_info(:timeout, %{updated_at: updated_at} = state) do
-    waivers = Parse.parse(Cmd.cmd())
+    waivers = Parse.parse(@cmd.cmd())
     new_waivers = Enum.filter(waivers, &(DateTime.compare(&1.updated_at, updated_at) == :gt))
 
     state =
