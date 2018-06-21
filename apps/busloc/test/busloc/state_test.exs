@@ -83,6 +83,35 @@ defmodule Busloc.StateTest do
       state = get_all(:update_table)
       assert state == [vehicle1]
     end
+
+    test "doesn't update location if new lat/long are nil" do
+      timestamp = DateTime.utc_now()
+
+      vehicle1 = %Vehicle{
+        vehicle_id: "1234",
+        block: "A123-456",
+        latitude: 42.345,
+        longitude: -71.43,
+        heading: 45,
+        source: :transitmaster,
+        timestamp: timestamp
+      }
+
+      vehicle2 = %Vehicle{
+        vehicle_id: "1234",
+        block: nil,
+        latitude: nil,
+        longitude: nil,
+        heading: 90,
+        source: :samsara,
+        timestamp: Timex.shift(timestamp, minutes: 1)
+      }
+
+      update(:update_table, vehicle1)
+      update(:update_table, vehicle2)
+      state = get_all(:update_table)
+      assert state == [vehicle1]
+    end
   end
 
   describe "set/2" do
@@ -175,6 +204,51 @@ defmodule Busloc.StateTest do
                longitude: 1,
                heading: 1
              } = merged_vehicle
+    end
+
+    test "updates assignments but not location if new lat/long are nil" do
+      timestamp = DateTime.utc_now()
+
+      vehicle1 = %Vehicle{
+        vehicle_id: "1234",
+        block: "A123-456",
+        route: "1",
+        trip: "98765432",
+        latitude: 42.345,
+        longitude: -71.43,
+        heading: 45,
+        source: :transitmaster,
+        timestamp: timestamp
+      }
+
+      vehicle2 = %Vehicle{
+        vehicle_id: "1234",
+        block: "A123-789",
+        route: "10",
+        trip: "87654321",
+        latitude: nil,
+        longitude: nil,
+        heading: 90,
+        source: :transitmaster,
+        timestamp: Timex.shift(timestamp, minutes: 1)
+      }
+
+      expected_vehicle = %Vehicle{
+        vehicle_id: "1234",
+        block: "A123-789",
+        route: "10",
+        trip: "87654321",
+        latitude: 42.345,
+        longitude: -71.43,
+        heading: 45,
+        source: :transitmaster,
+        timestamp: timestamp
+      }
+
+      set(:set_table, [vehicle1])
+      set(:set_table, [vehicle2])
+      state = get_all(:set_table)
+      assert state == [expected_vehicle]
     end
 
     test "doesn't cause an empty read" do

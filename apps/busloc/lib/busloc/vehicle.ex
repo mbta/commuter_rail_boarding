@@ -18,8 +18,8 @@ defmodule Busloc.Vehicle do
           block: String.t() | nil,
           route: String.t() | nil,
           trip: String.t() | nil,
-          latitude: float,
-          longitude: float,
+          latitude: float | nil,
+          longitude: float | nil,
           heading: 0..359,
           source: :transitmaster | :samsara | :saucon | :eyeride,
           timestamp: DateTime.t()
@@ -34,11 +34,11 @@ defmodule Busloc.Vehicle do
   def from_transitmaster_map(map, current_time \\ BuslocTime.now()) do
     vehicle = %Busloc.Vehicle{
       vehicle_id: map.vehicle_id,
-      route: if(map.route == "", do: nil, else: map.route),
-      trip: if(map.trip == "0", do: nil, else: map.trip),
+      route: nil_if_equal(map.route, ""),
+      trip: nil_if_equal(map.trip, "0"),
       block: map.block,
-      latitude: map.latitude,
-      longitude: map.longitude,
+      latitude: nil_if_equal(map.latitude, 0),
+      longitude: nil_if_equal(map.longitude, 0),
       heading: map.heading,
       source: :transitmaster,
       timestamp: BuslocTime.parse_transitmaster_timestamp(map.timestamp, current_time)
@@ -54,8 +54,8 @@ defmodule Busloc.Vehicle do
     %Busloc.Vehicle{
       vehicle_id: json["name"],
       block: nil,
-      latitude: json["latitude"],
-      longitude: json["longitude"],
+      latitude: nil_if_equal(json["latitude"], 0),
+      longitude: nil_if_equal(json["longitude"], 0),
       heading: round(json["heading"]),
       source: :samsara,
       timestamp: DateTime.from_unix!(json["time"], :milliseconds)
@@ -91,6 +91,9 @@ defmodule Busloc.Vehicle do
   defp first_number(_) do
     nil
   end
+
+  defp nil_if_equal(input, input), do: nil
+  defp nil_if_equal(input, _), do: input
 
   @doc """
   Returns a vehicle.

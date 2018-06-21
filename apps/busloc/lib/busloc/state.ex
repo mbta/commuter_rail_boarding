@@ -24,7 +24,8 @@ defmodule Busloc.State do
   """
   def update(table, vehicle) when is_map(vehicle) do
     if old_vehicle = get(table, vehicle.vehicle_id) do
-      if Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
+      if not is_nil(vehicle.latitude) && not is_nil(vehicle.longitude) &&
+           Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
         merged_vehicle = merge_keeping_block(old_vehicle, vehicle)
         true = :ets.insert(table, {vehicle.vehicle_id, merged_vehicle})
       end
@@ -42,6 +43,22 @@ defmodule Busloc.State do
     }
   end
 
+  defp merge_location(%{latitude: lat, longitude: lon} = new_vehicle, _old_vehicle)
+       when is_float(lat) and is_float(lon) do
+    new_vehicle
+  end
+
+  defp merge_location(new_vehicle, old_vehicle) do
+    %{
+      new_vehicle
+      | latitude: old_vehicle.latitude,
+        longitude: old_vehicle.longitude,
+        heading: old_vehicle.heading,
+        source: old_vehicle.source,
+        timestamp: old_vehicle.timestamp
+    }
+  end
+
   @doc """
   This function is called by Busloc.TmFetcher to reset the state with updated locations
   and block assignments.
@@ -51,6 +68,7 @@ defmodule Busloc.State do
     inserts =
       for vehicle <- vehicles, into: %{} do
         old_vehicle = get(table, vehicle.vehicle_id)
+        vehicle = merge_location(vehicle, old_vehicle || vehicle)
 
         vehicle =
           if old_vehicle && vehicle.timestamp &&

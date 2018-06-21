@@ -39,21 +39,22 @@ defmodule Busloc.VehicleTest do
       assert expected == actual
     end
 
-    test "trip ID 0 and empty route ID are converted to nil" do
+    test "empty route ID and trip ID, lat, long of 0 are converted to nil" do
       map = %{
         block: "A60-36",
         route: "",
         trip: "0",
         heading: 135,
-        latitude: 42.3218438,
-        longitude: -71.1777327,
+        latitude: 0,
+        longitude: 0,
         timestamp: "150646",
         vehicle_id: "0401"
       }
 
       datetime = Timex.to_datetime(~N[2018-03-26T15:11:05], "America/New_York")
 
-      assert {:ok, %Vehicle{trip: nil, route: nil}} = from_transitmaster_map(map, datetime)
+      assert {:ok, %Vehicle{trip: nil, route: nil, latitude: nil, longitude: nil}} =
+               from_transitmaster_map(map, datetime)
     end
 
     test "returns an error if we're unable to convert the map" do
