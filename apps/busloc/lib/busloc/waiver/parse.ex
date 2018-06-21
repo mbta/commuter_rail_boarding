@@ -15,7 +15,10 @@ defmodule Busloc.Waiver.Parse do
 
     for row <- rest,
         row = String.trim_leading(row),
-        waiver <- to_waiver(Map.new(Enum.zip(headers, Regex.split(@col_splitter, row)))) do
+        columms = Regex.split(@col_splitter, row),
+        header_column_pairs = Enum.zip(headers, columms),
+        map = Map.new(header_column_pairs),
+        waiver <- to_waiver(map) do
       waiver
     end
   end

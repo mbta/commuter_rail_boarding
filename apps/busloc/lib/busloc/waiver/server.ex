@@ -3,7 +3,7 @@ defmodule Busloc.Waiver.Server do
   Server to periodically query the TransitMaster DB for waiver data.
   """
   @frequency 60_000
-  @cmd Application.get_env(:busloc, Waiver)[:cmd]
+  @cmd Busloc.Utilities.ConfigHelpers.config(Waiver, :cmd)
 
   use GenServer
   alias Busloc.Waiver
