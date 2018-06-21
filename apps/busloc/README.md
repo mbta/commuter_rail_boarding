@@ -27,3 +27,22 @@ the command line prompt `nssm start <service-name>`.
 
 The configuration can be changed later with the command `nssm edit <service-name>`.
 After changing configurations, make sure to run `nssm restart <service-name>` so the new configuration takes effect.
+
+
+## Waivers
+
+In order to access waiver data, we make a direct connection to the
+TransitMaster DB. We use a CLI tool called `sqlcmd` for this.
+
+### OS X
+
+```bash
+brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release
+brew update
+brew install --no-sandbox msodbcsql mssql-tools
+```
+
+### Windows
+
+ODBC: https://www.microsoft.com/en-us/download/details.aspx?id=36434
+CLI Tools: https://www.microsoft.com/en-us/download/details.aspx?id=36433
