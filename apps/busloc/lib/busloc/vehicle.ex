@@ -167,14 +167,9 @@ defmodule Busloc.Vehicle do
 
   @spec log_line(t, DateTime.t()) :: String.t()
   def log_line(%__MODULE__{} = vehicle, now) do
-    log_parts =
-      vehicle
-      |> Map.from_struct()
-      |> log_line_time_status(validate_time(vehicle, now))
-      |> Enum.map(&log_line_item/1)
-      |> Enum.join(" ")
-
-    "Vehicle - #{log_parts}"
+    vehicle
+    |> log_line_time_status(validate_time(vehicle, now))
+    |> Busloc.LogHelper.log_struct()
   end
 
   defp log_line_time_status(map, :ok) do
@@ -183,17 +178,5 @@ defmodule Busloc.Vehicle do
 
   defp log_line_time_status(map, {:error, status}) do
     Map.put(map, :invalid_time, status)
-  end
-
-  defp log_line_item({key, value}) when is_binary(value) do
-    "#{key}=#{inspect(value)}"
-  end
-
-  defp log_line_item({key, %DateTime{} = value}) do
-    "#{key}=#{DateTime.to_iso8601(value)}"
-  end
-
-  defp log_line_item({key, value}) do
-    "#{key}=#{value}"
   end
 end
