@@ -83,7 +83,7 @@ defmodule Busloc.VehicleTest do
       assert actual =~ "longitude=-5.678"
       assert actual =~ "heading=29"
       assert actual =~ "source=transitmaster"
-      assert actual =~ "timestamp=2018-03-28T20:15:12Z"
+      assert actual =~ "timestamp=2018-03-28T16:15:12-04:00"
     end
 
     test "logs if the time is invalid" do

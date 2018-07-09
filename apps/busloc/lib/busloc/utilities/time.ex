@@ -32,4 +32,8 @@ defmodule Busloc.Utilities.Time do
         new_datetime
     end
   end
+
+  def in_busloc_tz(%DateTime{} = dt) do
+    Timezone.convert(dt, config(:time_zone))
+  end
 end

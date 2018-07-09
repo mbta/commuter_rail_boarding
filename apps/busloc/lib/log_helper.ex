@@ -10,9 +10,9 @@ defmodule Busloc.LogHelper do
       iex> log_struct(%TestStruct{a: "b c d"})
       ~s(TestStruct - a="b c d")
 
-      iex> dt = DateTime.from_naive!(~N[1970-01-01T00:00:00], "Etc/UTC")
+      iex> dt = DateTime.from_naive!(~N[1970-01-01T05:00:00], "Etc/UTC")
       iex> log_struct(%TestStruct{a: dt})
-      "TestStruct - a=1970-01-01T00:00:00Z"
+      "TestStruct - a=1970-01-01T00:00:00-05:00"
   """
   def log_struct(%{__struct__: struct_name} = struct) do
     short_name = struct_name |> Module.split() |> List.last()
@@ -31,6 +31,7 @@ defmodule Busloc.LogHelper do
   end
 
   defp log_line_item({key, %DateTime{} = value}) do
+    value = Busloc.Utilities.Time.in_busloc_tz(value)
     "#{key}=#{DateTime.to_iso8601(value)}"
   end
 

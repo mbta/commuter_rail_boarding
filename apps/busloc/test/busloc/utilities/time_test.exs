@@ -2,6 +2,7 @@ defmodule Busloc.Utilities.TimeTest do
   use ExUnit.Case, async: true
 
   import Busloc.Utilities.Time
+  import Busloc.Utilities.ConfigHelpers
 
   describe "parse_transitmaster_timestamp/2" do
     test "replaces h/m/s from datetime with values from Transitmaster" do
@@ -34,6 +35,14 @@ defmodule Busloc.Utilities.TimeTest do
 
       expected = Timex.to_datetime(~N[2018-03-26T15:47:01], "America/New_York")
       assert parse_transitmaster_timestamp(tm_timestamp, base_datetime) == expected
+    end
+  end
+
+  describe "in_busloc_tz/1" do
+    test "returns a DateTime in the local timezone" do
+      datetime = Timex.now() |> in_busloc_tz()
+
+      assert datetime.time_zone == config(:time_zone)
     end
   end
 end
