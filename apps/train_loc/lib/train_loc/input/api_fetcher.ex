@@ -88,7 +88,7 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def handle_info(%HTTPoison.Error{reason: reason}, state) do
-    log_keolis_error(state, fn -> "HTTPoison.Error #{reason}" end)
+    log_keolis_error(state, fn -> "HTTPoison.Error #{inspect(reason)}" end)
     state = %{state | buffer: ""}
     send(self(), :connect)
     {:noreply, state}

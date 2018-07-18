@@ -53,7 +53,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
 
       expected_logger_message =
         "Keolis API Failure - " <>
-          "url=\"#{state.url}\" " <> "error_type=\"HTTPoison.Error #{reason}\""
+          "url=\"#{state.url}\" " <> "error_type=\"HTTPoison.Error \\\"#{reason}\\\"\""
 
       assert capture_log(fun) =~ expected_logger_message
     end
@@ -88,6 +88,12 @@ defmodule TrainLoc.Input.APIFetcherTest do
       handle_info(%HTTPoison.AsyncChunk{chunk: "\n\n"}, state)
       assert_receive {:events, [event = %ServerSentEvent{}]}
       assert event.data == json_binary <> "\n"
+    end
+
+    test "doesn't crash on a tuple in %HTTPoison.Error{}'s reason" do
+      state = %TrainLoc.Input.APIFetcher{}
+
+      assert {:noreply, _} = handle_info(%HTTPoison.Error{reason: {:closed, :timeout}}, state)
     end
 
     test "doesn't crash on unknown call" do
