@@ -11,14 +11,14 @@ defmodule DeparturesCSV.ProducerConsumerTest do
       statuses = [
         %BoardingStatus{
           stop_id: "North Station",
-          trip_id: "CR-Weekday-Fall-17-315",
+          trip_id: "CR-Weekday-Spring-18-315",
           direction_id: 0,
           scheduled_time: DateTime.from_unix!(1_518_797_520),
           status: :on_time
         },
         %BoardingStatus{
           stop_id: "South Station",
-          trip_id: "CR-Weekday-Fall-17-707",
+          trip_id: "CR-Weekday-Spring-18-707",
           direction_id: 0,
           scheduled_time: DateTime.from_unix!(1_518_796_800),
           track: "2",

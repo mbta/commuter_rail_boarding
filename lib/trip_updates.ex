@@ -68,11 +68,11 @@ defmodule TripUpdates do
   def stop_time_update(%BoardingStatus{} = bs) do
     Enum.reduce(
       [
-        %{stop_id: bs.stop_id},
         stop_sequence_map(bs.stop_sequence),
         boarding_status_map(bs.status),
         platform_id_map(bs.stop_id, bs.track),
-        departure_map(bs.predicted_time)
+        departure_map(bs.predicted_time),
+        %{stop_id: bs.stop_id}
       ],
       &Map.merge/2
     )
@@ -124,8 +124,7 @@ defmodule TripUpdates do
     platform_id = "#{stop_id}-#{String.pad_leading(track, 2, ["0"])}"
 
     %{
-      track: track,
-      platform_id: platform_id
+      stop_id: platform_id
     }
   end
 
