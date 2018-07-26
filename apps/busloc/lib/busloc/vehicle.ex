@@ -10,7 +10,8 @@ defmodule Busloc.Vehicle do
     :longitude,
     :heading,
     :source,
-    :timestamp
+    :timestamp,
+    :start_date
   ]
 
   @type t :: %__MODULE__{
@@ -22,7 +23,8 @@ defmodule Busloc.Vehicle do
           longitude: float | nil,
           heading: 0..359,
           source: :transitmaster | :samsara | :saucon | :eyeride,
-          timestamp: DateTime.t()
+          timestamp: DateTime.t(),
+          start_date: Date.t() | nil
         }
 
   # 30 minutes
@@ -41,7 +43,8 @@ defmodule Busloc.Vehicle do
       longitude: nil_if_equal(map.longitude, 0),
       heading: map.heading,
       source: :transitmaster,
-      timestamp: BuslocTime.parse_transitmaster_timestamp(map.timestamp, current_time)
+      timestamp: BuslocTime.parse_transitmaster_timestamp(map.timestamp, current_time),
+      start_date: transitmaster_start_date(map.service_date)
     }
 
     {:ok, vehicle}
@@ -126,6 +129,42 @@ defmodule Busloc.Vehicle do
       json["vehiclesOnRoute"],
       &from_saucon_json_vehicle(&1, saucon_route_translate(json["routeId"]))
     )
+  end
+
+  @doc """
+  Parses the TransitMaster service_date into a GTFS-Realtime start_date (or nil)
+
+  ## Examples
+
+      iex> transitmaster_start_date("20180430")
+      ~D[2018-04-30]
+
+      iex> transitmaster_start_date("7/25/2018 12:00:00 AM")
+      ~D[2018-07-25]
+
+      iex> transitmaster_start_date("1/1/0001 12:00:00 AM")
+      nil
+
+      iex> transitmaster_start_date(nil)
+      nil
+  """
+  @spec transitmaster_start_date(String.t()) :: Date.t() | nil
+  def transitmaster_start_date(<<year::binary-4, month::binary-2, day::binary-2>>) do
+    Date.from_erl!({String.to_integer(year), String.to_integer(month), String.to_integer(day)})
+  end
+
+  def transitmaster_start_date(binary) when is_binary(binary) do
+    case Timex.parse(binary, "{M}/{D}/{YYYY} 12:00:00 AM") do
+      {:ok, %{year: 1}} ->
+        nil
+
+      {:ok, naive} ->
+        NaiveDateTime.to_date(naive)
+    end
+  end
+
+  def transitmaster_start_date(nil) do
+    nil
   end
 
   @doc """

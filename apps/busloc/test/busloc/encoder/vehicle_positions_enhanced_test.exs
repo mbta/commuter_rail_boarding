@@ -38,7 +38,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
         longitude: -56.789,
         heading: 90,
         source: :transitmaster,
-        timestamp: DateTime.utc_now()
+        timestamp: DateTime.utc_now(),
+        start_date: ~D[2018-04-30]
       }
 
       actual_entity = entity(v)
@@ -59,7 +60,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
       assert actual_entity.vehicle.trip == %{
                trip_id: v.trip,
                route_id: v.route,
-               schedule_relationship: :SCHEDULED
+               schedule_relationship: :SCHEDULED,
+               start_date: "20180430"
              }
 
       assert actual_entity.vehicle.vehicle == %{

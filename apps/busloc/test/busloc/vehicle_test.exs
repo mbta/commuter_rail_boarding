@@ -16,7 +16,8 @@ defmodule Busloc.VehicleTest do
         latitude: 42.3218438,
         longitude: -71.1777327,
         timestamp: "150646",
-        vehicle_id: "0401"
+        vehicle_id: "0401",
+        service_date: "20180430"
       }
 
       datetime = Timex.to_datetime(~N[2018-03-26T15:11:05], "America/New_York")
@@ -32,7 +33,8 @@ defmodule Busloc.VehicleTest do
            longitude: -71.1777327,
            heading: 135,
            source: :transitmaster,
-           timestamp: BuslocTime.parse_transitmaster_timestamp("150646", datetime)
+           timestamp: BuslocTime.parse_transitmaster_timestamp("150646", datetime),
+           start_date: ~D[2018-04-30]
          }}
 
       actual = from_transitmaster_map(map, datetime)
@@ -48,7 +50,8 @@ defmodule Busloc.VehicleTest do
         latitude: 0,
         longitude: 0,
         timestamp: "150646",
-        vehicle_id: "0401"
+        vehicle_id: "0401",
+        service_date: "20180430"
       }
 
       datetime = Timex.to_datetime(~N[2018-03-26T15:11:05], "America/New_York")

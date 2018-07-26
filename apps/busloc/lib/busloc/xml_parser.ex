@@ -10,7 +10,8 @@ defmodule Busloc.XmlParser do
           latitude: float,
           longitude: float,
           heading: 0..359,
-          timestamp: String.t()
+          timestamp: String.t(),
+          service_date: String.t()
         }
 
   @spec parse_transitmaster_xml(String.t()) :: {:ok, [xpath_map]} | {:error, :invalid_xml}
@@ -45,7 +46,8 @@ defmodule Busloc.XmlParser do
       latitude: ~x".//lat/text()"f,
       longitude: ~x".//lon/text()"f,
       heading: ~x".//heading/text()"i,
-      timestamp: ~x".//time/text()"s
+      timestamp: ~x".//time/text()"s,
+      service_date: ~x".//serviceDate/text()"s
     ]
 
     map = xmap(element, xpath_args)

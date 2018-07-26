@@ -39,7 +39,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
         trip: %{
           trip_id: trip_id(vehicle),
           route_id: vehicle.route,
-          schedule_relationship: schedule_relationship(vehicle)
+          schedule_relationship: schedule_relationship(vehicle),
+          start_date: start_date(vehicle)
         },
         vehicle: %{
           id: vehicle.vehicle_id
@@ -70,5 +71,13 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
     else
       :UNSCHEDULED
     end
+  end
+
+  defp start_date(%{start_date: %Date{} = date}) do
+    Date.to_iso8601(date, :basic)
+  end
+
+  defp start_date(_) do
+    nil
   end
 end
