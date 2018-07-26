@@ -14,7 +14,7 @@ defmodule TripUpdates.ProducerConsumerTest do
           trip_id: "CR-Weekday-Spring-18-315",
           direction_id: 0,
           scheduled_time: DateTime.from_unix!(1_518_797_520),
-          status: :on_time
+          status: "On time"
         }
       ]
 

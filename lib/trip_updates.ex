@@ -78,7 +78,7 @@ defmodule TripUpdates do
     )
   end
 
-  def schedule_relationship(%BoardingStatus{status: :cancelled}) do
+  def schedule_relationship(%BoardingStatus{status: "Cancelled"}) do
     "CANCELED"
   end
 
@@ -112,7 +112,7 @@ defmodule TripUpdates do
 
   def boarding_status_map(status) do
     %{
-      boarding_status: status |> Atom.to_string() |> String.upcase()
+      boarding_status: status
     }
   end
 
