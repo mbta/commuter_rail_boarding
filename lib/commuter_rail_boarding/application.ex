@@ -29,8 +29,7 @@ defmodule CommuterRailBoarding.Application do
       {Uploader.Consumer,
        name: Uploader.Consumer,
        subscribe_to: [
-         TripUpdates.ProducerConsumer,
-         DeparturesCSV.ProducerConsumer
+         TripUpdates.ProducerConsumer
        ]}
     ]
 

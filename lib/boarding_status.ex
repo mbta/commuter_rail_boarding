@@ -39,7 +39,7 @@ defmodule BoardingStatus do
           direction_id: :unknown | direction_id,
           stop_id: :unknown | stop_id,
           stop_sequence: :unknown | non_neg_integer,
-          status: atom,
+          status: String.t() | :unknown,
           track: String.t(),
           added?: boolean
         }
@@ -82,7 +82,7 @@ defmodule BoardingStatus do
          stop_id: stop_id,
          stop_sequence: stop_sequence(trip_id, stop_id, added?),
          direction_id: direction_id,
-         status: status_atom(status),
+         status: status_string(status),
          track: track,
          added?: added?
        }}
@@ -203,14 +203,14 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
 
   statuses = Application.get_env(:commuter_rail_boarding, :statuses)
 
-  for {status, atom} <- statuses do
+  for {status, string} <- statuses do
     # build a function for each status in the map
-    def status_atom(unquote(status)) do
-      unquote(atom)
+    def status_string(unquote(status)) do
+      unquote(string)
     end
   end
 
-  def status_atom(status) do
+  def status_string(status) do
     _ = Logger.warn(fn -> "unknown status: #{inspect(status)}" end)
     :unknown
   end

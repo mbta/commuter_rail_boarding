@@ -98,7 +98,7 @@ defmodule TripUpdatesTest do
     test "schedule_relationship is CANCELED if the status is :cancelled" do
       # yes, the spellings are different
       status = %BoardingStatus{
-        status: :cancelled
+        status: "Cancelled"
       }
 
       assert trip(status).schedule_relationship == "CANCELED"
@@ -128,7 +128,7 @@ defmodule TripUpdatesTest do
         predicted_time: DateTime.from_unix!(12_345),
         stop_id: "stop",
         stop_sequence: 5,
-        status: :all_aboard,
+        status: "All aboard",
         track: "5"
       }
 
@@ -138,7 +138,7 @@ defmodule TripUpdatesTest do
                departure: %{
                  time: 12_345
                },
-               boarding_status: "ALL_ABOARD"
+               boarding_status: "All aboard"
              }
     end
 
@@ -161,7 +161,7 @@ defmodule TripUpdatesTest do
       status = %BoardingStatus{
         predicted_time: DateTime.from_unix!(0),
         stop_id: "stop",
-        status: :late
+        status: "Late"
       }
 
       refute :platform_id in Map.keys(stop_time_update(status))
