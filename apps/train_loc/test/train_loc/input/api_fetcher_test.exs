@@ -29,11 +29,11 @@ defmodule TrainLoc.Input.APIFetcherTest do
       assert {:noreply, ^state} = handle_info(%HTTPoison.AsyncStatus{code: 200}, state)
     end
 
-    test "crashes on a non-200 status" do
-      pid = Process.whereis(TrainLoc.Input.APIFetcher)
-      ref = Process.monitor(pid)
-      send(pid, %HTTPoison.AsyncStatus{code: 401})
-      assert_receive {:DOWN, ^ref, :process, _, :shutdown}
+    test "re-connects on a non-200 status" do
+      state = %TrainLoc.Input.APIFetcher{}
+      assert {:noreply, new_state} = handle_info(%HTTPoison.AsyncStatus{code: 401}, state)
+      assert_received :connect
+      assert new_state.buffer == ""
     end
 
     test "logs error on a non-200 status" do

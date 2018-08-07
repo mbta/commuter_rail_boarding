@@ -69,7 +69,9 @@ defmodule TrainLoc.Input.APIFetcher do
 
   def handle_info(%HTTPoison.AsyncStatus{code: code}, state) when code != 200 do
     log_keolis_error(state, fn -> "HTTP status #{code}" end)
-    {:stop, :shutdown, state}
+    state = %{state | buffer: ""}
+    send(self(), :connect)
+    {:noreply, state}
   end
 
   def handle_info(%HTTPoison.AsyncHeaders{}, state) do
