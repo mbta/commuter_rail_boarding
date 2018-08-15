@@ -58,8 +58,7 @@ defmodule TrainLoc.Input.APIFetcher do
       stream_to: self()
     ]
 
-    {:ok, _} = HTTPoison.get(url, headers, httpoison_opts)
-    {:noreply, state}
+    http_connect(state, [url, headers, httpoison_opts])
   end
 
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
@@ -112,6 +111,20 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def handle_cast(_msg, state) do
+    {:noreply, state}
+  end
+
+  def http_connect(state, args, connect_fn \\ &HTTPoison.get/3, timeout \\ 5_000) do
+    case apply(connect_fn, args) do
+      {:ok, _} ->
+        :ok
+
+      {:error, error} ->
+        log_keolis_error(state, fn -> "Error while connecting: #{inspect(error)}" end)
+        Process.send_after(self(), :connect, timeout)
+        :ok
+    end
+
     {:noreply, state}
   end
 

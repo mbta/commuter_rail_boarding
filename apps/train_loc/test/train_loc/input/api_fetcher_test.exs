@@ -10,7 +10,7 @@ defmodule TrainLoc.Input.APIFetcherTest do
 
   describe "start_link/1" do
     test "returns a pid when a URL is provided" do
-      assert {:ok, pid} = start_link(url: "http://httpbin.org/get")
+      assert {:ok, pid} = start_link(url: "https://httpbin.org/get")
       assert is_pid(pid)
     end
 
@@ -24,6 +24,11 @@ defmodule TrainLoc.Input.APIFetcherTest do
   end
 
   describe "handle_info/2" do
+    test ":connect makes a request to connect" do
+      state = %TrainLoc.Input.APIFetcher{url: "https://httpbin.org/delay/10"}
+      assert {:noreply, ^state} = handle_info(:connect, state)
+    end
+
     test "ignores a 200 status" do
       state = %TrainLoc.Input.APIFetcher{}
       assert {:noreply, ^state} = handle_info(%HTTPoison.AsyncStatus{code: 200}, state)
@@ -125,6 +130,25 @@ defmodule TrainLoc.Input.APIFetcherTest do
     assert captured =~ " error_type=\"Parsing Error\""
     assert captured =~ " content=\"some event\""
     assert captured =~ " reason=\"Unexpected event\""
+  end
+
+  describe "http_connect/2" do
+    test "returns {:noreply, state} if the function returns {:ok, anything}" do
+      assert {:noreply, :state} == http_connect(:state, [%{a: 1}, :a], &Map.fetch/2)
+    end
+
+    test "returns :ok and sends a follow-up message if the function returns an error" do
+      state = %TrainLoc.Input.APIFetcher{}
+
+      log =
+        capture_log(fn ->
+          assert {:noreply, ^state} =
+                   http_connect(state, [], fn -> {:error, "error to log"} end, 50)
+        end)
+
+      assert log =~ "error to log"
+      assert_receive :connect
+    end
   end
 
   describe "send_events_for_processing/2" do
