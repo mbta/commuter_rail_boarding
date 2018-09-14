@@ -13,7 +13,12 @@ defmodule Busloc.Publisher do
   end
 
   def handle_info(:timeout, config) do
-    Logger.debug(fn -> "#{__MODULE__}: Fetching vehicle data to publish..." end)
+    Logger.debug(fn ->
+      "#{__MODULE__}: Fetching vehicle data to publish... encoder=#{config.encoder} uploader=#{
+        config.uploader
+      }"
+    end)
+
     :ok = upload(config, DateTime.utc_now())
     schedule_timeout!()
     {:noreply, config}

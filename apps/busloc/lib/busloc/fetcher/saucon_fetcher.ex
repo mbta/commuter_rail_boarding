@@ -28,7 +28,7 @@ defmodule Busloc.Fetcher.SauconFetcher do
       url
       |> HTTPoison.get!()
       |> Map.get(:body)
-      |> Poison.decode!()
+      |> Jason.decode!()
       |> Map.get("predictedRoute")
       |> Enum.flat_map(&Vehicle.from_saucon_json/1)
       |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))

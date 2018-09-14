@@ -112,7 +112,15 @@ defmodule Busloc.State do
     # named_table: so we can refer to the table by the given name
     # public: so that any process can write to it
     # write_concurrency: faster processing of simultaneous writes
-    ^table = :ets.new(table, [:set, :named_table, :public, {:write_concurrency, true}])
+    ^table =
+      :ets.new(table, [
+        :set,
+        :named_table,
+        :public,
+        {:write_concurrency, true},
+        {:read_concurrency, true}
+      ])
+
     {:ok, :ignored}
   end
 end

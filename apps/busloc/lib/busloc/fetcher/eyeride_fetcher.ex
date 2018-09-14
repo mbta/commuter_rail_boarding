@@ -41,7 +41,7 @@ defmodule Busloc.Fetcher.EyerideFetcher do
       |> url()
       |> HTTPoison.get!(state.headers)
       |> Map.get(:body)
-      |> Poison.decode!()
+      |> Jason.decode!()
       |> Enum.map(&Vehicle.from_eyeride_json/1)
       |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
 
@@ -73,7 +73,7 @@ defmodule Busloc.Fetcher.EyerideFetcher do
       "http://#{host}/auth/login/"
       |> HTTPoison.post!(body, [{"content-type", "application/x-www-form-urlencoded"}])
       |> Map.get(:body)
-      |> Poison.decode!()
+      |> Jason.decode!()
       |> Map.get("auth_token")
 
     [{"authorization", "Token #{token}"}]

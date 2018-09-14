@@ -27,8 +27,9 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
     url
     |> HTTPoison.post!(config(SamsaraFetcher, :post_body))
     |> Map.get(:body)
-    |> Poison.decode!()
+    |> Jason.decode!()
     |> Map.get("vehicles")
+    |> Enum.reject(&(Map.get(&1, "time", 0) == 0))
     |> Enum.map(&Vehicle.from_samsara_json/1)
     |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
     |> Enum.each(&Busloc.State.update(:transitmaster_state, &1))
