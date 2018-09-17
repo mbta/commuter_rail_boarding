@@ -150,21 +150,47 @@ defmodule Busloc.Vehicle do
   """
   @spec transitmaster_start_date(String.t()) :: Date.t() | nil
   def transitmaster_start_date(<<year::binary-4, month::binary-2, day::binary-2>>) do
-    Date.from_erl!({String.to_integer(year), String.to_integer(month), String.to_integer(day)})
+    transitmaster_start_date(year, month, day)
   end
 
-  def transitmaster_start_date(binary) when is_binary(binary) do
-    case Timex.parse(binary, "{M}/{D}/{YYYY} 12:00:00 AM") do
-      {:ok, %{year: 1}} ->
-        nil
+  def transitmaster_start_date("1/1/0001" <> _) do
+    nil
+  end
 
-      {:ok, naive} ->
-        NaiveDateTime.to_date(naive)
-    end
+  def transitmaster_start_date(
+        <<month::binary-1, ?/, day::binary-1, ?/, year::binary-4, _::binary>>
+      ) do
+    # 9/1/2018
+    transitmaster_start_date(year, month, day)
+  end
+
+  def transitmaster_start_date(
+        <<month::binary-1, ?/, day::binary-2, ?/, year::binary-4, _::binary>>
+      ) do
+    # 9/10/2018
+    transitmaster_start_date(year, month, day)
+  end
+
+  def transitmaster_start_date(
+        <<month::binary-2, ?/, day::binary-1, ?/, year::binary-4, _::binary>>
+      ) do
+    # 10/1/2018
+    transitmaster_start_date(year, month, day)
+  end
+
+  def transitmaster_start_date(
+        <<month::binary-2, ?/, day::binary-2, ?/, year::binary-4, _::binary>>
+      ) do
+    # 10/10/2018
+    transitmaster_start_date(year, month, day)
   end
 
   def transitmaster_start_date(nil) do
     nil
+  end
+
+  defp transitmaster_start_date(year, month, day) do
+    Date.from_erl!({String.to_integer(year), String.to_integer(month), String.to_integer(day)})
   end
 
   @doc """

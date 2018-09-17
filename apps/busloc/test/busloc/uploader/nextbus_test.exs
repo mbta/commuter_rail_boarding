@@ -12,7 +12,7 @@ defmodule Busloc.Uploader.NextbusTest do
         assert :ok = upload(body, %{url: "https://httpbin.org/post"})
       end
 
-      assert capture_log(fun) =~ body
+      assert capture_log([level: :debug], fun) =~ body
     end
 
     test "logs an error if the upload fails" do
