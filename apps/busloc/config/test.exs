@@ -11,5 +11,3 @@ config :busloc,
       filename: "nextbus.xml"
     }
   ]
-
-config :busloc, Waiver, cmd: Busloc.Waiver.Cmd.Fake
