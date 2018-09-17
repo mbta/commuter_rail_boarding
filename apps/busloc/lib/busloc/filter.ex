@@ -6,7 +6,8 @@ defmodule Busloc.Filter do
 
   @spec filter([Vehicle.t()], DateTime.t()) :: [Vehicle.t()]
   def filter(vehicles, now) do
-    for vehicle <- vehicles, Vehicle.validate_time(vehicle, now) == :ok do
+    for vehicle <- vehicles,
+        {_, :ok} <- [Vehicle.validate_time(vehicle, now)] do
       vehicle
     end
   end

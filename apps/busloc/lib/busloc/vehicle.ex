@@ -204,49 +204,46 @@ defmodule Busloc.Vehicle do
       iex> thirty_minutes = DateTime.from_unix!(1900)
       iex> vehicle = %Vehicle{timestamp: one_second}
       iex> validate_time(vehicle, one_second)
-      :ok
+      {0, :ok}
       iex> validate_time(vehicle, thirty_minutes)
-      {:error, :stale}
+      {1899, {:error, :stale}}
 
       iex> one_second = DateTime.from_unix!(1)
       iex> ten_minutes = DateTime.from_unix!(400)
       iex> future_vehicle = %Vehicle{timestamp: ten_minutes}
       iex> validate_time(future_vehicle, one_second)
-      {:error, :future}
+      {-399, {:error, :future}}
   """
-  @spec validate_time(t, DateTime.t()) :: :ok | {:error, :stale | :future}
+  @spec validate_time(t, DateTime.t()) :: {integer, :ok | {:error, :stale | :future}}
   def validate_time(%__MODULE__{timestamp: timestamp}, now) do
     diff = DateTime.diff(now, timestamp)
 
     cond do
       diff > @stale_vehicle_timeout ->
-        {:error, :stale}
+        {diff, {:error, :stale}}
 
       -diff > @future_vehicle_timeout ->
-        {:error, :future}
+        {diff, {:error, :future}}
 
       true ->
-        :ok
+        {diff, :ok}
     end
   end
 
-  @spec log_line(t, DateTime.t()) :: String.t()
+  @spec log_line(t, DateTime.t()) :: iodata
   def log_line(%__MODULE__{} = vehicle, now) do
     vehicle
     |> log_line_time_status(validate_time(vehicle, now))
-    |> log_age(now)
     |> Busloc.LogHelper.log_struct()
   end
 
-  defp log_line_time_status(map, :ok) do
+  defp log_line_time_status(map, {age, :ok}) do
+    Map.put(map, :age, age)
+  end
+
+  defp log_line_time_status(map, {age, {:error, status}}) do
     map
-  end
-
-  defp log_line_time_status(map, {:error, status}) do
-    Map.put(map, :invalid_time, status)
-  end
-
-  defp log_age(%{timestamp: timestamp} = map, now) do
-    Map.put(map, :age, DateTime.to_unix(now) - DateTime.to_unix(timestamp))
+    |> Map.put(:invalid_time, status)
+    |> Map.put(:age, age)
   end
 end
