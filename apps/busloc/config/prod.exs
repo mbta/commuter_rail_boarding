@@ -34,7 +34,10 @@ config :busloc,
     }
   ]
 
-config :logger, backends: [{Logger.Backend.Splunk, :splunk}, :console]
+config :logger,
+  backends: [{Logger.Backend.Splunk, :splunk}, :console],
+  sync_threshold: 500,
+  discard_threshold: 2000
 
 config :logger, :splunk,
   host: "https://http-inputs-mbta.splunkcloud.com/services/collector/event",
