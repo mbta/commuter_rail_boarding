@@ -24,15 +24,25 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
   end
 
   def handle_info(:timeout, %{url: url} = state) do
-    url
-    |> HTTPoison.post!(config(SamsaraFetcher, :post_body))
-    |> Map.get(:body)
-    |> Jason.decode!()
-    |> Map.get("vehicles")
-    |> Enum.reject(&(Map.get(&1, "time", 0) == 0))
-    |> Enum.map(&Vehicle.from_samsara_json/1)
-    |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
-    |> Enum.each(&Busloc.State.update(:transitmaster_state, &1))
+    process = fn ->
+      now = DateTime.utc_now()
+
+      url
+      |> HTTPoison.post!(config(SamsaraFetcher, :post_body))
+      |> Map.get(:body)
+      |> Jason.decode!()
+      |> Map.get("vehicles")
+      |> Enum.reject(&(Map.get(&1, "time", 0) == 0))
+      |> Enum.map(&Vehicle.from_samsara_json/1)
+      |> Enum.map(&log_vehicle(&1, now))
+      |> Enum.each(&Busloc.State.update(:transitmaster_state, &1))
+    end
+
+    {time, _} = :timer.tc(process)
+
+    Logger.debug(fn ->
+      "#{__MODULE__}.process took ms=#{time / 1_000}"
+    end)
 
     Process.send_after(self(), :timeout, config(SamsaraFetcher, :fetch_rate))
     {:noreply, state}
