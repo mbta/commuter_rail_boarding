@@ -24,25 +24,21 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
   end
 
   def handle_info(:timeout, %{url: url, body: body} = state) do
-    process = fn ->
+    process = fn _ ->
       now = DateTime.utc_now()
 
       url
       |> time("fetch", &HTTPoison.post!(&1, body, [], hackney: [pool: :default]))
-      |> time("map_get_body", &Map.get(&1, :body))
-      |> time("jason", &Jason.decode!/1)
-      |> time("map_get_vehicles", &Map.get(&1, "vehicles"))
-      |> time("reject", fn vs -> Enum.reject(vs, &(Map.get(&1, "time", 0) == 0)) end)
-      |> time("from_json", fn vs -> Enum.map(vs, &Vehicle.from_samsara_json/1) end)
-      |> time("log", fn vs -> Enum.map(vs, &log_vehicle(&1, now)) end)
-      |> time("update", fn vs -> Enum.each(vs, &Busloc.State.update(:transitmaster_state, &1)) end)
+      |> Map.get(:body)
+      |> Jason.decode!()
+      |> Map.get("vehicles")
+      |> Stream.reject(&(Map.get(&1, "time", 0) == 0))
+      |> Stream.map(&Vehicle.from_samsara_json/1)
+      |> Stream.map(&log_vehicle(&1, now))
+      |> Enum.each(&Busloc.State.update(:transitmaster_state, &1))
     end
 
-    {time, _} = :timer.tc(process)
-
-    Logger.debug(fn ->
-      "#{__MODULE__} timing name=process ms=#{time / 1_000}"
-    end)
+    :ok = time(:ok, "process", process)
 
     Process.send_after(self(), :timeout, config(SamsaraFetcher, :fetch_rate))
     {:noreply, state}
