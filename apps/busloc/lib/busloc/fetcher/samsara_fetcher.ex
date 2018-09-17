@@ -13,7 +13,7 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
   end
 
   def init(url) when is_binary(url) do
-    state = %{url: url}
+    state = %{url: url, body: config(SamsaraFetcher, :post_body)}
     send(self(), :timeout)
     {:ok, state}
   end
@@ -23,12 +23,12 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
     :ignore
   end
 
-  def handle_info(:timeout, %{url: url} = state) do
+  def handle_info(:timeout, %{url: url, body: body} = state) do
     process = fn ->
       now = DateTime.utc_now()
 
       url
-      |> time("fetch", &HTTPoison.post!(&1, config(SamsaraFetcher, :post_body)))
+      |> time("fetch", &HTTPoison.post!(&1, body, [], hackney: [pool: :default]))
       |> time("map_get_body", &Map.get(&1, :body))
       |> time("jason", &Jason.decode!/1)
       |> time("map_get_vehicles", &Map.get(&1, "vehicles"))
