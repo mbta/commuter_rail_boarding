@@ -234,6 +234,7 @@ defmodule Busloc.Vehicle do
   def log_line(%__MODULE__{} = vehicle, now) do
     vehicle
     |> log_line_time_status(validate_time(vehicle, now))
+    |> log_age(now)
     |> Busloc.LogHelper.log_struct()
   end
 
@@ -243,5 +244,9 @@ defmodule Busloc.Vehicle do
 
   defp log_line_time_status(map, {:error, status}) do
     Map.put(map, :invalid_time, status)
+  end
+
+  defp log_age(%{timestamp: timestamp} = map, now) do
+    Map.put(map, :age, DateTime.to_unix(now) - DateTime.to_unix(timestamp))
   end
 end
