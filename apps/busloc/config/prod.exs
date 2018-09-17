@@ -36,11 +36,12 @@ config :busloc,
 
 config :logger,
   backends: [{Logger.Backend.Splunk, :splunk}, :console],
-  sync_threshold: 500,
-  discard_threshold: 2000
+  sync_threshold: 512,
+  discard_threshold: 2048
 
 config :logger, :splunk,
   host: "https://http-inputs-mbta.splunkcloud.com/services/collector/event",
   token: {:system, "SPLUNK_TOKEN"},
   level: :debug,
-  format: "[$level] $message\n"
+  max_buffer: 512,
+  format: "[$level] $message"
