@@ -79,7 +79,7 @@ defmodule Busloc.VehicleTest do
         timestamp: now
       }
 
-      actual = log_line(vehicle, now)
+      actual = IO.iodata_to_binary(log_line(vehicle, now))
       assert actual =~ ~s(vehicle_id="veh_id")
       assert actual =~ ~s(block="50")
       assert actual =~ "latitude=1.234"
@@ -96,7 +96,7 @@ defmodule Busloc.VehicleTest do
         timestamp: DateTime.from_unix!(0)
       }
 
-      actual = log_line(vehicle, now)
+      actual = IO.iodata_to_binary(log_line(vehicle, now))
       assert actual =~ "invalid_time=stale"
     end
   end
