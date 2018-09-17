@@ -24,6 +24,8 @@ defmodule Busloc.Fetcher.SauconFetcher do
   end
 
   def handle_info(:timeout, %{url: url} = state) do
+    now = DateTime.utc_now()
+
     vehicles =
       url
       |> HTTPoison.get!([], hackney: [pool: :default])
@@ -31,7 +33,8 @@ defmodule Busloc.Fetcher.SauconFetcher do
       |> Jason.decode!()
       |> Map.get("predictedRoute")
       |> Enum.flat_map(&Vehicle.from_saucon_json/1)
-      |> Enum.map(&log_vehicle(&1, DateTime.utc_now()))
+      |> Enum.uniq_by(& &1.vehicle_id)
+      |> Enum.map(&log_vehicle(&1, now))
 
     Busloc.State.set(:saucon_state, vehicles)
 
