@@ -26,7 +26,7 @@ defmodule Busloc.Fetcher.SauconFetcher do
   def handle_info(:timeout, %{url: url} = state) do
     vehicles =
       url
-      |> HTTPoison.get!()
+      |> HTTPoison.get!([], hackney: [pool: :default])
       |> Map.get(:body)
       |> Jason.decode!()
       |> Map.get("predictedRoute")

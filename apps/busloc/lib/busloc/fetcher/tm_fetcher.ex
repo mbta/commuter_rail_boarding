@@ -54,7 +54,7 @@ defmodule Busloc.Fetcher.TmFetcher do
       {"Accept", "text/xml"}
     ]
 
-    with {:ok, xml_response} <- HTTPoison.get(url, headers) do
+    with {:ok, xml_response} <- HTTPoison.get(url, headers, hackney: [pool: :default]) do
       {:ok, xml_response.body}
     end
   end

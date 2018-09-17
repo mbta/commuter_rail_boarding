@@ -39,7 +39,7 @@ defmodule Busloc.Fetcher.EyerideFetcher do
     vehicles =
       state
       |> url()
-      |> HTTPoison.get!(state.headers)
+      |> HTTPoison.get!(state.headers, hackney: [pool: :default])
       |> Map.get(:body)
       |> Jason.decode!()
       |> Enum.map(&Vehicle.from_eyeride_json/1)
