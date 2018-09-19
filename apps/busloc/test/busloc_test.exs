@@ -5,7 +5,7 @@ defmodule BuslocTest do
 
   describe "children/0" do
     test "builds a child for each uploader" do
-      assert length(children()) == 5
+      assert length(children()) == 4
     end
   end
 end

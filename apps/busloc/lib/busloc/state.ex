@@ -25,7 +25,7 @@ defmodule Busloc.State do
   def update(table, vehicle) when is_map(vehicle) do
     if old_vehicle = get(table, vehicle.vehicle_id) do
       if not is_nil(vehicle.latitude) && not is_nil(vehicle.longitude) &&
-           Timex.after?(vehicle.timestamp, old_vehicle.timestamp) do
+           DateTime.compare(vehicle.timestamp, old_vehicle.timestamp) == :gt do
         merged_vehicle = merge_keeping_block(old_vehicle, vehicle)
         true = :ets.insert(table, {vehicle.vehicle_id, merged_vehicle})
       end
@@ -72,7 +72,7 @@ defmodule Busloc.State do
 
         vehicle =
           if old_vehicle && vehicle.timestamp &&
-               Timex.after?(old_vehicle.timestamp, vehicle.timestamp) do
+               DateTime.compare(old_vehicle.timestamp, vehicle.timestamp) == :gt do
             merge_keeping_block(vehicle, old_vehicle)
           else
             vehicle
@@ -112,7 +112,16 @@ defmodule Busloc.State do
     # named_table: so we can refer to the table by the given name
     # public: so that any process can write to it
     # write_concurrency: faster processing of simultaneous writes
-    ^table = :ets.new(table, [:set, :named_table, :public, {:write_concurrency, true}])
+    # read_concurrency: faster processing of simultaneous reads
+    ^table =
+      :ets.new(table, [
+        :set,
+        :named_table,
+        :public,
+        {:write_concurrency, true},
+        {:read_concurrency, true}
+      ])
+
     {:ok, :ignored}
   end
 end

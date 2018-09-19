@@ -42,8 +42,6 @@ config :busloc, SauconFetcher,
 
 config :busloc, Publisher, fetch_rate: 5000
 
-config :busloc, Waiver, cmd: Busloc.Waiver.Cmd.Sqlcmd
-
 config :busloc,
   start?: true,
   uploaders: [

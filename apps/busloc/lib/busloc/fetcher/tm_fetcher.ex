@@ -54,13 +54,13 @@ defmodule Busloc.Fetcher.TmFetcher do
       {"Accept", "text/xml"}
     ]
 
-    with {:ok, xml_response} <- HTTPoison.get(url, headers) do
+    with {:ok, xml_response} <- HTTPoison.get(url, headers, hackney: [pool: :default]) do
       {:ok, xml_response.body}
     end
   end
 
-  def log_if_all_stale(vehicles) do
-    max_time = vehicles |> Enum.map(&Timex.to_unix(&1.timestamp)) |> Enum.max()
+  def log_if_all_stale([_ | _] = vehicles) do
+    max_time = vehicles |> Enum.map(&DateTime.to_unix(&1.timestamp)) |> Enum.max()
     current_time = System.system_time(:seconds)
 
     if current_time - max_time > config(TmFetcher, :stale_seconds) do
@@ -68,6 +68,10 @@ defmodule Busloc.Fetcher.TmFetcher do
     end
 
     vehicles
+  end
+
+  def log_if_all_stale([]) do
+    []
   end
 
   defp send_timeout() do

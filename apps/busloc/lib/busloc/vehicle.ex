@@ -150,21 +150,47 @@ defmodule Busloc.Vehicle do
   """
   @spec transitmaster_start_date(String.t()) :: Date.t() | nil
   def transitmaster_start_date(<<year::binary-4, month::binary-2, day::binary-2>>) do
-    Date.from_erl!({String.to_integer(year), String.to_integer(month), String.to_integer(day)})
+    transitmaster_start_date(year, month, day)
   end
 
-  def transitmaster_start_date(binary) when is_binary(binary) do
-    case Timex.parse(binary, "{M}/{D}/{YYYY} 12:00:00 AM") do
-      {:ok, %{year: 1}} ->
-        nil
+  def transitmaster_start_date("1/1/0001" <> _) do
+    nil
+  end
 
-      {:ok, naive} ->
-        NaiveDateTime.to_date(naive)
-    end
+  def transitmaster_start_date(
+        <<month::binary-1, ?/, day::binary-1, ?/, year::binary-4, _::binary>>
+      ) do
+    # 9/1/2018
+    transitmaster_start_date(year, month, day)
+  end
+
+  def transitmaster_start_date(
+        <<month::binary-1, ?/, day::binary-2, ?/, year::binary-4, _::binary>>
+      ) do
+    # 9/10/2018
+    transitmaster_start_date(year, month, day)
+  end
+
+  def transitmaster_start_date(
+        <<month::binary-2, ?/, day::binary-1, ?/, year::binary-4, _::binary>>
+      ) do
+    # 10/1/2018
+    transitmaster_start_date(year, month, day)
+  end
+
+  def transitmaster_start_date(
+        <<month::binary-2, ?/, day::binary-2, ?/, year::binary-4, _::binary>>
+      ) do
+    # 10/10/2018
+    transitmaster_start_date(year, month, day)
   end
 
   def transitmaster_start_date(nil) do
     nil
+  end
+
+  defp transitmaster_start_date(year, month, day) do
+    Date.from_erl!({String.to_integer(year), String.to_integer(month), String.to_integer(day)})
   end
 
   @doc """
@@ -178,44 +204,46 @@ defmodule Busloc.Vehicle do
       iex> thirty_minutes = DateTime.from_unix!(1900)
       iex> vehicle = %Vehicle{timestamp: one_second}
       iex> validate_time(vehicle, one_second)
-      :ok
+      {0, :ok}
       iex> validate_time(vehicle, thirty_minutes)
-      {:error, :stale}
+      {1899, {:error, :stale}}
 
       iex> one_second = DateTime.from_unix!(1)
       iex> ten_minutes = DateTime.from_unix!(400)
       iex> future_vehicle = %Vehicle{timestamp: ten_minutes}
       iex> validate_time(future_vehicle, one_second)
-      {:error, :future}
+      {-399, {:error, :future}}
   """
-  @spec validate_time(t, DateTime.t()) :: :ok | {:error, :stale | :future}
+  @spec validate_time(t, DateTime.t()) :: {integer, :ok | {:error, :stale | :future}}
   def validate_time(%__MODULE__{timestamp: timestamp}, now) do
     diff = DateTime.diff(now, timestamp)
 
     cond do
       diff > @stale_vehicle_timeout ->
-        {:error, :stale}
+        {diff, {:error, :stale}}
 
       -diff > @future_vehicle_timeout ->
-        {:error, :future}
+        {diff, {:error, :future}}
 
       true ->
-        :ok
+        {diff, :ok}
     end
   end
 
-  @spec log_line(t, DateTime.t()) :: String.t()
+  @spec log_line(t, DateTime.t()) :: iodata
   def log_line(%__MODULE__{} = vehicle, now) do
     vehicle
     |> log_line_time_status(validate_time(vehicle, now))
     |> Busloc.LogHelper.log_struct()
   end
 
-  defp log_line_time_status(map, :ok) do
-    map
+  defp log_line_time_status(map, {age, :ok}) do
+    Map.put(map, :age, age)
   end
 
-  defp log_line_time_status(map, {:error, status}) do
-    Map.put(map, :invalid_time, status)
+  defp log_line_time_status(map, {age, {:error, status}}) do
+    map
+    |> Map.put(:invalid_time, status)
+    |> Map.put(:age, age)
   end
 end

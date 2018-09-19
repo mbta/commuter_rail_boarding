@@ -20,8 +20,7 @@ defmodule Busloc do
     [
       Busloc.Supervisor.Eyeride,
       Busloc.Supervisor.Transitmaster,
-      Busloc.Supervisor.Saucon,
-      Busloc.Waiver.Server
+      Busloc.Supervisor.Saucon
     ] ++ publisher_children(config(:uploaders))
   end
 

@@ -6,7 +6,7 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
 
   describe "encode/1" do
     test "returns JSON" do
-      assert {:ok, _} = Poison.decode(encode([]))
+      assert {:ok, _} = Jason.decode(encode([]))
     end
   end
 

@@ -8,7 +8,7 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
   def encode(vehicles) do
     vehicles
     |> vehicle_positions
-    |> Poison.encode!()
+    |> Jason.encode!()
   end
 
   @spec vehicle_positions([Busloc.Vehicle.t()]) :: map

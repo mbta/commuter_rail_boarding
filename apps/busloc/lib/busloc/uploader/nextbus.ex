@@ -7,7 +7,7 @@ defmodule Busloc.Uploader.Nextbus do
 
   @impl Busloc.Uploader
   def upload(binary, config) do
-    case HTTPoison.post(config.url, binary) do
+    case HTTPoison.post(config.url, binary, [], hackney: [pool: :default]) do
       {:ok, response} ->
         Logger.debug(fn -> "Posted to #{config.url} response=#{response.body}" end)
 
