@@ -120,14 +120,15 @@ defmodule BoardingStatus do
     end
   end
 
-  defp trip_route_direction_id(%{"gtfs_trip_id" => trip_id}) do
+  defp trip_route_direction_id(%{"gtfs_trip_id" => trip_id} = map) do
     # easy case: we have a trip ID, so we look up the route/direction
     case TripCache.route_direction_id(trip_id) do
       {:ok, route_id, direction_id} ->
         {:ok, trip_id, route_id, direction_id, false}
 
-      error ->
-        error
+      :error ->
+        # maybe the trip ID isn't valid? try it without the trip ID
+        trip_route_direction_id(%{map | "gtfs_trip_id" => ""})
     end
   end
 
