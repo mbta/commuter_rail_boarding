@@ -6,11 +6,12 @@ defmodule TripCacheTest do
 
   @route_id "CR-Lowell"
   @trip_name "348"
-  @trip_id "CR-Weekday-Spring-18-348"
+  @trip_id "CR-Weekday-Spring-18-348-LW"
   @direction_id 1
 
   describe "route_direction_id/1" do
-    @route_1_trip_id "37696974"
+    # you can get one of these from the API: https://api-v3.mbta.com/trips/?filter[route]=1&filter[direction_id]=0&page[limit]=1
+    @route_1_trip_id "38640420"
     test "returns {:ok, route_id, direction_id} for a valid trip" do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
     end
