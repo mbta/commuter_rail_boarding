@@ -6,7 +6,7 @@ defmodule TripCacheTest do
 
   @route_id "CR-Lowell"
   @trip_name "348"
-  @trip_id "CR-Weekday-Spring-18-348-LW"
+  @trip_id "CR-Weekday-Fall-18-348"
   @direction_id 1
 
   describe "route_direction_id/1" do

@@ -107,28 +107,15 @@ defmodule BoardingStatus do
   end
 
   defp trip_route_direction_id(%{
-         "gtfs_trip_id" => "",
          "gtfs_route_long_name" => long_name,
          "gtfs_trip_short_name" => trip_name,
          "trip_id" => keolis_trip_id
        }) do
-    # no ID, but maybe we can look it up with the trip name
+    # we can look the trip ID up with the trip name
     with {:ok, route_id} <- RouteCache.id_from_long_name(long_name),
          {:ok, trip_id, direction_id, added?} <-
            create_trip_id(route_id, trip_name, keolis_trip_id) do
       {:ok, trip_id, route_id, direction_id, added?}
-    end
-  end
-
-  defp trip_route_direction_id(%{"gtfs_trip_id" => trip_id} = map) do
-    # easy case: we have a trip ID, so we look up the route/direction
-    case TripCache.route_direction_id(trip_id) do
-      {:ok, route_id, direction_id} ->
-        {:ok, trip_id, route_id, direction_id, false}
-
-      :error ->
-        # maybe the trip ID isn't valid? try it without the trip ID
-        trip_route_direction_id(%{map | "gtfs_trip_id" => ""})
     end
   end
 
