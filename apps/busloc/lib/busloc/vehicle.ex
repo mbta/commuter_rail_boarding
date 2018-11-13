@@ -101,17 +101,24 @@ defmodule Busloc.Vehicle do
   @doc """
   Returns a vehicle.
   """
-  @spec from_saucon_json_vehicle(map, String.t()) :: t
-  def from_saucon_json_vehicle(json, route_id) do
-    %Busloc.Vehicle{
+  @spec from_saucon_json_vehicle(map, String.t()) :: {:ok, t} | {:error, any}
+  def from_saucon_json_vehicle(%{"course" => course, "timestamp" => timestamp} = json, route_id)
+      when not is_nil(course) and is_integer(timestamp) do
+    vehicle = %Busloc.Vehicle{
       vehicle_id: "saucon" <> json["name"],
       route: route_id,
       latitude: json["lat"],
       longitude: json["lon"],
-      heading: round(json["course"]),
+      heading: round(course),
       source: :saucon,
-      timestamp: DateTime.from_unix!(json["timestamp"], :milliseconds)
+      timestamp: DateTime.from_unix!(timestamp, :milliseconds)
     }
+
+    {:ok, vehicle}
+  end
+
+  def from_saucon_json_vehicle(_, _) do
+    {:error, :missing_course_or_timestamp}
   end
 
   for {saucon_route_number, route_id} <- Application.get_env(:busloc, Saucon)[:route_ids] do
@@ -125,10 +132,10 @@ defmodule Busloc.Vehicle do
   """
   @spec from_saucon_json(map) :: [t]
   def from_saucon_json(json) do
-    Enum.map(
-      json["vehiclesOnRoute"],
-      &from_saucon_json_vehicle(&1, saucon_route_translate(json["routeId"]))
-    )
+    for j <- json["vehiclesOnRoute"],
+        {:ok, vehicle} <- [from_saucon_json_vehicle(j, saucon_route_translate(json["routeId"]))] do
+      vehicle
+    end
   end
 
   @doc """

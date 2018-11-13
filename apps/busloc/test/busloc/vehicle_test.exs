@@ -321,5 +321,43 @@ defmodule Busloc.VehicleTest do
       actual = from_saucon_json(json_map)
       assert actual == expected
     end
+
+    test "skips vehicles with null course" do
+      json_map = %{
+        "cid" => 294_359_758,
+        "name" => "Wollaston Shuttle",
+        "routeId" => 88_001_007,
+        "vehiclesOnRoute" => [
+          %{
+            "assetId" => 1_030_243_129,
+            "course" => nil,
+            "lat" => 42.2517056,
+            "lon" => -71.0057856,
+            "name" => "165",
+            "predictedStops" => [
+              %{
+                "actualArrivalTime" => nil,
+                "actualDepartureTime" => nil,
+                "name" => "North Quincy MBTA Station",
+                "predictedArrivalTime" => nil,
+                "predictedDepartureTime" => nil,
+                "scheduledArrivalTime" => nil,
+                "scheduledDepartureTime" => 1_526_029_200_000,
+                "sequence" => 0,
+                "stopId" => 3_833_839,
+                "timezone" => "US/Eastern"
+              }
+            ],
+            "speed" => 22.6703,
+            "timestamp" => nil
+          }
+        ]
+      }
+
+      expected = []
+
+      actual = from_saucon_json(json_map)
+      assert actual == expected
+    end
   end
 end
