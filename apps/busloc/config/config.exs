@@ -42,6 +42,109 @@ config :busloc, SauconFetcher,
 
 config :busloc, Publisher, fetch_rate: 5000
 
+# dev and test recipient of TSP. Overridden for prod.
+config :busloc, Busloc.Tsp.Sender, tsp_url: "http://tspester.requestcatcher.com/test?"
+
+config :busloc, Tsp,
+  intersection_map: %{
+    # event_id => {intersection_id, approach_id}
+    # event_id is stored in TransitMaster TMMain.TRAFFIC_SIGNAL.
+    # intersection_id is the intersection alias in the TSP processing software/database on opstech3.
+    # approach_id 1=N, 2=E, 3=S, 4=W
+    # Washington/Melnea Cass
+    1 => {"2089", :north},
+    # Washington/Melnea Cass
+    2 => {"2089", :south},
+    # Washington/Massachusetts
+    3 => {"98", :south},
+    # Washington/E.Berkeley
+    5 => {"365", :north},
+    # Washington/E.Berkeley
+    6 => {"365", :south},
+    # Washington/Herald
+    7 => {"1127", :north},
+    # Washington/Herald
+    8 => {"1127", :south},
+    # Marginal Rd. & Washington St.
+    10 => {"1332", :south},
+    # Washington/WNewton
+    11 => {"383", :south},
+    # Washington/Msgr Reynolds/Dedham
+    13 => {"1099", :north},
+    # Washington/Msgr Reynolds/Dedham
+    14 => {"1099", :south},
+    # Oak St./Oak West St and Washington St.
+    15 => {"112", :north},
+    # Oak St./Oak West St and Washington St.
+    16 => {"112", :south},
+    # Marginal Rd. & Washington St.
+    17 => {"1332", :north},
+    # Washington/Brock/Lake
+    18 => {"726", :east},
+    # Washington/Brock/Lake
+    19 => {"726", :west},
+    # Washington/Foster
+    20 => {"1475", :east},
+    # Washington/Foster
+    21 => {"1475", :west},
+    # Cambridge/Gordon
+    22 => {"449", :west},
+    # Commonwealth/Babcock
+    23 => {"1263", :east},
+    # Commonwealth/Babcock
+    24 => {"1263", :west},
+    # Mass Ave/Brookline St
+    25 => {"CA1", :north},
+    # Mass Ave/Brookline St
+    26 => {"CA1", :south},
+    # Washington/Waltham
+    27 => {"873", :south},
+    # Washington/Waltham
+    28 => {"873", :north},
+    # Washington/Union Park
+    29 => {"872", :south},
+    # Washington/Union Park
+    30 => {"872", :north},
+    # Washington/Brookline St
+    31 => {"650", :south},
+    # Washington/Brookline St
+    32 => {"650", :north},
+    # Washington/Concord St
+    33 => {"905", :south},
+    # Washington/Concord St
+    34 => {"905", :north},
+    # null - Frankfort St/Coughlin Bypass
+    35 => {"99999", :north},
+    # null - Coughlin Bypass/Chelsea St
+    36 => {"99999", :west},
+    # null - Chelsea St/Curtis St
+    37 => {"99999", :north},
+    # null - Chelsea St Bridge
+    38 => {"99999", :north},
+    # Mass Ave/Jason St (Arl)
+    39 => {"AR1", :east},
+    # Mass Ave/Jason St (Arl)
+    40 => {"AR1", :west},
+    # Mass Ave/Franklin St (Arl)
+    41 => {"AR2", :east},
+    # Mass Ave/Bates Rd (Arl)
+    42 => {"AR3", :east},
+    # Mass Ave/Bates Rd (Arl)
+    43 => {"AR3", :west},
+    # Mass Ave/Lake St (Arl)
+    44 => {"AR4", :east},
+    # Mass Ave/Lake St (Arl)
+    45 => {"AR4", :west},
+    # Mt Aub/Homer (Camb)
+    46 => {"CA2", :east},
+    # Mt Aub/Homer (Camb)
+    47 => {"CA2", :west},
+    # Mt Aub/Aberdeen (Camb)
+    48 => {"CA3", :east},
+    # Mt Aub/Aberdeen (Camb)
+    49 => {"CA3", :west}
+  }
+
 config :busloc,
   start?: true,
   uploaders: [

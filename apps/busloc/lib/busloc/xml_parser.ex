@@ -2,7 +2,7 @@ defmodule Busloc.XmlParser do
   import SweetXml
   require Logger
 
-  @type xpath_map :: %{
+  @type tm_xpath_map :: %{
           vehicle_id: String.t(),
           route: String.t(),
           trip: String.t(),
@@ -14,7 +14,23 @@ defmodule Busloc.XmlParser do
           service_date: String.t()
         }
 
-  @spec parse_transitmaster_xml(String.t()) :: {:ok, [xpath_map]} | {:error, :invalid_xml}
+  @type tsp_xpath_map :: %{
+          guid: String.t(),
+          traffic_signal_event_id: non_neg_integer,
+          event_type: String.t(),
+          event_time: String.t(),
+          event_geo_node: String.t(),
+          vehicle_id: String.t(),
+          route_id: String.t(),
+          approach_direction: 0..359,
+          latitude: float,
+          longitude: float,
+          deviation_from_schedule: integer,
+          bus_load: non_neg_integer,
+          distance: non_neg_integer
+        }
+
+  @spec parse_transitmaster_xml(String.t()) :: {:ok, [tm_xpath_map]} | {:error, :invalid_xml}
   def parse_transitmaster_xml(xml_string) do
     parsed_doc = parse(xml_string, quiet: true)
 
@@ -59,5 +75,29 @@ defmodule Busloc.XmlParser do
       end)
 
       :error
+  end
+
+  @spec parse_tsp_xml(String.t()) :: tsp_xpath_map | {:error, :invalid_xml}
+  def parse_tsp_xml(xml_string) do
+    tsp_xpath_args = [
+      event_type: ~x"local-name()"s,
+      guid: ~x".//GUID/text()"s,
+      traffic_signal_event_id: ~x".//TRAFFIC_SIGNAL_EVENT_ID/text()"i,
+      event_time: ~x".//EVENT_TIME/text()"s,
+      event_geo_node: ~x".//EVENT_GEO_NODE_ABBR/text()"s,
+      vehicle_id: ~x".//VEHICLE_ID/text()"s,
+      route_id: ~x".//ROUTE_ABBR/text()"s,
+      approach_direction: ~x".//APPROACH_DIRECTION/text()"i,
+      latitude: ~x".//VEHICLE_LATITUDE/text()"f,
+      longitude: ~x".//VEHICLE_LONGITUDE/text()"f,
+      deviation_from_schedule: ~x".//DEVIATION_FROM_SCHEDULE/text()"i,
+      bus_load: ~x".//BUS_LOAD/text()"i,
+      distance: ~x".//DISTANCE/text()"i
+    ]
+
+    xmap(xml_string, tsp_xpath_args)
+  catch
+    :exit, _ ->
+      {:error, :invalid_xml}
   end
 end

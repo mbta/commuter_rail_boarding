@@ -34,10 +34,14 @@ config :busloc,
     }
   ]
 
+config :busloc, Busloc.Tsp.Sender, tsp_url: "http://opstech3.mbta.com:8080/priority?"
+
 config :logger,
   backends: [{Logger.Backend.Splunk, :splunk}, :console],
   sync_threshold: 512,
   discard_threshold: 2048
+
+config :logger, :console, level: :warn
 
 config :logger, :splunk,
   host: "https://http-inputs-mbta.splunkcloud.com/services/collector/event",

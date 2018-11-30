@@ -11,7 +11,7 @@ defmodule Busloc.Uploader.S3 do
     request = s3_request(binary, config)
     %{status_code: 200} = ExAws.request!(request)
 
-    Logger.info(fn ->
+    Logger.debug(fn ->
       "#{__MODULE__} wrote bytes=#{byte_size(binary)} bucket=#{inspect(request.bucket)} path=#{
         inspect(request.path)
       }"

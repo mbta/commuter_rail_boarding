@@ -9,7 +9,7 @@ defmodule Busloc.Uploader.File do
   def upload(binary, config) do
     ret = File.write!(config.filename, binary, [:write, :utf8])
 
-    Logger.info(fn ->
+    Logger.debug(fn ->
       "#{__MODULE__} wrote #{byte_size(binary)} bytes to #{config.filename}: #{inspect(ret)}"
     end)
 
