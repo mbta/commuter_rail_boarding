@@ -36,6 +36,8 @@ config :busloc,
 
 config :busloc, Busloc.Tsp.Sender, tsp_url: "http://opstech3.mbta.com:8080/priority?"
 
+config :busloc, Tsp, socket_port: 9005
+
 config :logger,
   backends: [{Logger.Backend.Splunk, :splunk}, :console],
   sync_threshold: 512,

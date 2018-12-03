@@ -1,6 +1,8 @@
 # Busloc
 
-**TODO: Add description**
+Busloc pulls bus location data from TransitMaster and other GPS provider APIs. It posts it to S3 for consumption by our RTAPS vendor (currently Swiftly), as well as by the MBTA API for shuttle bus locations.
+
+In addition, Busloc receives TSP requests from TransitMaster, and posts them to our TSP software on opstech3.
 
 ## Installation
 
@@ -27,3 +29,21 @@ the command line prompt `nssm start <service-name>`.
 
 The configuration can be changed later with the command `nssm edit <service-name>`.
 After changing configurations, make sure to run `nssm restart <service-name>` so the new configuration takes effect.
+
+## TSP configuration
+
+If you change the server where Busloc runs, you need to update the TSP configuration.
+
+**Change where TransitMaster sends the requests**
+* On hstmkiosk, run regedit
+* Browse to HKEY_LOCAL_MACHINE -> SOFTWARE -> ILG -> TransitMaster -> TMTrafficSignalPreemption
+* Change the ServerIPAddr to the IP address where Busloc will run.
+* In the Services dialog, stop and start the TMTSPClient.
+ (If this service ever gets moved to a cluster machine, do this in Failover Cluster Manager rather than the Services dialog.)
+
+**Add the new Busloc machine to the TSP API website's whitelist**
+* On opstech3, open Start -> Administrative Tools
+* Open Internet Information Services (IIS) Manager
+* Browse to OPSTECH3 -> Sites -> TspApi
+* Open IP Address and Domain Restrictions
+* Click "Add Allow Entry..." and add the new Busloc server's IP

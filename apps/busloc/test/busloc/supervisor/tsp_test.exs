@@ -36,7 +36,7 @@ defmodule Busloc.Supervisor.TspTest do
         Plug.Conn.send_resp(conn, 200, "")
       end)
 
-      {:ok, socket} = :gen_tcp.connect('127.0.0.1', 9005, [:binary, exit_on_close: false])
+      {:ok, socket} = :gen_tcp.connect('127.0.0.1', 9006, [:binary, exit_on_close: false])
       :ok = :gen_tcp.send(socket, data)
       :ok = :gen_tcp.shutdown(socket, :write)
       Process.sleep(100)

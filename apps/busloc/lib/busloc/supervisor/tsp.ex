@@ -2,10 +2,11 @@ defmodule Busloc.Supervisor.Tsp do
   @moduledoc """
   Supervisor for the TSP socket proxy (listens from TransitMaster, http to IBI TSP software on opstech3)
   """
+  import Busloc.Utilities.ConfigHelpers
 
   def start_link do
     children = [
-      {Busloc.Tsp.Listener, 9005},
+      {Busloc.Tsp.Listener, config(Tsp, :socket_port)},
       {Busloc.Tsp.MessageSupervisor, []}
     ]
 

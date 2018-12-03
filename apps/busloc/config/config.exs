@@ -46,6 +46,9 @@ config :busloc, Publisher, fetch_rate: 5000
 config :busloc, Busloc.Tsp.Sender, tsp_url: "http://tspester.requestcatcher.com/test?"
 
 config :busloc, Tsp,
+  # dev and test TSP socket port. Overridden for prod.
+  # Needed because startup will fail if another busloc is listening on the same port on that machine.
+  socket_port: 9006,
   intersection_map: %{
     # event_id => {intersection_id, approach_id}
     # event_id is stored in TransitMaster TMMain.TRAFFIC_SIGNAL.
