@@ -8,6 +8,8 @@ defmodule TripCacheTest do
   @trip_name "348"
   @trip_id "CR-Weekday-Fall-18-348"
   @direction_id 1
+  # need a roughly-current date in order to look it up in the API
+  @datetime DateTime.utc_now()
 
   describe "route_direction_id/1" do
     # you can get one of these from the API: https://api-v3.mbta.com/trips/?filter[route]=1&filter[direction_id]=0&page[limit]=1
@@ -32,14 +34,27 @@ defmodule TripCacheTest do
     end
   end
 
-  describe "route_trip_name_to_id/2" do
+  describe "route_trip_name_to_id/3" do
     test "returns {:ok, trip_id, direction_id} for a value route + name" do
       assert {:ok, @trip_id, @direction_id} ==
-               route_trip_name_to_id(@route_id, @trip_name)
+               route_trip_name_to_id(@route_id, @trip_name, @datetime)
     end
 
     test "returns an error if we can't match the name" do
-      assert :error == route_trip_name_to_id(@route_id, "not a trip")
+      assert :error == route_trip_name_to_id(@route_id, "not a trip", @datetime)
+    end
+
+    test "correctly finds a trip ID based on the date passed in" do
+      # find the next Saturday
+      day_of_week = Date.day_of_week(@datetime)
+      unix = DateTime.to_unix(@datetime)
+      unix_saturday = unix + 86_400 * (6 - day_of_week)
+      saturday = DateTime.from_unix!(unix_saturday)
+      # XXX will fail if run on a Saturday
+      assert route_trip_name_to_id("CR-Franklin", "1705", @datetime)
+
+      assert {:ok, "CR-Saturday-" <> _, 0} =
+               route_trip_name_to_id("CR-Franklin", "1705", saturday)
     end
   end
 

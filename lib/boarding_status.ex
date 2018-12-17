@@ -69,7 +69,7 @@ defmodule BoardingStatus do
       ) do
     with {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, trip_id, route_id, direction_id, added?} <-
-           trip_route_direction_id(map) do
+           trip_route_direction_id(map, scheduled_time) do
       stop_id = stop_id(stop_name)
 
       {:ok,
@@ -106,20 +106,23 @@ defmodule BoardingStatus do
     :error
   end
 
-  defp trip_route_direction_id(%{
-         "gtfs_route_long_name" => long_name,
-         "gtfs_trip_short_name" => trip_name,
-         "trip_id" => keolis_trip_id
-       }) do
+  defp trip_route_direction_id(
+         %{
+           "gtfs_route_long_name" => long_name,
+           "gtfs_trip_short_name" => trip_name,
+           "trip_id" => keolis_trip_id
+         },
+         dt
+       ) do
     # we can look the trip ID up with the trip name
     with {:ok, route_id} <- RouteCache.id_from_long_name(long_name),
          {:ok, trip_id, direction_id, added?} <-
-           create_trip_id(route_id, trip_name, keolis_trip_id) do
+           create_trip_id(route_id, trip_name, keolis_trip_id, dt) do
       {:ok, trip_id, route_id, direction_id, added?}
     end
   end
 
-  defp create_trip_id(route_id, "", keolis_trip_id) do
+  defp create_trip_id(route_id, "", keolis_trip_id, _dt) do
     # no trip name, build a new trip_id
     _ =
       Logger.warn(fn ->
@@ -129,8 +132,8 @@ defmodule BoardingStatus do
     {:ok, "CRB_" <> keolis_trip_id, :unknown, true}
   end
 
-  defp create_trip_id(route_id, trip_name, keolis_trip_id) do
-    case TripCache.route_trip_name_to_id(route_id, trip_name) do
+  defp create_trip_id(route_id, trip_name, keolis_trip_id, dt) do
+    case TripCache.route_trip_name_to_id(route_id, trip_name, dt) do
       {:ok, trip_id, direction_id} ->
         _ =
           Logger.warn(fn ->

@@ -55,16 +55,16 @@ defmodule TripCache do
   @doc """
   Returns the trip_id and direction_id for a route + name, or an error
   """
-  @spec route_trip_name_to_id(route_id, trip_name) ::
+  @spec route_trip_name_to_id(route_id, trip_name, DateTime.t()) ::
           {:ok, trip_id, direction_id} | :error
         when route_id: binary,
              trip_name: binary,
              trip_id: binary,
              direction_id: 0 | 1
-  def route_trip_name_to_id(route_id, trip_name)
+  def route_trip_name_to_id(route_id, trip_name, %DateTime{} = dt)
       when is_binary(route_id) and is_binary(trip_name) do
     do_route_trip_name_to_id(route_id, trip_name, fn {route_id, trip_name} ->
-      insert_and_return_trip_id(route_id, trip_name)
+      insert_and_return_trip_id(route_id, trip_name, dt)
     end)
   end
 
@@ -107,7 +107,18 @@ defmodule TripCache do
     end
   end
 
-  defp insert_and_return_trip_id(route_id, trip_name) do
+  defp insert_and_return_trip_id(route_id, trip_name, dt) do
+    now = DateTime.utc_now()
+
+    dt =
+      case DateTime.compare(dt, now) do
+        :lt ->
+          now
+
+        _ ->
+          dt
+      end
+
     with {:ok, response} <-
            HTTPClient.get(
              "/trips/",
@@ -115,7 +126,7 @@ defmodule TripCache do
              params: [
                "fields[trip]": "name,direction_id",
                route: route_id,
-               date: Date.to_iso8601(DateHelpers.service_date())
+               date: Date.to_iso8601(DateHelpers.service_date(dt))
              ]
            ),
          %{status_code: 200, body: body} <- response,
