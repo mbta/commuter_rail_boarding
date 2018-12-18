@@ -29,7 +29,8 @@ function task_count_eq {
 }
 
 function exit_if_too_many_checks {
-  if [[ $checks -ge 12 ]]; then
+  # wait 5 minutes
+  if [[ $checks -ge 60 ]]; then
     exit 1
   fi
   sleep 5
