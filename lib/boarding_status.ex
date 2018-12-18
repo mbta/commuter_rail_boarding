@@ -57,7 +57,7 @@ defmodule BoardingStatus do
 
   There are examples of this data in test/fixtures/firebase.json
   """
-  @spec from_firebase(map) :: {:ok, t} | :error
+  @spec from_firebase(map) :: {:ok, t} | :ignore | :error
   def from_firebase(
         %{
           "gtfs_departure_time" => schedule_time_iso,
@@ -67,7 +67,8 @@ defmodule BoardingStatus do
           "track" => track
         } = map
       ) do
-    with {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
+    with :ok <- validate_movement_type(map),
+         {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, trip_id, route_id, direction_id, added?} <-
            trip_route_direction_id(map, scheduled_time) do
       stop_id = stop_id(stop_name)
@@ -87,6 +88,9 @@ defmodule BoardingStatus do
          added?: added?
        }}
     else
+      :ignore ->
+        :ignore
+
       error ->
         _ =
           Logger.warn(fn ->
@@ -104,6 +108,24 @@ defmodule BoardingStatus do
       end)
 
     :error
+  end
+
+  def validate_movement_type(%{"movement_type" => type})
+      when type in ~w(O B E) do
+    # O - Originating
+    # B - Both End Train and Detrain
+    # E - End Train only
+    :ok
+  end
+
+  def validate_movement_type(%{"movement_type" => _}) do
+    # other movement types shouldn't get boarding statuses
+    :ignore
+  end
+
+  def validate_movement_type(%{}) do
+    # without a movement type, treat it as okay
+    :ok
   end
 
   defp trip_route_direction_id(
