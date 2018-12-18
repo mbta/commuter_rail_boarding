@@ -126,5 +126,13 @@ defmodule BoardingStatusTest do
       assert message =~ "unable to match"
       assert message =~ "%{}"
     end
+
+    test "ignores items with the wrong movement type" do
+      original = List.first(@results)
+      result = Map.put(original, "movement_type", "")
+      assert from_firebase(result) == :ignore
+      result = Map.put(original, "movement_type", "O")
+      assert {:ok, _} = from_firebase(result)
+    end
   end
 end
