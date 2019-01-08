@@ -4,6 +4,9 @@ defmodule Busloc.Vehicle do
   defstruct [
     :vehicle_id,
     :block,
+    :run,
+    :operator_id,
+    :operator_name,
     :route,
     :trip,
     :latitude,
@@ -17,6 +20,9 @@ defmodule Busloc.Vehicle do
   @type t :: %__MODULE__{
           vehicle_id: String.t(),
           block: String.t() | nil,
+          run: String.t() | nil,
+          operator_id: String.t() | nil,
+          operator_name: String.t() | nil,
           route: String.t() | nil,
           trip: String.t() | nil,
           latitude: float | nil,

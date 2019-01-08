@@ -32,6 +32,9 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
       v = %Vehicle{
         vehicle_id: "vehicle_id",
         block: "block",
+        run: "run",
+        operator_id: "badgenum",
+        operator_name: "NAME",
         route: "route",
         trip: "trip",
         latitude: 1.234,
@@ -51,7 +54,9 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
                  trip: %{},
                  vehicle: %{},
                  position: %{},
+                 operator: %{},
                  block_id: _,
+                 run_id: _,
                  location_source: _,
                  timestamp: _
                }
@@ -74,7 +79,13 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
                bearing: v.heading
              }
 
+      assert actual_entity.vehicle.operator == %{
+               id: v.operator_id,
+               name: v.operator_name
+             }
+
       assert actual_entity.vehicle.block_id == v.block
+      assert actual_entity.vehicle.run_id == v.run
       assert actual_entity.vehicle.timestamp == DateTime.to_unix(v.timestamp)
     end
 

@@ -50,7 +50,12 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
           longitude: vehicle.longitude,
           bearing: vehicle.heading
         },
+        operator: %{
+          id: vehicle.operator_id,
+          name: vehicle.operator_name
+        },
         block_id: vehicle.block,
+        run_id: vehicle.run,
         location_source: vehicle.source,
         timestamp: unix_timestamp
       }

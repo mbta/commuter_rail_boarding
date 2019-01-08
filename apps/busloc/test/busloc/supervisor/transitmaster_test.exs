@@ -5,9 +5,9 @@ defmodule Busloc.Supervisor.TransitmasterTest do
 
   @tag :capture_log
   describe "start_link/0" do
-    test "starts three childen" do
+    test "starts four childen" do
       {:ok, pid} = start_link()
-      assert Supervisor.count_children(pid).specs == 3
+      assert Supervisor.count_children(pid).specs == 4
     end
   end
 end

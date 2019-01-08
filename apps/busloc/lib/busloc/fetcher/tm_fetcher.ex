@@ -5,6 +5,7 @@ defmodule Busloc.Fetcher.TmFetcher do
   require Logger
 
   alias Busloc.XmlParser
+  alias Busloc.Fetcher.OperatorFetcher
 
   # Client Interface
 
@@ -32,6 +33,7 @@ defmodule Busloc.Fetcher.TmFetcher do
          now = DateTime.utc_now() do
       vehicles
       |> Enum.flat_map(&from_transitmaster_map/1)
+      |> Enum.map(&merge_operators/1)
       |> Enum.map(&log_vehicle(&1, now))
       |> log_if_all_stale()
       |> (&Busloc.State.set(:transitmaster_state, &1)).()
@@ -98,5 +100,15 @@ defmodule Busloc.Fetcher.TmFetcher do
     end)
 
     vehicle
+  end
+
+  defp merge_operators(%{vehicle_id: id, block: block} = vehicle) do
+    case OperatorFetcher.operator_by_vehicle_block(id, block) do
+      {:ok, op} ->
+        %{vehicle | run: op.run, operator_id: op.operator_id, operator_name: op.operator_name}
+
+      :error ->
+        vehicle
+    end
   end
 end

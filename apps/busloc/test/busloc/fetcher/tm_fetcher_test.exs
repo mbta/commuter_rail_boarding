@@ -16,6 +16,7 @@ defmodule Busloc.Fetcher.TmFetcherTest do
   describe "handle_info(:timeout)" do
     setup do
       start_supervised!({Busloc.State, name: :transitmaster_state})
+      start_supervised!({Busloc.Fetcher.OperatorFetcher, []})
       bypass = Bypass.open()
       {:ok, state} = init("http://127.0.0.1:#{bypass.port}")
       %{state: state, bypass: bypass}
@@ -35,6 +36,18 @@ defmodule Busloc.Fetcher.TmFetcherTest do
 
       assert {:noreply, _state} = handle_info(:timeout, state)
       refute Busloc.State.get_all(:transitmaster_state) == []
+    end
+
+    @tag :capture_log
+    test "merges operator data", %{state: state, bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      assert {:noreply, _state} = handle_info(:timeout, state)
+
+      assert %Busloc.Vehicle{operator_name: "DIXON", operator_id: "65494", run: "128-1407"} =
+               Busloc.State.get(:transitmaster_state, "0401")
     end
   end
 

@@ -13,10 +13,16 @@ defmodule Busloc.Tsp.Listener do
 
   def init(port) do
     Logger.info("Initializing TSP Listener")
-    {:ok, lsock} = :gen_tcp.listen(port, [:binary, active: :once, reuseaddr: true])
-    Logger.info("Listening on port #{port}")
-    GenServer.cast(self(), :accept)
-    {:ok, %{lsock: lsock}}
+
+    case :gen_tcp.listen(port, [:binary, active: :once, reuseaddr: true]) do
+      {:ok, lsock} ->
+        Logger.info("Listening on port #{port}")
+        GenServer.cast(self(), :accept)
+        {:ok, %{lsock: lsock}}
+
+      {:error, _} ->
+        :ignore
+    end
   end
 
   def handle_cast(:accept, %{lsock: lsock} = state) do

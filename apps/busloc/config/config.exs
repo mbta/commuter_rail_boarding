@@ -42,6 +42,8 @@ config :busloc, SauconFetcher,
 
 config :busloc, Publisher, fetch_rate: 5000
 
+config :busloc, Operator, cmd: Busloc.Cmd.Sqlcmd
+
 # dev and test recipient of TSP. Overridden for prod.
 config :busloc, Busloc.Tsp.Sender, tsp_url: "http://tspester.requestcatcher.com/test?"
 
