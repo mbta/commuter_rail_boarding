@@ -63,6 +63,8 @@ defmodule ServerSentEvent.ProducerTest do
   end
 
   describe "bypass" do
+    import Plug.Conn
+
     setup do
       Application.ensure_all_started(:bypass)
       Application.ensure_all_started(:httpoison)
@@ -72,8 +74,8 @@ defmodule ServerSentEvent.ProducerTest do
 
     test "sends an event when fully parsed", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
-        assert Plug.Conn.get_req_header(conn, "accept") == ["text/event-stream"]
-        Plug.Conn.send_resp(conn, 200, ~s(data: %{}\n\n))
+        assert get_req_header(conn, "accept") == ["text/event-stream"]
+        send_resp(conn, 200, ~s(data: %{}\n\n))
       end)
 
       start_producer(bypass)
@@ -82,7 +84,7 @@ defmodule ServerSentEvent.ProducerTest do
 
     test "reconnects when it gets disconnected", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.send_resp(conn, 200, ~s(data: %{}\n\n))
+        send_resp(conn, 200, ~s(data: %{}\n\n))
       end)
 
       start_producer(bypass)
@@ -90,6 +92,26 @@ defmodule ServerSentEvent.ProducerTest do
       Bypass.down(bypass)
       Bypass.up(bypass)
       # should receive another event
+      assert_receive {:events, [%ServerSentEvent{}]}
+    end
+
+    test "can handle a 307 redirect", %{bypass: bypass} do
+      redirect_bypass = Bypass.open()
+      # redirect to the other Bypass instance
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> put_resp_header(
+          "Location",
+          "http://127.0.0.1:#{redirect_bypass.port}/"
+        )
+        |> send_resp(307, "")
+      end)
+
+      Bypass.expect(redirect_bypass, fn conn ->
+        send_resp(conn, 200, ~s(data: %{}\n\n))
+      end)
+
+      start_producer(bypass)
       assert_receive {:events, [%ServerSentEvent{}]}
     end
 

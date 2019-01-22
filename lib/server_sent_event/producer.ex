@@ -13,7 +13,7 @@ defmodule ServerSentEvent.Producer do
   end
 
   # Server functions
-  defstruct [:url, buffer: "", connected?: false]
+  defstruct [:url, buffer: "", connected?: false, redirect: :no]
 
   def init(url) do
     state = %__MODULE__{url: url}
@@ -36,11 +36,29 @@ defmodule ServerSentEvent.Producer do
         stream_to: self()
       )
 
-    {:noreply, [], state}
+    {:noreply, [], %{state | redirect: :no}}
   end
 
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
     Logger.debug(fn -> "#{__MODULE__} connected" end)
+    {:noreply, [], state}
+  end
+
+  def handle_info(%HTTPoison.AsyncStatus{code: 307}, state) do
+    Logger.debug(fn -> "#{__MODULE__} redirecting..." end)
+    {:noreply, [], %{state | redirect: :waiting_for_header}}
+  end
+
+  def handle_info(
+        %HTTPoison.AsyncHeaders{headers: headers},
+        %{redirect: :waiting_for_header} = state
+      ) do
+    {_, location} =
+      Enum.find(headers, fn {header, _} ->
+        String.downcase(header) == "location"
+      end)
+
+    state = %{state | redirect: {:ok, location}}
     {:noreply, [], state}
   end
 
@@ -77,7 +95,7 @@ defmodule ServerSentEvent.Producer do
 
   def handle_info(%HTTPoison.AsyncEnd{}, state) do
     Logger.info(fn -> "#{__MODULE__} disconnected, reconnecting..." end)
-    state = %{state | buffer: ""}
+    state = %{state | buffer: "", connected?: false}
     send(self(), :connect)
     {:noreply, [], state}
   end
@@ -94,6 +112,10 @@ defmodule ServerSentEvent.Producer do
 
   defp maybe_connect(state) do
     state
+  end
+
+  defp compute_url(%{redirect: {:ok, url}}) do
+    url
   end
 
   defp compute_url(%{url: {m, f, a}}) do
