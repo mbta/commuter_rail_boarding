@@ -46,12 +46,14 @@ defmodule TripCacheTest do
 
     test "correctly finds a trip ID based on the date passed in" do
       # find the next Saturday
-      day_of_week = Date.day_of_week(@datetime)
+      day_of_week =
+        @datetime |> DateHelpers.service_date() |> Date.day_of_week()
+
       unix = DateTime.to_unix(@datetime)
       unix_saturday = unix + 86_400 * (6 - day_of_week)
       saturday = DateTime.from_unix!(unix_saturday)
       # XXX will fail if run on a Saturday
-      assert route_trip_name_to_id("CR-Franklin", "1705", @datetime)
+      assert route_trip_name_to_id("CR-Franklin", "1705", @datetime) == :error
 
       assert {:ok, "CR-Saturday-" <> _, 0} =
                route_trip_name_to_id("CR-Franklin", "1705", saturday)
