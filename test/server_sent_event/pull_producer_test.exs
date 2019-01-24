@@ -1,0 +1,69 @@
+defmodule ServerSentEvent.PullProducerTest do
+  use ExUnit.Case
+  import ServerSentEvent.PullProducer
+
+  @moduletag :capture_log
+
+  describe "start_link/1" do
+    test "returns a pid when a URL is provided" do
+      assert {:ok, pid} = start_link(url: "http://httpbin.org/get")
+      assert is_pid(pid)
+    end
+
+    test "raises an error if a URL isn't provided" do
+      assert_raise KeyError, fn -> start_link([]) end
+    end
+
+    test "does not connect to the URL without a consumer" do
+      assert {:ok, _pid} = start_link(url: "http://does-not-exist.test")
+    end
+  end
+
+  describe "bypass" do
+    import Plug.Conn
+
+    setup do
+      Application.ensure_all_started(:bypass)
+      Application.ensure_all_started(:httpoison)
+      bypass = Bypass.open()
+      {:ok, bypass: bypass}
+    end
+
+    test "sends an event when fully parsed", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        send_resp(conn, 200, ~s(data: %{}\n\n))
+      end)
+
+      start_producer(bypass)
+      assert_receive {:events, [%ServerSentEvent{}]}
+    end
+
+    defp start_producer(bypass) do
+      url = "http://127.0.0.1:#{bypass.port}"
+      {:ok, producer} = start_link(url: url)
+
+      {:ok, _consumer} =
+        __MODULE__.SimpleSubscriber.start_link(self(), producer)
+    end
+  end
+
+  defmodule SimpleSubscriber do
+    @moduledoc """
+    Simple consumer which sends the events to a parent PID.
+    """
+    use GenStage
+
+    def start_link(parent, producer) do
+      GenStage.start_link(__MODULE__, {parent, producer})
+    end
+
+    def init({parent, producer}) do
+      {:consumer, parent, subscribe_to: [producer]}
+    end
+
+    def handle_events(events, _from, parent) do
+      send(parent, {:events, events})
+      {:noreply, [], parent}
+    end
+  end
+end
