@@ -8,7 +8,7 @@ defmodule TripUpdates do
   """
 
   def to_map(boarding_statuses) do
-    current_time = System.system_time(:seconds)
+    current_time = System.system_time(:second)
 
     %{
       header: header(current_time),
