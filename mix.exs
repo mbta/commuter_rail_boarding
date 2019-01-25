@@ -29,19 +29,20 @@ defmodule CommuterRailBoarding.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:goth, "~> 0.5"},
-      {:poison, "~> 3.1"},
-      {:httpoison, "~> 0.12"},
-      {:ex_aws, "~> 1.1"},
-      {:gen_stage, "< 0.13.1"},
+      {:goth, "~> 1.0"},
+      {:poison, "~> 4.0"},
+      {:httpoison, "~> 1.5"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:gen_stage, "~> 0.14.1"},
       {:calendar, "~> 0.17"},
       {:excoveralls, "~> 0.7", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
-      {:credo, "~> 0.8", only: [:dev, :test]},
-      {:bypass, "~> 0.8", only: :test},
-      {:distillery, "~> 1.4.1", runtime: false},
+      {:credo, "~> 1.0", only: [:dev, :test]},
+      {:bypass, "~> 1.0", only: :test},
+      {:distillery, "~> 2.0", runtime: false},
       {:ehmon,
-       git: "https://github.com/heroku/ehmon.git", tag: "v4", only: :prod}
+       git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod}
     ]
   end
 
