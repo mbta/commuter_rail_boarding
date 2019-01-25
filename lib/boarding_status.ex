@@ -157,11 +157,6 @@ defmodule BoardingStatus do
   defp create_trip_id(route_id, trip_name, keolis_trip_id, dt) do
     case TripCache.route_trip_name_to_id(route_id, trip_name, dt) do
       {:ok, trip_id, direction_id} ->
-        _ =
-          Logger.warn(fn ->
-            "matched trip #{trip_id} based on #{route_id} #{trip_name}"
-          end)
-
         {:ok, trip_id, direction_id, false}
 
       :error ->

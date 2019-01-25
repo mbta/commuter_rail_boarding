@@ -66,7 +66,11 @@ defmodule ServerSentEvent.Producer do
     {:noreply, [], state}
   end
 
-  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state) do
+  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk} = c, state) do
+    Logger.debug(fn ->
+      "chunk: #{inspect(c, limit: :infinity, printable_limit: :infinity)}"
+    end)
+
     buffer = state.buffer <> chunk
     event_binaries = String.split(buffer, "\n\n")
     {event_binaries, [buffer]} = Enum.split(event_binaries, -1)

@@ -9,8 +9,8 @@ defmodule ServerSentEvent do
             data: ""
 
   @type t :: %__MODULE__{
-          event: String.t(),
-          data: String.t()
+          event: String.t() | nil,
+          data: iodata
         }
 
   @doc """

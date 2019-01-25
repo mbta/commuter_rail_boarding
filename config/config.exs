@@ -52,4 +52,7 @@ config :commuter_rail_boarding,
 
 config :goth, json: {:system, "GCS_CREDENTIAL_JSON"}
 
+config :logger,
+  truncate: :infinity
+
 import_config "#{Mix.env()}.exs"

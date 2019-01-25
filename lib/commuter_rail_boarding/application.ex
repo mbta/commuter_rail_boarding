@@ -17,7 +17,7 @@ defmodule CommuterRailBoarding.Application do
       TripCache,
       RouteCache,
       ScheduleCache,
-      {ServerSentEvent.PullProducer,
+      {ServerSentEvent.Producer,
        name: ServerSentEvent.Producer, url: {FirebaseUrl, :url, []}},
       {BoardingStatus.ProducerConsumer,
        name: BoardingStatus.ProducerConsumer,
