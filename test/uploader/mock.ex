@@ -1,4 +1,5 @@
 defmodule Uploader.Mock do
+  @moduledoc false
   @behaviour Uploader
 
   @impl true
