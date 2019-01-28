@@ -21,7 +21,7 @@ defmodule CommuterRailBoarding.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :joken],
       mod: {CommuterRailBoarding.Application, []}
     ]
   end
@@ -36,6 +36,7 @@ defmodule CommuterRailBoarding.Mixfile do
       {:ex_aws_s3, "~> 2.0"},
       {:gen_stage, "~> 0.14.1"},
       {:calendar, "~> 0.17"},
+      {:jason, "~> 1.0"},
       {:excoveralls, "~> 0.7", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
       {:credo, "~> 1.0", only: [:dev, :test]},
