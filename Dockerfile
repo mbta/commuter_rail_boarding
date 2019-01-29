@@ -19,7 +19,7 @@ RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, compi
 
 FROM alpine:latest
 
-RUN apk add --update libssl1.0 ncurses-libs \
+RUN apk add --update libssl1.0 ncurses-libs bash \
 	&& rm -rf /var/cache/apk
 
 # Set environment

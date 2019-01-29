@@ -22,21 +22,25 @@ defmodule ServerSentEvent.Producer do
 
   def handle_info(:connect, state) do
     url = compute_url(state)
+    state = %{state | redirect: :no}
     Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
 
     headers = [
       {"Accept", "text/event-stream"}
     ]
 
-    {:ok, _} =
-      HTTPoison.get(
-        url,
-        headers,
-        recv_timeout: 60_000,
-        stream_to: self()
-      )
+    case HTTPoison.get(
+           url,
+           headers,
+           recv_timeout: 60_000,
+           stream_to: self()
+         ) do
+      {:ok, _} ->
+        {:noreply, [], state}
 
-    {:noreply, [], %{state | redirect: :no}}
+      {:error, e} ->
+        handle_info(e, state)
+    end
   end
 
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
@@ -66,7 +70,8 @@ defmodule ServerSentEvent.Producer do
     {:noreply, [], state}
   end
 
-  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, state) do
+  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk} = c, state) do
+    log_chunk(c)
     buffer = state.buffer <> chunk
     event_binaries = String.split(buffer, "\n\n")
     {event_binaries, [buffer]} = Enum.split(event_binaries, -1)
@@ -124,5 +129,20 @@ defmodule ServerSentEvent.Producer do
 
   defp compute_url(%{url: url}) when is_binary(url) do
     url
+  end
+
+  if Application.get_env(:commuter_rail_boarding, :log_chunks) do
+    def log_chunk(c) do
+      _ =
+        Logger.debug(fn ->
+          "chunk: #{inspect(c, limit: :infinity, printable_limit: :infinity)}"
+        end)
+
+      :ok
+    end
+  else
+    defp log_chunk(_) do
+      :ok
+    end
   end
 end
