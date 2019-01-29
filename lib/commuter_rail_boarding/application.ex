@@ -12,12 +12,17 @@ defmodule CommuterRailBoarding.Application do
       System.get_env("V3_API_KEY")
     )
 
+    event_producer_binary =
+      Application.get_env(:commuter_rail_boarding, :event_producer)
+
+    event_producer = Module.concat([ServerSentEvent, event_producer_binary])
+
     # List all child processes to be supervised
     children = [
       TripCache,
       RouteCache,
       ScheduleCache,
-      {ServerSentEvent.Producer,
+      {event_producer,
        name: ServerSentEvent.Producer, url: {FirebaseUrl, :url, []}},
       {BoardingStatus.ProducerConsumer,
        name: BoardingStatus.ProducerConsumer,
