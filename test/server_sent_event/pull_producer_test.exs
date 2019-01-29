@@ -1,6 +1,7 @@
 defmodule ServerSentEvent.PullProducerTest do
   use ExUnit.Case
   import ServerSentEvent.PullProducer
+  import Plug.Conn
 
   @moduletag :capture_log
 
@@ -19,51 +20,61 @@ defmodule ServerSentEvent.PullProducerTest do
     end
   end
 
-  describe "bypass" do
-    import Plug.Conn
-
+  describe "handle_info(:connect, state)" do
     setup do
-      Application.ensure_all_started(:bypass)
-      Application.ensure_all_started(:httpoison)
       bypass = Bypass.open()
-      {:ok, bypass: bypass}
-    end
+      {_, state} = init({__MODULE__, :url, [bypass]})
 
-    test "sends an event when fully parsed", %{bypass: bypass} do
-      Bypass.expect(bypass, fn conn ->
+      Bypass.stub(bypass, "GET", "/", fn conn ->
         send_resp(conn, 200, ~s(data: %{}\n\n))
       end)
 
-      start_producer(bypass)
-      assert_receive {:events, [%ServerSentEvent{}]}
+      {:ok, bypass: bypass, state: state}
     end
 
-    defp start_producer(bypass) do
-      url = "http://127.0.0.1:#{bypass.port}"
-      {:ok, producer} = start_link(url: url)
+    test "returns an event", %{state: state} do
+      {:noreply, events, _state} = handle_info(:connect, state)
+      assert [%ServerSentEvent{}] = events
+    end
 
-      {:ok, _consumer} =
-        __MODULE__.SimpleSubscriber.start_link(self(), producer)
+    test "sends another message", %{state: state} do
+      state = %{state | send_after: 0}
+      {:noreply, _, _} = handle_info(:connect, state)
+      assert_receive :connect
+    end
+
+    test "returns no events when there's an error", %{
+      state: state,
+      bypass: bypass
+    } do
+      Bypass.down(bypass)
+      assert {:noreply, [], _} = handle_info(:connect, state)
+    end
+
+    test "sends another message after an error", %{state: state, bypass: bypass} do
+      Bypass.down(bypass)
+      state = %{state | send_after: 0}
+      {:noreply, _, _} = handle_info(:connect, state)
+      assert_receive :connect
     end
   end
 
-  defmodule SimpleSubscriber do
-    @moduledoc """
-    Simple consumer which sends the events to a parent PID.
-    """
-    use GenStage
+  describe "handle_demand/2" do
+    setup do
+      {_, state} = init("not used")
 
-    def start_link(parent, producer) do
-      GenStage.start_link(__MODULE__, {parent, producer})
+      {:ok, state: state}
     end
 
-    def init({parent, producer}) do
-      {:consumer, parent, subscribe_to: [producer]}
+    test "sends a message once", %{state: state} do
+      assert {:noreply, [], state} = handle_demand(1, state)
+      assert_receive :connect
+      assert {:noreply, [], _state} = handle_demand(1, state)
+      refute_receive :connect
     end
+  end
 
-    def handle_events(events, _from, parent) do
-      send(parent, {:events, events})
-      {:noreply, [], parent}
-    end
+  def url(bypass) do
+    "http://127.0.0.1:#{bypass.port}"
   end
 end

@@ -22,21 +22,25 @@ defmodule ServerSentEvent.Producer do
 
   def handle_info(:connect, state) do
     url = compute_url(state)
+    state = %{state | redirect: :no}
     Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
 
     headers = [
       {"Accept", "text/event-stream"}
     ]
 
-    {:ok, _} =
-      HTTPoison.get(
-        url,
-        headers,
-        recv_timeout: 60_000,
-        stream_to: self()
-      )
+    case HTTPoison.get(
+           url,
+           headers,
+           recv_timeout: 60_000,
+           stream_to: self()
+         ) do
+      {:ok, _} ->
+        {:noreply, [], state}
 
-    {:noreply, [], %{state | redirect: :no}}
+      {:error, e} ->
+        handle_info(e, state)
+    end
   end
 
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
