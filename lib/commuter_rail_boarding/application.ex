@@ -12,16 +12,29 @@ defmodule CommuterRailBoarding.Application do
       System.get_env("V3_API_KEY")
     )
 
+    # List all child processes to be supervised
+    children = [
+      TripCache,
+      RouteCache,
+      ScheduleCache
+      | other_children(
+          Application.get_env(:commuter_rail_boarding, :start_children?)
+        )
+    ]
+
+    # See https://hexdocs.pm/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: CommuterRailBoarding.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
+  defp other_children(true) do
     event_producer_binary =
       Application.get_env(:commuter_rail_boarding, :event_producer)
 
     event_producer = Module.concat([ServerSentEvent, event_producer_binary])
 
-    # List all child processes to be supervised
-    children = [
-      TripCache,
-      RouteCache,
-      ScheduleCache,
+    [
       {event_producer,
        name: ServerSentEvent.Producer, url: {FirebaseUrl, :url, []}},
       {BoardingStatus.ProducerConsumer,
@@ -37,10 +50,9 @@ defmodule CommuterRailBoarding.Application do
          TripUpdates.ProducerConsumer
        ]}
     ]
+  end
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: CommuterRailBoarding.Supervisor]
-    Supervisor.start_link(children, opts)
+  defp other_children(false) do
+    []
   end
 end
