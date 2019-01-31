@@ -99,6 +99,18 @@ defmodule ServerSentEvent.ProducerTest do
       assert_receive {:events, [%ServerSentEvent{}]}
     end
 
+    test "reconnects if there's a connection error", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        send_resp(conn, 200, ~s(data: %{}\n\n))
+      end)
+
+      Bypass.down(bypass)
+      start_producer(bypass)
+      refute_receive {:events, _}
+      Bypass.up(bypass)
+      assert_receive {:events, [%ServerSentEvent{}]}
+    end
+
     test "reconnects when it gets disconnected", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         send_resp(conn, 200, ~s(data: %{}\n\n))
