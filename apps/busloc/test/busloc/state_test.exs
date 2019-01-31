@@ -37,6 +37,8 @@ defmodule Busloc.StateTest do
         longitude: -71.43,
         heading: 45,
         source: :transitmaster,
+        operator_id: "oper",
+        operator_name: "oper name",
         timestamp: timestamp
       }
 
@@ -52,7 +54,17 @@ defmodule Busloc.StateTest do
       update(:update_table, vehicle1)
       update(:update_table, vehicle2)
       state = get_all(:update_table)
-      assert state == [%{vehicle2 | route: "123", trip: "456", block: "A123-456"}]
+
+      assert state == [
+               %{
+                 vehicle2
+                 | route: "123",
+                   trip: "456",
+                   block: "A123-456",
+                   operator_id: "oper",
+                   operator_name: "oper name"
+               }
+             ]
     end
 
     test "doesn't update if the timestamp is older" do
