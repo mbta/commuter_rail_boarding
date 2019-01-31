@@ -13,7 +13,7 @@ defmodule ServerSentEvent.Producer do
   end
 
   # Server functions
-  defstruct [:url, buffer: "", connected?: false, redirect: :no]
+  defstruct [:url, buffer: "", connected?: false, id: nil, redirect: :no]
 
   def init(url) do
     state = %__MODULE__{url: url}
@@ -35,27 +35,27 @@ defmodule ServerSentEvent.Producer do
            recv_timeout: 60_000,
            stream_to: self()
          ) do
-      {:ok, _} ->
-        {:noreply, [], state}
+      {:ok, %{id: id}} ->
+        {:noreply, [], %{state | id: id}}
 
       {:error, e} ->
         handle_info(e, state)
     end
   end
 
-  def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
+  def handle_info(%HTTPoison.AsyncStatus{id: id, code: 200}, %{id: id} = state) do
     Logger.debug(fn -> "#{__MODULE__} connected" end)
     {:noreply, [], state}
   end
 
-  def handle_info(%HTTPoison.AsyncStatus{code: 307}, state) do
+  def handle_info(%HTTPoison.AsyncStatus{id: id, code: 307}, %{id: id} = state) do
     Logger.debug(fn -> "#{__MODULE__} redirecting..." end)
     {:noreply, [], %{state | redirect: :waiting_for_header}}
   end
 
   def handle_info(
-        %HTTPoison.AsyncHeaders{headers: headers},
-        %{redirect: :waiting_for_header} = state
+        %HTTPoison.AsyncHeaders{id: id, headers: headers},
+        %{id: id, redirect: :waiting_for_header} = state
       ) do
     {_, location} =
       Enum.find(headers, fn {header, _} ->
@@ -70,7 +70,10 @@ defmodule ServerSentEvent.Producer do
     {:noreply, [], state}
   end
 
-  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk} = c, state) do
+  def handle_info(
+        %HTTPoison.AsyncChunk{id: id, chunk: chunk} = c,
+        %{id: id} = state
+      ) do
     log_chunk(c)
     buffer = state.buffer <> chunk
     event_binaries = String.split(buffer, "\n\n")
@@ -84,6 +87,13 @@ defmodule ServerSentEvent.Producer do
         Logger.debug(fn ->
           inspect(event, limit: :infinity, printable_limit: :infinity)
         end)
+
+        if event.event == "auth_revoked" do
+          # HTTPoison doesn't provide an interface for this, but it does
+          # provide the ID we need.
+          :hackney.close(c.id)
+          send(self(), :connect)
+        end
       end
     end
 
@@ -91,14 +101,14 @@ defmodule ServerSentEvent.Producer do
     {:noreply, events, state}
   end
 
-  def handle_info(%HTTPoison.Error{reason: reason}, state) do
+  def handle_info(%HTTPoison.Error{id: id, reason: reason}, %{id: id} = state) do
     Logger.error(fn -> "#{__MODULE__} HTTP error: #{inspect(reason)}" end)
     state = %{state | buffer: ""}
     send(self(), :connect)
     {:noreply, [], state}
   end
 
-  def handle_info(%HTTPoison.AsyncEnd{}, state) do
+  def handle_info(%HTTPoison.AsyncEnd{id: id}, %{id: id} = state) do
     Logger.info(fn -> "#{__MODULE__} disconnected, reconnecting..." end)
     state = %{state | buffer: "", connected?: false}
     send(self(), :connect)
