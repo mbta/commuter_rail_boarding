@@ -60,6 +60,23 @@ defmodule ServerSentEvent.ProducerTest do
 
       assert event.data == "data\n"
     end
+
+    test "reconnects if it receives an `auth_revoked` event" do
+      # required for :hackney.close/1
+      id = make_ref()
+      state = %ServerSentEvent.Producer{id: id}
+
+      assert {:noreply, [_], ^state} =
+               handle_info(
+                 %HTTPoison.AsyncChunk{
+                   id: id,
+                   chunk: "event: auth_revoked\n\n"
+                 },
+                 state
+               )
+
+      assert_receive :connect
+    end
   end
 
   describe "bypass" do
@@ -79,6 +96,18 @@ defmodule ServerSentEvent.ProducerTest do
       end)
 
       start_producer(bypass)
+      assert_receive {:events, [%ServerSentEvent{}]}
+    end
+
+    test "reconnects if there's a connection error", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        send_resp(conn, 200, ~s(data: %{}\n\n))
+      end)
+
+      Bypass.down(bypass)
+      start_producer(bypass)
+      refute_receive {:events, _}
+      Bypass.up(bypass)
       assert_receive {:events, [%ServerSentEvent{}]}
     end
 
