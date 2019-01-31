@@ -70,7 +70,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
              }
 
       assert actual_entity.vehicle.vehicle == %{
-               id: v.vehicle_id
+               id: "y#{v.vehicle_id}",
+               label: v.vehicle_id
              }
 
       assert actual_entity.vehicle.position == %{

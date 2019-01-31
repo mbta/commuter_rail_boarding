@@ -43,7 +43,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
           start_date: start_date(vehicle)
         },
         vehicle: %{
-          id: vehicle.vehicle_id
+          id: "y#{vehicle.vehicle_id}",
+          label: vehicle.vehicle_id
         },
         position: %{
           latitude: vehicle.latitude,
