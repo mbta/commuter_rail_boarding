@@ -22,9 +22,11 @@ defmodule Busloc.Tsp.Sender do
         ""
 
       {intersection, approach} ->
+        unique_int = to_string(:erlang.unique_integer())
+
         query = %{
-          # messageid hard-coded since the receiving software doesn't use it
-          "messageid" => "g1",
+          # messageid is only used to reject duplicates with the same timestamp. So get a unique integer.
+          "messageid" => "b" <> String.slice(unique_int, String.length(unique_int) - 9, 8),
           "type" => "request",
           "intersection" => intersection,
           "approach" => approach_id(approach),
@@ -43,11 +45,14 @@ defmodule Busloc.Tsp.Sender do
         ""
 
       {intersection, approach} ->
+        unique_int = to_string(:erlang.unique_integer())
+
         query = %{
-          # messageid and ref hard-coded since the receiving software doesn't use it
-          "messageid" => "g2",
+          # messageid is only used to reject duplicates with the same timestamp. So get a unique integer.
+          # ref is ignored.
+          "messageid" => "b" <> String.slice(unique_int, String.length(unique_int) - 9, 8),
           "type" => "cancel",
-          "ref" => "g3",
+          "ref" => "b3",
           "intersection" => intersection,
           "approach" => approach_id(approach),
           "vehicle" => tsp.vehicle_id,

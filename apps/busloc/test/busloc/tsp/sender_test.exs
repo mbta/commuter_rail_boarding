@@ -27,7 +27,7 @@ defmodule Busloc.Tsp.SenderTest do
         |> tsp_to_http
 
       assert actual =~ config(Busloc.Tsp.Sender, :tsp_url)
-      assert actual =~ "messageid=g1"
+      assert actual =~ "messageid=b"
       assert actual =~ "type=request"
       assert actual =~ "intersection=2089"
       assert actual =~ "approach=1"
@@ -82,9 +82,9 @@ defmodule Busloc.Tsp.SenderTest do
         |> tsp_to_http
 
       assert actual =~ config(Busloc.Tsp.Sender, :tsp_url)
-      assert actual =~ "messageid=g2"
+      assert actual =~ "messageid=b"
       assert actual =~ "type=cancel"
-      assert actual =~ "ref=g3"
+      assert actual =~ "ref=b3"
       assert actual =~ "intersection=2089"
       assert actual =~ "approach=1"
       assert actual =~ "vehicle=0709"

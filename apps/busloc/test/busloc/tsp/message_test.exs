@@ -32,7 +32,7 @@ defmodule Busloc.Tsp.MessageTest do
       assert {[url], ^state} = data_to_urls(data, state)
 
       assert url =~ config(Busloc.Tsp.Sender, :tsp_url)
-      assert url =~ "messageid=g2"
+      assert url =~ "messageid=b"
       assert url =~ "type=cancel"
       assert url =~ "intersection=2089"
       assert url =~ "approach=1"
@@ -109,11 +109,11 @@ TMTSPDATAHEADER000684<?xml version=\"1.0\"?>\r
       assert {[url1, url2], ^state} = data_to_urls(data, state)
 
       assert url1 =~ config(Busloc.Tsp.Sender, :tsp_url)
-      assert url1 =~ "messageid=g1"
+      assert url1 =~ "messageid=b"
       assert url1 =~ "type=request"
 
       assert url2 =~ config(Busloc.Tsp.Sender, :tsp_url)
-      assert url2 =~ "messageid=g2"
+      assert url2 =~ "messageid=b"
       assert url2 =~ "type=cancel"
     end
   end
