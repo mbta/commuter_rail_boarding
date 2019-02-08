@@ -5,8 +5,11 @@ defmodule Busloc.Supervisor.Tsp do
   import Busloc.Utilities.ConfigHelpers
 
   def start_link do
+    # Use the non-production port as the default if the environment variable is not set (e.g. local testing)
+    tsp_port = config(Tsp, :socket_port) || "9006"
+
     children = [
-      {Busloc.Tsp.Listener, config(Tsp, :socket_port)},
+      {Busloc.Tsp.Listener, String.to_integer(tsp_port)},
       {Busloc.Tsp.MessageSupervisor, []}
     ]
 

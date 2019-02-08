@@ -48,9 +48,11 @@ config :busloc, Operator, cmd: Busloc.Cmd.Sqlcmd
 config :busloc, Busloc.Tsp.Sender, tsp_url: "http://tspester.requestcatcher.com/test?"
 
 config :busloc, Tsp,
-  # dev and test TSP socket port. Overridden for prod.
-  # Needed because startup will fail if another busloc is listening on the same port on that machine.
-  socket_port: 9006,
+  # TSP socket port 9005 for prod; 9006 (default, defined in supervisor/tsp.ex) for dev, test, and staging. 
+  # Needed because startup will fail if another busloc is listening on the same port on that machine,
+  # or messages will get received by the wrong busloc.
+
+  socket_port: {:system, "BUSLOC_TSP_PORT"},
   intersection_map: %{
     # event_id => {intersection_id, approach_id}
     # event_id is stored in TransitMaster TMMain.TRAFFIC_SIGNAL.

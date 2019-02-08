@@ -22,11 +22,8 @@ defmodule Busloc.Tsp.Sender do
         ""
 
       {intersection, approach} ->
-        unique_int = to_string(:erlang.unique_integer())
-
         query = %{
-          # messageid is only used to reject duplicates with the same timestamp. So get a unique integer.
-          "messageid" => "b" <> String.slice(unique_int, String.length(unique_int) - 9, 8),
+          "messageid" => tsp_messageid(),
           "type" => "request",
           "intersection" => intersection,
           "approach" => approach_id(approach),
@@ -45,13 +42,10 @@ defmodule Busloc.Tsp.Sender do
         ""
 
       {intersection, approach} ->
-        unique_int = to_string(:erlang.unique_integer())
-
         query = %{
-          # messageid is only used to reject duplicates with the same timestamp. So get a unique integer.
-          # ref is ignored.
-          "messageid" => "b" <> String.slice(unique_int, String.length(unique_int) - 9, 8),
+          "messageid" => tsp_messageid(),
           "type" => "cancel",
+          # ref is ignored.
           "ref" => "b3",
           "intersection" => intersection,
           "approach" => approach_id(approach),
@@ -61,5 +55,12 @@ defmodule Busloc.Tsp.Sender do
 
         config(Busloc.Tsp.Sender, :tsp_url) <> URI.encode_query(query)
     end
+  end
+
+  @spec tsp_messageid() :: String.t()
+  def tsp_messageid() do
+    # messageid is only used to reject duplicates with the same timestamp. So get a unique integer.
+    # Max length is 9 characters, including the "b" for bus.
+    "b" <> to_string(rem(:erlang.unique_integer([:positive]), 100_000_000))
   end
 end
