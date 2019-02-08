@@ -21,6 +21,8 @@ defmodule Busloc.State do
   @doc """
   This function is called by Busloc.SamsaraFetcher to update the location and timestamp
   of a Vehicle. The vehicle's block assignment will not change.
+
+  If the vehicle does not already exist in the state, we ignore the update.
   """
   def update(table, vehicle) when is_map(vehicle) do
     if old_vehicle = get(table, vehicle.vehicle_id) do
@@ -29,8 +31,6 @@ defmodule Busloc.State do
         merged_vehicle = merge_keeping_block(old_vehicle, vehicle)
         true = :ets.insert(table, {vehicle.vehicle_id, merged_vehicle})
       end
-    else
-      :ets.insert(table, {vehicle.vehicle_id, vehicle})
     end
   end
 

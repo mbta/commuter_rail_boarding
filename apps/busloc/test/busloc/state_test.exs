@@ -20,51 +20,28 @@ defmodule Busloc.StateTest do
         timestamp: DateTime.utc_now()
       }
 
-      update(:update_table, vehicle)
+      set(:update_table, [vehicle])
       from_state = get_all(:update_table)
       assert from_state == [vehicle]
     end
 
-    test "updates existing vehicle if timestamp is newer" do
+    test "doesn't update if the vehicle does not exist already" do
       timestamp = DateTime.utc_now()
 
-      vehicle1 = %Vehicle{
+      vehicle = %Vehicle{
         vehicle_id: "1234",
-        block: "A123-456",
-        route: "123",
-        trip: "456",
-        latitude: 42.345,
-        longitude: -71.43,
-        heading: 45,
-        source: :transitmaster,
-        operator_id: "oper",
-        operator_name: "oper name",
-        timestamp: timestamp
-      }
-
-      vehicle2 = %Vehicle{
-        vehicle_id: "1234",
+        block: nil,
         latitude: 42.456,
         longitude: -71.98,
         heading: 90,
         source: :samsara,
-        timestamp: Timex.shift(timestamp, minutes: 1)
+        timestamp: Timex.shift(timestamp, minutes: -1)
       }
 
-      update(:update_table, vehicle1)
-      update(:update_table, vehicle2)
+      set(:update_table, [])
+      update(:update_table, vehicle)
       state = get_all(:update_table)
-
-      assert state == [
-               %{
-                 vehicle2
-                 | route: "123",
-                   trip: "456",
-                   block: "A123-456",
-                   operator_id: "oper",
-                   operator_name: "oper name"
-               }
-             ]
+      assert state == []
     end
 
     test "doesn't update if the timestamp is older" do
@@ -90,7 +67,7 @@ defmodule Busloc.StateTest do
         timestamp: Timex.shift(timestamp, minutes: -1)
       }
 
-      update(:update_table, vehicle1)
+      set(:update_table, [vehicle1])
       update(:update_table, vehicle2)
       state = get_all(:update_table)
       assert state == [vehicle1]
@@ -119,7 +96,7 @@ defmodule Busloc.StateTest do
         timestamp: Timex.shift(timestamp, minutes: 1)
       }
 
-      update(:update_table, vehicle1)
+      set(:update_table, [vehicle1])
       update(:update_table, vehicle2)
       state = get_all(:update_table)
       assert state == [vehicle1]
