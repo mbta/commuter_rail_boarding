@@ -42,7 +42,7 @@ defmodule Busloc.Vehicle do
   def from_transitmaster_map(map, current_time \\ BuslocTime.now()) do
     vehicle = %Busloc.Vehicle{
       vehicle_id: map.vehicle_id,
-      route: nil_if_equal(map.route, ""),
+      route: transitmaster_route_id(map.route),
       trip: nil_if_equal(map.trip, "0"),
       block: map.block,
       latitude: nil_if_equal(map.latitude, 0),
@@ -142,6 +142,18 @@ defmodule Busloc.Vehicle do
         {:ok, vehicle} <- [from_saucon_json_vehicle(j, saucon_route_translate(json["routeId"]))] do
       vehicle
     end
+  end
+
+  defp transitmaster_route_id("0" <> route_id) do
+    route_id
+  end
+
+  defp transitmaster_route_id("") do
+    nil
+  end
+
+  defp transitmaster_route_id(route_id) do
+    route_id
   end
 
   @doc """

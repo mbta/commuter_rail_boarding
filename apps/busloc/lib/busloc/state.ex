@@ -84,13 +84,6 @@ defmodule Busloc.State do
       end
 
     true = :ets.insert(table, Map.to_list(inserts))
-    # delete any items which weren't part of the update
-    delete_specs =
-      for id <- get_all_ids(table), not Map.has_key?(inserts, id) do
-        {{id, :_}, [], [true]}
-      end
-
-    _ = :ets.select_delete(table, delete_specs)
     :ok
   end
 
@@ -103,10 +96,6 @@ defmodule Busloc.State do
 
   def get_all(table) do
     :ets.select(table, [{{:_, :"$1"}, [], [:"$1"]}])
-  end
-
-  defp get_all_ids(table) do
-    :ets.select(table, [{{:"$1", :_}, [], [:"$1"]}])
   end
 
   def init(table) do

@@ -132,7 +132,7 @@ defmodule Busloc.StateTest do
       :ok
     end
 
-    test "overwrites previous state" do
+    test "does not delete old vehicles" do
       timestamp = DateTime.utc_now()
 
       vehicle1 = %Vehicle{
@@ -169,7 +169,7 @@ defmodule Busloc.StateTest do
       update(:set_table, vehicle1)
       set(:set_table, new_vehicles)
       state = get_all(:set_table)
-      assert Enum.sort(state) == Enum.sort(new_vehicles)
+      assert Enum.sort(state) == Enum.sort([vehicle1 | new_vehicles])
     end
 
     test "an update with older TM data does not overwrite newer Samsara data" do
