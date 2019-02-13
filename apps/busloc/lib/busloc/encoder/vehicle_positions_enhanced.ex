@@ -36,12 +36,7 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
       id: "#{unix_timestamp}_#{vehicle.vehicle_id}",
       is_deleted: false,
       vehicle: %{
-        trip: %{
-          trip_id: trip_id(vehicle),
-          route_id: vehicle.route,
-          schedule_relationship: schedule_relationship(vehicle),
-          start_date: start_date(vehicle)
-        },
+        trip: trip(vehicle),
         vehicle: %{
           id: "y#{vehicle.vehicle_id}",
           label: vehicle.vehicle_id
@@ -61,6 +56,20 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
         timestamp: unix_timestamp
       }
     }
+  end
+
+  defp trip(%{trip: trip_id, route: route_id} = vehicle)
+       when is_binary(trip_id) or is_binary(route_id) do
+    %{
+      trip_id: trip_id(vehicle),
+      route_id: vehicle.route,
+      schedule_relationship: schedule_relationship(vehicle),
+      start_date: start_date(vehicle)
+    }
+  end
+
+  defp trip(_) do
+    %{}
   end
 
   defp trip_id(%{trip: trip_id}) when is_binary(trip_id) do

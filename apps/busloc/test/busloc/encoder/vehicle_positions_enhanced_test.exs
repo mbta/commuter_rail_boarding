@@ -90,12 +90,22 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
       assert actual_entity.vehicle.timestamp == DateTime.to_unix(v.timestamp)
     end
 
-    test "without a trip ID, we generate a trip ID" do
+    test "with a route but no trip ID, we generate a trip ID" do
+      v = %Vehicle{vehicle_id: "veh", timestamp: DateTime.utc_now(), route: "route"}
+      actual_entity = entity(v)
+
+      assert %{
+               trip_id: <<_::binary>>,
+               route_id: "route",
+               schedule_relationship: :UNSCHEDULED
+             } = actual_entity.vehicle.trip
+    end
+
+    test "without a trip ID, or a route, we do not generate a TripDescriptor" do
       v = %Vehicle{vehicle_id: "veh", timestamp: DateTime.utc_now()}
       actual_entity = entity(v)
 
-      assert %{trip_id: <<_::binary>>, schedule_relationship: :UNSCHEDULED} =
-               actual_entity.vehicle.trip
+      assert actual_entity.vehicle.trip == %{}
     end
   end
 end
