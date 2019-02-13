@@ -12,6 +12,7 @@ defmodule Busloc.Vehicle do
     :latitude,
     :longitude,
     :heading,
+    :speed,
     :source,
     :timestamp,
     :start_date
@@ -27,6 +28,7 @@ defmodule Busloc.Vehicle do
           trip: String.t() | nil,
           latitude: float | nil,
           longitude: float | nil,
+          speed: float | nil,
           heading: 0..359,
           source: :transitmaster | :samsara | :saucon | :eyeride,
           timestamp: DateTime.t(),
@@ -65,6 +67,7 @@ defmodule Busloc.Vehicle do
       block: nil,
       latitude: nil_if_equal(json["latitude"], 0),
       longitude: nil_if_equal(json["longitude"], 0),
+      speed: miles_hour_to_meters_second(json["speed"]),
       heading: round(json["heading"]),
       source: :samsara,
       timestamp: DateTime.from_unix!(json["time"], :milliseconds)
@@ -115,6 +118,7 @@ defmodule Busloc.Vehicle do
       route: route_id,
       latitude: json["lat"],
       longitude: json["lon"],
+      speed: miles_hour_to_meters_second(json["speed"]),
       heading: round(course),
       source: :saucon,
       timestamp: DateTime.from_unix!(timestamp, :milliseconds)
@@ -270,5 +274,16 @@ defmodule Busloc.Vehicle do
     map
     |> Map.put(:invalid_time, status)
     |> Map.put(:age, age)
+  end
+
+  @spec miles_hour_to_meters_second(float) :: float
+  @doc """
+  Convert miles/hour speeds to meters/second speed.
+
+  iex> miles_hour_to_meters_second(10)
+  4.4703
+  """
+  def miles_hour_to_meters_second(miles_hour) do
+    Float.round(miles_hour / 2.237, 4)
   end
 end
