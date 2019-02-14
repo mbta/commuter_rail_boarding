@@ -30,15 +30,18 @@ defmodule Busloc.LogHelper do
   end
 
   defp log_line_item({key, <<binary::binary>>}) do
-    [Atom.to_string(key), ?=, inspect(binary)]
+    [key_string(key), ?=, inspect(binary)]
   end
 
   defp log_line_item({key, %DateTime{} = value}) do
     value = Busloc.Utilities.Time.in_busloc_tz(value)
-    [Atom.to_string(key), ?=, DateTime.to_iso8601(value)]
+    [key_string(key), ?=, DateTime.to_iso8601(value)]
   end
 
   defp log_line_item({key, value}) do
-    [Atom.to_string(key), ?=, to_string(value)]
+    [key_string(key), ?=, to_string(value)]
   end
+
+  defp key_string(:source), do: "vehicle_source"
+  defp key_string(key), do: Atom.to_string(key)
 end
