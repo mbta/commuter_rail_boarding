@@ -111,7 +111,7 @@ defmodule Busloc.VehicleTest do
         "longitude" => -71.058374,
         "name" => "1718",
         "onTrip" => false,
-        "speed" => 0,
+        "speed" => 25,
         "time" => 1_525_100_949_275,
         "vin" => ""
       }
@@ -121,6 +121,7 @@ defmodule Busloc.VehicleTest do
         heading: 0,
         latitude: 42.340632833,
         longitude: -71.058374,
+        speed: 11.1757,
         source: :samsara,
         timestamp: DateTime.from_naive!(~N[2018-04-30 15:09:09.275], "Etc/UTC"),
         vehicle_id: "1718"
@@ -291,6 +292,7 @@ defmodule Busloc.VehicleTest do
           heading: 336,
           latitude: 42.2517056,
           longitude: -71.0057856,
+          speed: 10.1342,
           route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
@@ -301,6 +303,7 @@ defmodule Busloc.VehicleTest do
           heading: 336,
           latitude: 42.2517056,
           longitude: -71.0057856,
+          speed: 10.1342,
           route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
@@ -311,6 +314,7 @@ defmodule Busloc.VehicleTest do
           heading: 162,
           latitude: 42.2768192,
           longitude: -71.0308544,
+          speed: 0,
           route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:26:09.329], "Etc/UTC"),

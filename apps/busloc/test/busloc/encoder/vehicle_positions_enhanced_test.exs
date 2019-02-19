@@ -40,6 +40,7 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
         latitude: 1.234,
         longitude: -56.789,
         heading: 90,
+        speed: 5.1,
         source: :transitmaster,
         timestamp: DateTime.utc_now(),
         start_date: ~D[2018-04-30]
@@ -77,7 +78,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
       assert actual_entity.vehicle.position == %{
                latitude: v.latitude,
                longitude: v.longitude,
-               bearing: v.heading
+               bearing: v.heading,
+               speed: v.speed
              }
 
       assert actual_entity.vehicle.operator == %{

@@ -44,7 +44,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
         position: %{
           latitude: vehicle.latitude,
           longitude: vehicle.longitude,
-          bearing: vehicle.heading
+          bearing: vehicle.heading,
+          speed: vehicle.speed
         },
         operator: %{
           id: vehicle.operator_id,
