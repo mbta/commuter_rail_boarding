@@ -23,6 +23,8 @@ defmodule Busloc.Fetcher.OperatorFetcher do
       [{_, %Operator{} = op}] -> {:ok, op}
       [] -> :error
     end
+  rescue
+    ArgumentError -> :error
   end
 
   @impl GenServer
