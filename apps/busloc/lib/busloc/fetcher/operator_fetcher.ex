@@ -57,7 +57,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
       |> Parse.parse()
       |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
 
-    for {_key, operator} <- new_operators do
+    for {_key, operator} <- new_operators, operator.vehicle_id == "" or operator.block == "" do
       Logger.info(fn -> Operator.log_line(operator) end)
     end
 
