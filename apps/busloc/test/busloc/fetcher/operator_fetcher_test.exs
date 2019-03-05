@@ -18,6 +18,63 @@ defmodule Busloc.Fetcher.OperatorFetcherTest do
                 block: "Q225-84",
                 run: "128-1407"
               }} == operator_by_vehicle_block(:operator_fetcher_test, "0401", "Q225-84")
+
+      assert :error == operator_by_vehicle_block(:operator_fetcher_test, "1234", "5678")
+    end
+
+    test "deletes previous operators which are no longer present" do
+      {:ok, state} = init(:operator_fetcher_test_delete)
+
+      operator = %Operator{
+        vehicle_id: "new",
+        block: "new"
+      }
+
+      :ets.insert(state.table, {{operator.vehicle_id, operator.block}, operator})
+
+      assert {:ok, ^operator} =
+               operator_by_vehicle_block(
+                 :operator_fetcher_test_delete,
+                 operator.vehicle_id,
+                 operator.block
+               )
+
+      handle_info(:timeout, state)
+
+      assert :error ==
+               operator_by_vehicle_block(
+                 :operator_fetcher_test_delete,
+                 operator.vehicle_id,
+                 operator.block
+               )
+    end
+  end
+
+  describe "operator_by_vehicle_block when not started" do
+    test "returns :error" do
+      assert :error ==
+               operator_by_vehicle_block(:operator_fetcher_test_not_started, "1234", "1234")
+    end
+  end
+
+  describe "split/3" do
+    test "returns added/changed/deleted keys" do
+      new = %{
+        new: 1,
+        existing: 2,
+        changed: 3
+      }
+
+      existing = %{
+        existing: 2,
+        changed: 2,
+        deleted: 4
+      }
+
+      {added, changed, deleted} = split(new, existing)
+      assert added == %{new: 1}
+      assert changed == %{changed: 3}
+      assert deleted == %{deleted: 4}
     end
   end
 end

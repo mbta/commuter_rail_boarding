@@ -23,6 +23,8 @@ defmodule Busloc.Fetcher.OperatorFetcher do
       [{_, %Operator{} = op}] -> {:ok, op}
       [] -> :error
     end
+  rescue
+    ArgumentError -> :error
   end
 
   @impl GenServer
@@ -55,15 +57,17 @@ defmodule Busloc.Fetcher.OperatorFetcher do
       |> Parse.parse()
       |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
 
-    for {_key, operator} <- new_operators do
+    :ets.insert(table, Map.to_list(new_operators))
+
+    {added, changed, deleted} = split(new_operators, get_all(table))
+
+    for operator <- Map.values(Map.merge(added, changed)) do
       Logger.info(fn -> Operator.log_line(operator) end)
     end
 
-    :ets.insert(table, Map.to_list(new_operators))
-
     # delete any items which weren't part of the update
     delete_specs =
-      for id <- get_all_ids(table), not Map.has_key?(new_operators, id) do
+      for id <- Map.keys(deleted) do
         {{id, :_}, [], [true]}
       end
 
@@ -76,7 +80,28 @@ defmodule Busloc.Fetcher.OperatorFetcher do
     super(message, state)
   end
 
-  defp get_all_ids(table) do
-    :ets.select(table, [{{:"$1", :_}, [], [:"$1"]}])
+  defp get_all(table) do
+    Map.new(:ets.tab2list(table))
+  end
+
+  @doc """
+  Split the `new` map into three maps, relative to the `existing` map:
+
+  - added keys
+  - changed keys
+  - deleted keys
+
+  Keys which have the same value in `existing` are dropped.
+  """
+  def split(new, existing) do
+    {a, added} = Map.split(new, Map.keys(existing))
+    {c, deleted} = Map.split(existing, Map.keys(new))
+
+    changed =
+      for {key, value} = tuple <- a, Map.fetch!(c, key) != value, into: %{} do
+        tuple
+      end
+
+    {added, changed, deleted}
   end
 end
