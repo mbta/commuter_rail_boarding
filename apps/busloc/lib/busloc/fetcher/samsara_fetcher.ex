@@ -28,7 +28,17 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
       now = DateTime.utc_now()
 
       url
-      |> time("fetch", &HTTPoison.post!(&1, body, [], hackney: [pool: :default], timeout: 30_000))
+      |> time(
+        "fetch",
+        &HTTPoison.post!(
+          &1,
+          body,
+          [],
+          hackney: [pool: :default],
+          timeout: 30_000,
+          recv_timeout: 30_000
+        )
+      )
       |> Map.get(:body)
       |> Jason.decode!()
       |> Map.get("vehicles")
