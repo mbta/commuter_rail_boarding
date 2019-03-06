@@ -57,9 +57,9 @@ defmodule Busloc.Fetcher.OperatorFetcher do
       |> Parse.parse()
       |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
 
-    :ets.insert(table, Map.to_list(new_operators))
-
     {added, changed, deleted} = split(new_operators, get_all(table))
+
+    :ets.insert(table, Map.to_list(new_operators))
 
     for operator <- Map.values(Map.merge(added, changed)) do
       Logger.info(fn -> Operator.log_line(operator) end)
