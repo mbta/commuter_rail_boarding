@@ -82,9 +82,9 @@ defmodule Busloc.VehicleTest do
       actual = IO.iodata_to_binary(log_line(vehicle, now))
       assert actual =~ ~s(vehicle_id="veh_id")
       assert actual =~ ~s(block="50")
-      assert actual =~ "latitude=1.234"
-      assert actual =~ "longitude=-5.678"
-      assert actual =~ "heading=29"
+      refute actual =~ "latitude=1.234"
+      refute actual =~ "longitude=-5.678"
+      refute actual =~ "heading=29"
       assert actual =~ "source=transitmaster"
       assert actual =~ "timestamp=2018-03-28T16:15:12-04:00"
     end
