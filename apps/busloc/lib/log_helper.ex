@@ -42,6 +42,13 @@ defmodule Busloc.LogHelper do
     [key_string(key), ?=, to_string(value)]
   end
 
-  defp key_string(:source), do: "vehicle_source"
-  defp key_string(key), do: Atom.to_string(key)
+  defp key_string(:source), do: "v_source"
+
+  defp key_string(key) do
+    case Atom.to_string(key) do
+      "vehicle_" <> rest -> "v_" <> rest
+      "operator_" <> rest -> "o_" <> rest
+      binary -> binary
+    end
+  end
 end
