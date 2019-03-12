@@ -22,6 +22,7 @@ defmodule Busloc.Fetcher.OperatorFetcherTest do
       assert :error == operator_by_vehicle_block(:operator_fetcher_test, "1234", "5678")
     end
 
+    @tag :capture_log
     test "deletes previous operators which are no longer present" do
       {:ok, state} = init(:operator_fetcher_test_delete)
 

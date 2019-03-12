@@ -263,6 +263,7 @@ defmodule Busloc.Vehicle do
   def log_line(%__MODULE__{} = vehicle, now) do
     vehicle
     |> log_line_time_status(validate_time(vehicle, now))
+    |> Map.drop(~w(heading latitude longitude speed start_date)a)
     |> Busloc.LogHelper.log_struct()
   end
 
