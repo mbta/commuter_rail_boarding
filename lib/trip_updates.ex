@@ -78,10 +78,6 @@ defmodule TripUpdates do
     )
   end
 
-  def schedule_relationship(%BoardingStatus{status: "Cancelled"}) do
-    "CANCELED"
-  end
-
   def schedule_relationship(%BoardingStatus{added?: true}) do
     "ADDED"
   end

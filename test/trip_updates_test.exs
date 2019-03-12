@@ -95,13 +95,13 @@ defmodule TripUpdatesTest do
       assert trip(status).schedule_relationship == "ADDED"
     end
 
-    test "schedule_relationship is CANCELED if the status is :cancelled" do
+    test "schedule_relationship is SCHEDULED if the status is :cancelled" do
       # yes, the spellings are different
       status = %BoardingStatus{
         status: "Cancelled"
       }
 
-      assert trip(status).schedule_relationship == "CANCELED"
+      assert trip(status).schedule_relationship == "SCHEDULED"
     end
 
     test "uses the previous day's date if the service is before 3am Eastern" do
