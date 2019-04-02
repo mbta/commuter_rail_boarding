@@ -1,10 +1,10 @@
-defmodule Busloc.Fetcher.OperatorFetcher do
+defmodule Busloc.Fetcher.TmShuttleFetcher do
   @moduledoc """
-  Server to periodically query the TransitMaster DB for operator data.
+  Server to periodically query the TransitMaster DB for shuttle assignment data.
   """
   @frequency 30_000
   @default_name __MODULE__
-  @cmd Busloc.Utilities.ConfigHelpers.config(Operator, :cmd)
+  @cmd Busloc.Utilities.ConfigHelpers.config(TmShuttle, :cmd)
 
   use GenServer
   alias Busloc.Operator
@@ -18,8 +18,8 @@ defmodule Busloc.Fetcher.OperatorFetcher do
 
   def get_table(name \\ @default_name), do: name
 
-  def operator_by_vehicle_block(name \\ @default_name, vehicle_id, block_id) do
-    case :ets.lookup(name, {vehicle_id, block_id}) do
+  def shuttle_assignment_by_vehicle(name \\ @default_name, vehicle_id) do
+    case :ets.lookup(name, vehicle_id) do
       [{_, %Operator{} = op}] -> {:ok, op}
       [] -> :error
     end
@@ -52,17 +52,18 @@ defmodule Busloc.Fetcher.OperatorFetcher do
 
   @impl GenServer
   def handle_info(:timeout, %{table: table} = state) do
-    new_operators =
-      @cmd.operator_cmd()
+    new_shuttles =
+      @cmd.shuttle_cmd()
       |> Parse.parse()
-      |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
+      |> Map.new(fn %{vehicle_id: v} = x -> {v, x} end)
 
-    {added, changed, deleted} = split(new_operators, get_all(table))
+    {added, changed, deleted} = split(new_shuttles, get_all(table))
 
-    :ets.insert(table, Map.to_list(new_operators))
+    :ets.insert(table, Map.to_list(new_shuttles))
 
-    for operator <- Map.values(Map.merge(added, changed)) do
-      Logger.info(fn -> Operator.log_line(operator) end)
+    for shuttle <- Map.values(Map.merge(added, changed)) do
+      # TODO identify in the log that this is a shuttle
+      Logger.info(fn -> Operator.log_line(shuttle) end)
     end
 
     # delete any items which weren't part of the update

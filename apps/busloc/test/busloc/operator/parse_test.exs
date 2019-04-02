@@ -48,7 +48,7 @@ defmodule Busloc.Operator.ParseTest do
         }
       ]
 
-      assert parse(cmd.cmd()) == expected
+      assert parse(cmd.operator_cmd()) == expected
     end
   end
 end

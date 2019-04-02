@@ -6,6 +6,7 @@ defmodule Busloc.Fetcher.TmFetcher do
 
   alias Busloc.XmlParser
   alias Busloc.Fetcher.OperatorFetcher
+  alias Busloc.Fetcher.TmShuttleFetcher
 
   # Client Interface
 
@@ -34,6 +35,7 @@ defmodule Busloc.Fetcher.TmFetcher do
       vehicles
       |> Enum.flat_map(&from_transitmaster_map/1)
       |> Enum.map(&merge_operators/1)
+      |> Enum.map(&merge_shuttles/1)
       |> Enum.map(&log_vehicle(&1, now))
       |> log_if_all_stale()
       |> (&Busloc.State.set(:transitmaster_state, &1)).()
@@ -109,6 +111,29 @@ defmodule Busloc.Fetcher.TmFetcher do
 
       :error ->
         vehicle
+    end
+  end
+
+  defp merge_shuttles(%{vehicle_id: id} = old_vehicle) do
+    case TmShuttleFetcher.shuttle_assignment_by_vehicle(id) do
+      {:ok, shuttle} ->
+        if is_nil(old_vehicle.block_id) && is_nil(old_vehicle.run_id) &&
+             is_nil(old_vehicle.operator_id) && is_nil(old_vehicle.operator_name) &&
+             not is_nil(shuttle.block_id) && not is_nil(shuttle.run_id) &&
+             not is_nil(shuttle.operator_id) && not is_nil(shuttle.operator_name) do
+          %{
+            old_vehicle
+            | block: shuttle.block,
+              run: shuttle.run,
+              operator_id: shuttle.operator_id,
+              operator_name: shuttle.operator_name
+          }
+        else
+          old_vehicle
+        end
+
+      :error ->
+        old_vehicle
     end
   end
 end

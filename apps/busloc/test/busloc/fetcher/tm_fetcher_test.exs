@@ -17,6 +17,7 @@ defmodule Busloc.Fetcher.TmFetcherTest do
     setup do
       start_supervised!({Busloc.State, name: :transitmaster_state})
       start_supervised!({Busloc.Fetcher.OperatorFetcher, []})
+      start_supervised!({Busloc.Fetcher.TmShuttleFetcher, []})
       bypass = Bypass.open()
       {:ok, state} = init("http://127.0.0.1:#{bypass.port}")
       %{state: state, bypass: bypass}

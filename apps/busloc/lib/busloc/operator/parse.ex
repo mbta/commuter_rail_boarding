@@ -1,6 +1,6 @@
 defmodule Busloc.Operator.Parse do
   @moduledoc """
-  Parse the output of `Busloc.Operator.Cmd.cmd/0` into a list of %Operator{}s.
+  Parse the output of `Busloc.Operator.Cmd.operator_cmd/0` into a list of %Operator{}s.
   """
   alias Busloc.Operator
 

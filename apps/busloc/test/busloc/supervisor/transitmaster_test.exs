@@ -7,7 +7,7 @@ defmodule Busloc.Supervisor.TransitmasterTest do
   describe "start_link/0" do
     test "starts four childen" do
       {:ok, pid} = start_link()
-      assert Supervisor.count_children(pid).specs == 4
+      assert Supervisor.count_children(pid).specs == 5
     end
   end
 end

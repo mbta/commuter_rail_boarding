@@ -9,7 +9,12 @@ defmodule Busloc.Cmd.Fake do
   end
 
   @impl Busloc.Cmd
-  def cmd do
+  def operator_cmd do
     File.read!("test/data/operators.csv")
+  end
+
+  @impl Busloc.Cmd
+  def shuttle_cmd do
+    File.read!("test/data/shuttles.csv")
   end
 end
