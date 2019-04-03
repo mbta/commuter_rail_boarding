@@ -3,6 +3,7 @@ use Mix.Config
 config :busloc, start?: false
 
 config :busloc, Operator, cmd: Busloc.Cmd.Fake
+config :busloc, TmShuttle, cmd: Busloc.Cmd.Fake
 
 config :busloc,
   uploaders: [

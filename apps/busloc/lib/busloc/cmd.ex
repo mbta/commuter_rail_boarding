@@ -4,5 +4,6 @@ defmodule Busloc.Cmd do
   """
 
   @callback can_connect?() :: boolean
-  @callback cmd() :: String.t()
+  @callback operator_cmd() :: String.t()
+  @callback shuttle_cmd() :: String.t()
 end
