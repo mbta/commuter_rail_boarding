@@ -6707,6 +6707,39 @@
     <vehicleId>0686</vehicleId>
   </Vehicle>
   <Vehicle>
+    <ExtensionData/>
+    <assignmentInformation>
+      <ExtensionData/>
+      <blockId/>
+      <overloadId>0</overloadId>
+      <overloadOffset>0</overloadOffset>
+      <scheduledPullout>0</scheduledPullout>
+      <serviceDate>1/1/0001 12:00:00 AM</serviceDate>
+    </assignmentInformation>
+    <locationDataArray>
+      <LocationDataElement>
+        <ExtensionData/>
+        <FOM>2</FOM>
+        <adherence>0</adherence>
+        <heading>135</heading>
+        <lat>42.3766862</lat>
+        <layover>false</layover>
+        <lon>-71.1197666</lon>
+        <odometer>27</odometer>
+        <passengerLoad>0</passengerLoad>
+        <patternId/>
+        <revenue>false</revenue>
+        <routeId/>
+        <runId/>
+        <startTime>0</startTime>
+        <time>162515</time>
+        <timepoint/>
+        <trip>0</trip>
+      </LocationDataElement>
+    </locationDataArray>
+    <vehicleId>0688</vehicleId>
+  </Vehicle>
+  <Vehicle>
     <ExtensionData />
     <assignmentInformation>
       <ExtensionData />

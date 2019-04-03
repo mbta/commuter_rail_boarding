@@ -50,6 +50,18 @@ defmodule Busloc.Fetcher.TmFetcherTest do
       assert %Busloc.Vehicle{operator_name: "DIXON", operator_id: "65494", run: "128-1407"} =
                Busloc.State.get(:transitmaster_state, "0401")
     end
+
+    @tag :capture_log
+    test "merges shuttle data", %{state: state, bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      assert {:noreply, _state} = handle_info(:timeout, state)
+
+      assert %Busloc.Vehicle{operator_name: "SANDERS", operator_id: "71158", run: "9990501"} =
+               Busloc.State.get(:transitmaster_state, "0688")
+    end
   end
 
   describe "get_xml/1" do
