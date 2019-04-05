@@ -18,7 +18,7 @@ defmodule Busloc.Cmd.SqlcmdTest do
       actual = shuttle_sql()
 
       for field <-
-            ~w(PROPERTY_TAG LAST_NAME CURRENT_DRIVER MDT_BLOCK_ID SYSPARAM_FLAG LOCAL_TIMESTAMP) do
+            ~w(PROPERTY_TAG LAST_NAME CURRENT_DRIVER MDT_BLOCK_ID SYSPARAM_FLAG) do
         assert actual =~ field
       end
     end
@@ -61,4 +61,33 @@ defmodule Busloc.Cmd.SqlcmdTest do
       assert shuttle_sql() in shuttle_cmd_list()
     end
   end
+
+  describe "parse/1" do
+    setup do
+      cmd = Busloc.Utilities.ConfigHelpers.config(TmShuttle, :cmd)
+      %{cmd: cmd}
+    end
+
+    test "parses results of SQL query into map", %{cmd: cmd} do
+      expected = [
+        %{
+          "vehicle_id" => "1102",
+          "operator_name" => "DIXON",
+          "operator_id" => "65494",
+          "block_id" => "9990501",
+          "run_id" => "9990501"
+        },
+        %{
+          "vehicle_id" => "0688",
+          "operator_name" => "SANDERS",
+          "operator_id" => "71158",
+          "block_id" => "9990501",
+          "run_id" => "9990501"
+        }
+      ]
+
+      assert parse(cmd.shuttle_cmd()) == expected
+    end
+  end
+
 end

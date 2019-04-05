@@ -31,6 +31,7 @@ defmodule Busloc.StateTest do
       vehicle1 = %Vehicle{
         vehicle_id: "1234",
         block: "A123-456",
+        run: "123-1001",
         route: "123",
         trip: "456",
         latitude: 42.345,
@@ -61,6 +62,7 @@ defmodule Busloc.StateTest do
                  | route: "123",
                    trip: "456",
                    block: "A123-456",
+                   run: "123-1001",
                    operator_id: "oper",
                    operator_name: "oper name"
                }

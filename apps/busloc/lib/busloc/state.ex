@@ -65,6 +65,7 @@ defmodule Busloc.State do
     %{
       new_vehicle
       | block: old_vehicle.block || new_vehicle.block,
+        run: old_vehicle.run || new_vehicle.run,
         route: old_vehicle.route || new_vehicle.route,
         trip: old_vehicle.trip || new_vehicle.trip,
         operator_id: old_vehicle.operator_id || new_vehicle.operator_id,

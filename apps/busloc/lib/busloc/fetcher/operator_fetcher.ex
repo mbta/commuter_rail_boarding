@@ -8,7 +8,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
 
   use GenServer
   alias Busloc.Operator
-  alias Busloc.Operator.Parse
+  alias Busloc.Cmd.Sqlcmd
   require Logger
 
   def start_link(opts) do
@@ -54,7 +54,8 @@ defmodule Busloc.Fetcher.OperatorFetcher do
   def handle_info(:timeout, %{table: table} = state) do
     new_operators =
       @cmd.operator_cmd()
-      |> Parse.parse()
+      |> Sqlcmd.parse()
+      |> Enum.flat_map(&Operator.from_map/1)
       |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
 
     {added, changed, deleted} = split(new_operators, get_all(table))

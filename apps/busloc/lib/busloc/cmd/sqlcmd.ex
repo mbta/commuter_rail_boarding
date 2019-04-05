@@ -34,7 +34,6 @@ defmodule Busloc.Cmd.Sqlcmd do
       ,CURRENT_DRIVER as 'operator_id'
       ,MDT_BLOCK_ID as 'block_id'
       ,SYSPARAM_FLAG as 'run_id'
-      ,LOCAL_TIMESTAMP
       FROM TMDailylog.Dbo.LOGGED_MESSAGE
       INNER JOIN TMMain.dbo.Vehicle on source_host = RNET_ADDRESS
       INNER JOIN TMMain.dbo.Operator on current_driver = Operator.ONBOARD_LOGON_ID
@@ -106,4 +105,30 @@ defmodule Busloc.Cmd.Sqlcmd do
 
     cmd_list
   end
+
+  @line_splitter ~r/\r?\n/
+  @col_splitter ~r/\s*,\s*/
+
+  @type key :: {String.t(), String.t()}
+
+  @spec parse(String.t()) :: [map]
+  def parse(data) do
+    rows = Regex.split(@line_splitter, data)
+    [headers, _ignored | rest] = rows
+    headers = split_and_trim(@col_splitter, headers)
+
+    for row <- rest do
+      row = String.trim_leading(row)
+      columms = split_and_trim(@col_splitter, row)
+      header_column_pairs = Enum.zip(headers, columms)
+      Map.new(header_column_pairs)
+    end
+  end
+
+  defp split_and_trim(regex, string) do
+    regex
+    |> Regex.split(string)
+    |> Enum.map(&String.trim/1)
+  end
+
 end

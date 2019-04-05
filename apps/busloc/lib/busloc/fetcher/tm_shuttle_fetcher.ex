@@ -7,8 +7,8 @@ defmodule Busloc.Fetcher.TmShuttleFetcher do
   @cmd Busloc.Utilities.ConfigHelpers.config(TmShuttle, :cmd)
 
   use GenServer
-  alias Busloc.Operator
-  alias Busloc.Operator.Parse
+  alias Busloc.TmShuttle
+  alias Busloc.Cmd.Sqlcmd
   require Logger
 
   def start_link(opts) do
@@ -20,7 +20,7 @@ defmodule Busloc.Fetcher.TmShuttleFetcher do
 
   def shuttle_assignment_by_vehicle(name \\ @default_name, vehicle_id) do
     case :ets.lookup(name, vehicle_id) do
-      [{_, %Operator{} = op}] -> {:ok, op}
+      [{_, %TmShuttle{} = op}] -> {:ok, op}
       [] -> :error
     end
   rescue
@@ -54,7 +54,8 @@ defmodule Busloc.Fetcher.TmShuttleFetcher do
   def handle_info(:timeout, %{table: table} = state) do
     new_shuttles =
       @cmd.shuttle_cmd()
-      |> Parse.parse()
+      |> Sqlcmd.parse()
+      |> Enum.flat_map(&TmShuttle.from_map/1)
       |> Map.new(fn %{vehicle_id: v} = x -> {v, x} end)
 
     {added, changed, deleted} = split(new_shuttles, get_all(table))
@@ -62,8 +63,7 @@ defmodule Busloc.Fetcher.TmShuttleFetcher do
     :ets.insert(table, Map.to_list(new_shuttles))
 
     for shuttle <- Map.values(Map.merge(added, changed)) do
-      # TODO identify in the log that this is a shuttle
-      Logger.info(fn -> Operator.log_line(shuttle) end)
+      Logger.info(fn -> TmShuttle.log_line(shuttle) end)
     end
 
     # delete any items which weren't part of the update

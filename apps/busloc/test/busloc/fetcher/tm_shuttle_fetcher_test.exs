@@ -1,23 +1,23 @@
 defmodule Busloc.Fetcher.TmShuttleFetcherTest do
   @moduledoc false
   use ExUnit.Case, async: true
-  alias Busloc.Operator
+  alias Busloc.TmShuttle
   import Busloc.Fetcher.TmShuttleFetcher
 
   describe "handle_info(:timeout)" do
     @tag :capture_log
-    test "stores shuttle data in ets table" do
+    test "stores TM shuttle data in ets table" do
       {:ok, state} = init(:tm_shuttle_fetcher_test)
       assert handle_info(:timeout, state) == {:noreply, state}
 
       assert {:ok,
-              %Operator{
-                vehicle_id: "0401",
+              %TmShuttle{
+                vehicle_id: "1102",
                 operator_name: "DIXON",
                 operator_id: "65494",
                 block: "9990501",
                 run: "9990501"
-              }} == shuttle_assignment_by_vehicle(:tm_shuttle_fetcher_test, "0401")
+              }} == shuttle_assignment_by_vehicle(:tm_shuttle_fetcher_test, "1102")
 
       assert :error == shuttle_assignment_by_vehicle(:tm_shuttle_fetcher_test, "1234")
     end
@@ -26,7 +26,7 @@ defmodule Busloc.Fetcher.TmShuttleFetcherTest do
     test "deletes previous shuttles which are no longer present" do
       {:ok, state} = init(:tm_shuttle_fetcher_test_delete)
 
-      shuttle = %Operator{
+      shuttle = %TmShuttle{
         vehicle_id: "new",
         block: "new"
       }
