@@ -32,9 +32,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
       id: "#{:erlang.phash2(vehicle)}",
       vehicle: %{
         trip: entity_trip(vehicle),
-        vehicle: %{
-          "id" => vehicle.vehicle_id
-        },
+        vehicle: entity_vehicle(vehicle),
         position: %{
           latitude: vehicle.latitude,
           longitude: vehicle.longitude,
@@ -59,6 +57,19 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
 
   defp entity_trip(vehicle) do
     %{start_date: start_date(vehicle.timestamp)}
+  end
+
+  defp entity_vehicle(%{trip: "000"} = vehicle) do
+    %{
+      id: vehicle.vehicle_id,
+      assignment_status: "unassigned"
+    }
+  end
+
+  defp entity_vehicle(vehicle) do
+    %{
+      id: vehicle.vehicle_id
+    }
   end
 
   def start_date(%DateTime{} = timestamp) do

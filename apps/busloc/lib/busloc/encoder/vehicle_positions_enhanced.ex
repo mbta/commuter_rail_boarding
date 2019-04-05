@@ -37,10 +37,7 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
       is_deleted: false,
       vehicle: %{
         trip: trip(vehicle),
-        vehicle: %{
-          id: "y#{vehicle.vehicle_id}",
-          label: vehicle.vehicle_id
-        },
+        vehicle: entity_vehicle(vehicle),
         position: %{
           latitude: vehicle.latitude,
           longitude: vehicle.longitude,
@@ -95,5 +92,17 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
 
   defp start_date(_) do
     nil
+  end
+
+  defp entity_vehicle(%{trip: trip_id} = vehicle) when is_binary(trip_id) do
+    %{
+      id: "y#{vehicle.vehicle_id}",
+      label: vehicle.vehicle_id
+    }
+  end
+
+  defp entity_vehicle(vehicle) do
+    entity = entity_vehicle(%{vehicle | trip: "unassigned"})
+    Map.put(entity, :assignment_status, :unassigned)
   end
 end

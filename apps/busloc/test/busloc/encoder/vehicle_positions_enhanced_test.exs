@@ -103,10 +103,11 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
              } = actual_entity.vehicle.trip
     end
 
-    test "without a trip ID, or a route, we do not generate a TripDescriptor" do
+    test "without a trip ID, or a route, we generated an unassigned status" do
       v = %Vehicle{vehicle_id: "veh", timestamp: DateTime.utc_now()}
       actual_entity = entity(v)
 
+      assert actual_entity.vehicle.vehicle.assignment_status == :unassigned
       assert actual_entity.vehicle.trip == %{}
     end
   end
