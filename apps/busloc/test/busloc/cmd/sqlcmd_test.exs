@@ -17,8 +17,7 @@ defmodule Busloc.Cmd.SqlcmdTest do
     test "requests the selected fields for TM shuttle query" do
       actual = shuttle_sql()
 
-      for field <-
-            ~w(PROPERTY_TAG LAST_NAME CURRENT_DRIVER MDT_BLOCK_ID SYSPARAM_FLAG) do
+      for field <- ~w(PROPERTY_TAG LAST_NAME CURRENT_DRIVER MDT_BLOCK_ID SYSPARAM_FLAG) do
         assert actual =~ field
       end
     end
@@ -89,5 +88,4 @@ defmodule Busloc.Cmd.SqlcmdTest do
       assert parse(cmd.shuttle_cmd()) == expected
     end
   end
-
 end

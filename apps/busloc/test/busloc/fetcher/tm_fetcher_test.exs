@@ -59,8 +59,12 @@ defmodule Busloc.Fetcher.TmFetcherTest do
 
       assert {:noreply, _state} = handle_info(:timeout, state)
 
-      assert %Busloc.Vehicle{operator_name: "SANDERS", operator_id: "71158", block: "9990501", run: "9990501"} =
-               Busloc.State.get(:transitmaster_state, "0688")
+      assert %Busloc.Vehicle{
+               operator_name: "SANDERS",
+               operator_id: "71158",
+               block: "9990501",
+               run: "9990501"
+             } = Busloc.State.get(:transitmaster_state, "0688")
     end
   end
 

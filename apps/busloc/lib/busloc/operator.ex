@@ -40,5 +40,4 @@ defmodule Busloc.Operator do
   end
 
   def from_map(_), do: []
-
 end

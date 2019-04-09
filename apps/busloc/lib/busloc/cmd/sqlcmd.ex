@@ -130,5 +130,4 @@ defmodule Busloc.Cmd.Sqlcmd do
     |> Regex.split(string)
     |> Enum.map(&String.trim/1)
   end
-
 end
