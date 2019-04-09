@@ -34,33 +34,6 @@ defmodule Busloc.State do
     end
   end
 
-  @doc """
-  This function is called by Busloc.TmShuttleFetcher to update the assignment and operator
-  of a Vehicle which doesn't have an assigment from the TransitMaster API. 
-  The vehicle's lat/long and timestamp will not change.
-  """
-  def update_assignment(table, shuttle) when is_map(shuttle) do
-    if old_vehicle = get(table, shuttle.vehicle_id) do
-      if is_nil(old_vehicle.block_id) && is_nil(old_vehicle.run_id) &&
-           is_nil(old_vehicle.operator_id) && is_nil(old_vehicle.operator_name) &&
-           not is_nil(shuttle.block_id) && not is_nil(shuttle.run_id) &&
-           not is_nil(shuttle.operator_id) && not is_nil(shuttle.operator_name) do
-        merged_vehicle = merge_keeping_location(old_vehicle, shuttle)
-        true = :ets.insert(table, {shuttle.vehicle_id, merged_vehicle})
-      end
-    end
-  end
-
-  defp merge_keeping_location(old_vehicle, new_assignment) do
-    %{
-      old_vehicle
-      | block: new_assignment.block,
-        run: new_assignment.run,
-        operator_id: new_assignment.operator_id,
-        operator_name: new_assignment.operator_name
-    }
-  end
-
   defp merge_keeping_block(old_vehicle, new_vehicle) do
     %{
       new_vehicle

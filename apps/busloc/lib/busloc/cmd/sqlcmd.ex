@@ -61,49 +61,15 @@ defmodule Busloc.Cmd.Sqlcmd do
   end
 
   @impl Busloc.Cmd
-  def operator_cmd do
-    {data, 0} = System.cmd("sqlcmd", operator_cmd_list(), stderr_to_stdout: true)
-    data
-  end
-
-  def operator_cmd_list do
-    query = operator_sql()
-
-    cmd_list = [
-      "-s",
-      ",",
-      "-Q",
-      query
-    ]
-
-    Logger.debug(fn ->
-      "executing TM operator query: #{query}"
-    end)
-
-    cmd_list
-  end
+  def operator_cmd(), do: sql_cmd(operator_sql())
 
   @impl Busloc.Cmd
-  def shuttle_cmd do
-    {data, 0} = System.cmd("sqlcmd", shuttle_cmd_list(), stderr_to_stdout: true)
+  def shuttle_cmd(), do: sql_cmd(shuttle_sql())
+
+  defp sql_cmd(query) do
+    cmd_list = ["-s", ",", "-Q", query]
+    {data, 0} = System.cmd("sqlcmd", cmd_list, stderr_to_stdout: true)
     data
-  end
-
-  def shuttle_cmd_list do
-    query = shuttle_sql()
-
-    cmd_list = [
-      "-s",
-      ",",
-      "-Q",
-      query
-    ]
-
-    Logger.debug(fn ->
-      "executing TM shuttle query: #{query}"
-    end)
-
-    cmd_list
   end
 
   @line_splitter ~r/\r?\n/

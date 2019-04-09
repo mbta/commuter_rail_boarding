@@ -57,25 +57,4 @@ defmodule Busloc.Fetcher.OperatorFetcherTest do
                operator_by_vehicle_block(:operator_fetcher_test_not_started, "1234", "1234")
     end
   end
-
-  describe "split/3" do
-    test "returns added/changed/deleted keys" do
-      new = %{
-        new: 1,
-        existing: 2,
-        changed: 3
-      }
-
-      existing = %{
-        existing: 2,
-        changed: 2,
-        deleted: 4
-      }
-
-      {added, changed, deleted} = split(new, existing)
-      assert added == %{new: 1}
-      assert changed == %{changed: 3}
-      assert deleted == %{deleted: 4}
-    end
-  end
 end

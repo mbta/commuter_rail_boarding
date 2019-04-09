@@ -9,6 +9,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
   use GenServer
   alias Busloc.Operator
   alias Busloc.Cmd.Sqlcmd
+  alias Busloc.MapDiff
   require Logger
 
   def start_link(opts) do
@@ -58,7 +59,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
       |> Enum.flat_map(&Operator.from_map/1)
       |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
 
-    {added, changed, deleted} = split(new_operators, get_all(table))
+    {added, changed, deleted} = MapDiff.split(new_operators, MapDiff.get_all(table))
 
     :ets.insert(table, Map.to_list(new_operators))
 
@@ -79,30 +80,5 @@ defmodule Busloc.Fetcher.OperatorFetcher do
 
   def handle_info(message, state) do
     super(message, state)
-  end
-
-  defp get_all(table) do
-    Map.new(:ets.tab2list(table))
-  end
-
-  @doc """
-  Split the `new` map into three maps, relative to the `existing` map:
-
-  - added keys
-  - changed keys
-  - deleted keys
-
-  Keys which have the same value in `existing` are dropped.
-  """
-  def split(new, existing) do
-    {a, added} = Map.split(new, Map.keys(existing))
-    {c, deleted} = Map.split(existing, Map.keys(new))
-
-    changed =
-      for {key, value} = tuple <- a, Map.fetch!(c, key) != value, into: %{} do
-        tuple
-      end
-
-    {added, changed, deleted}
   end
 end
