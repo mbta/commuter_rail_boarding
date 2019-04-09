@@ -28,6 +28,18 @@ defmodule Busloc.Cmd.SqlcmdTest do
     end
   end
 
+  describe "shuttle_cmd/0" do
+    test "runs the TM shuttle SQL query" do
+      assert _ = shuttle_cmd()
+    end
+  end
+
+  describe "operator_cmd/0" do
+    test "runs the operator SQL query" do
+      assert _ = operator_cmd()
+    end
+  end
+
   describe "parse/1" do
     setup do
       cmd = Busloc.Utilities.ConfigHelpers.config(TmShuttle, :cmd)
