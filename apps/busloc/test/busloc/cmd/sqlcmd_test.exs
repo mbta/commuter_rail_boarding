@@ -28,18 +28,6 @@ defmodule Busloc.Cmd.SqlcmdTest do
     end
   end
 
-  describe "shuttle_cmd/0" do
-    test "runs the TM shuttle SQL query" do
-      assert _ = shuttle_cmd()
-    end
-  end
-
-  describe "operator_cmd/0" do
-    test "runs the operator SQL query" do
-      assert _ = operator_cmd()
-    end
-  end
-
   describe "parse/1" do
     setup do
       cmd = Busloc.Utilities.ConfigHelpers.config(TmShuttle, :cmd)
@@ -50,17 +38,24 @@ defmodule Busloc.Cmd.SqlcmdTest do
       expected = [
         %{
           "vehicle_id" => "1102",
-          "operator_name" => "DIXON",
-          "operator_id" => "65494",
+          "operator_name" => "SHUTTLEDRIVER1",
+          "operator_id" => "10101",
           "block_id" => "9990501",
           "run_id" => "9990501"
         },
         %{
           "vehicle_id" => "0688",
-          "operator_name" => "SANDERS",
-          "operator_id" => "71158",
+          "operator_name" => "SHUTTLEDRIVER2",
+          "operator_id" => "20202",
           "block_id" => "9990501",
           "run_id" => "9990501"
+        },
+        %{
+          "vehicle_id" => "0425",
+          "operator_name" => "SHUTTLEDRIVER3",
+          "operator_id" => "30303",
+          "block_id" => "9990502",
+          "run_id" => "9990502"
         }
       ]
 

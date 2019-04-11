@@ -13,8 +13,8 @@ defmodule Busloc.Fetcher.OperatorFetcherTest do
       assert {:ok,
               %Operator{
                 vehicle_id: "0401",
-                operator_name: "DIXON",
-                operator_id: "65494",
+                operator_name: "OPERATOR1",
+                operator_id: "40404",
                 block: "Q225-84",
                 run: "128-1407"
               }} == operator_by_vehicle_block(:operator_fetcher_test, "0401", "Q225-84")
