@@ -68,7 +68,10 @@ defmodule Busloc.Fetcher.TmFetcherTest do
     end
 
     @tag :capture_log
-    test "uses TM API block, operator query over shuttle block and operator", %{state: state, bypass: bypass} do
+    test "uses TM API block, operator query over shuttle block and operator", %{
+      state: state,
+      bypass: bypass
+    } do
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
       end)
