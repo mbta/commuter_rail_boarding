@@ -15,14 +15,17 @@ ADD . .
 
 RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, compile, release --verbose
 
-FROM alpine:latest
+FROM alpine:3.9
 
-RUN apk add --update bash libssl1.0 ncurses-libs \
+RUN apk add --update bash \
 	&& rm -rf /var/cache/apk
 
 # Set environment
 ENV MIX_ENV=prod TERM=xterm LANG=C.UTF-8 REPLACE_OS_VARS=true
 
 COPY --from=builder /_build/prod/rel/ /rel
+
+# Ensure SSL support is enabled
+RUN /rel/train_loc/bin/train_loc command crypto supports
 
 CMD ["/rel/train_loc/bin/train_loc", "foreground"]

@@ -61,7 +61,7 @@ defmodule TrainLoc.Mixfile do
       {:goth, "~> 0.7"},
       {:hackney, "== 1.10.1"},
       {:poison, "~> 3.1"},
-      {:timex, "~> 3.1.24"}
+      {:timex, "3.4.1"}
     ]
   end
 end
