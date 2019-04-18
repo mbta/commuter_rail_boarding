@@ -75,6 +75,10 @@ defmodule Busloc.Cmd.Sqlcmd do
       query
     ]
 
+    Logger.debug(fn ->
+      "TM SQL command: #{query}"
+    end)
+
     cmd_list
   end
 

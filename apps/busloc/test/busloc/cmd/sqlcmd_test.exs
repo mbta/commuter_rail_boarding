@@ -1,5 +1,6 @@
 defmodule Busloc.Cmd.SqlcmdTest do
   use ExUnit.Case
+  import ExUnit.CaptureLog
   import Busloc.Cmd.Sqlcmd
 
   describe "operator_sql/0" do
@@ -29,6 +30,15 @@ defmodule Busloc.Cmd.SqlcmdTest do
   end
 
   describe "cmd_list/1" do
+    test "logs the query" do
+      log =
+        capture_log(fn ->
+          _ = cmd_list("sql query")
+        end)
+
+      assert log =~ "TM SQL command:"
+    end
+
     test "list includes the SQL query" do
       assert "sql query" in cmd_list("sql query")
     end
