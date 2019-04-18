@@ -12,7 +12,8 @@ defmodule Busloc.Supervisor.Transitmaster do
       {Busloc.State, name: :transitmaster_state},
       {Busloc.Fetcher.TmFetcher, url: config(TmFetcher, :url)},
       {Busloc.Fetcher.SamsaraFetcher, url: config(SamsaraFetcher, :url)},
-      {Busloc.Fetcher.OperatorFetcher, []}
+      {Busloc.Fetcher.OperatorFetcher, []},
+      {Busloc.Fetcher.TmShuttleFetcher, []}
     ]
 
     Supervisor.start_link(children, strategy: :rest_for_one)

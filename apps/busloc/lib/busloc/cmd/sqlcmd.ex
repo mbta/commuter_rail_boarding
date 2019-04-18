@@ -1,11 +1,11 @@
 defmodule Busloc.Cmd.Sqlcmd do
   @moduledoc """
-  Executes a `sqlcmd` script to retrieve the operator data.
+  Executes a `sqlcmd` script to retrieve the operator or shuttle data.
   """
   @behaviour Busloc.Cmd
   require Logger
 
-  def sql do
+  def operator_sql do
     ~s[DECLARE @max_calendar_id as numeric(10,0);
       set @max_calendar_id = (select max(calendar_id)
         FROM TMDailylog.dbo.DAILY_WORK_PIECE);
@@ -25,6 +25,31 @@ defmodule Busloc.Cmd.Sqlcmd do
       ORDER BY PROPERTY_TAG]
   end
 
+  def shuttle_sql do
+    ~s[DECLARE @max_calendar_id as numeric(10,0);
+      set @max_calendar_id = (select max(calendar_id)
+        FROM TMDailylog.dbo.DAILY_WORK_PIECE);
+      SELECT PROPERTY_TAG as 'vehicle_id'
+	  ,LAST_NAME as 'operator_name'
+      ,CURRENT_DRIVER as 'operator_id'
+      ,MDT_BLOCK_ID as 'block_id'
+      ,SYSPARAM_FLAG as 'run_id'
+      FROM TMDailylog.Dbo.LOGGED_MESSAGE
+      INNER JOIN TMMain.dbo.Vehicle on source_host = RNET_ADDRESS
+      INNER JOIN TMMain.dbo.Operator on current_driver = Operator.ONBOARD_LOGON_ID
+      WHERE calendar_id = @max_calendar_id
+        AND message_type_id = 9
+        AND cat_6 = 1
+        AND SYSPARAM_FLAG like '999050%'
+        AND transmitted_message_id IN
+          (SELECT max(transmitted_message_id) 
+           FROM TMDailylog.dbo.LOGGED_MESSAGE
+           WHERE calendar_id = @max_calendar_id
+           AND message_type_id = 9
+           GROUP BY source_host
+          )]
+  end
+
   @impl Busloc.Cmd
   def can_connect? do
     case System.cmd("sqlcmd", ["-l", "1", "-Q", "select 1"], stderr_to_stdout: true) do
@@ -36,14 +61,13 @@ defmodule Busloc.Cmd.Sqlcmd do
   end
 
   @impl Busloc.Cmd
-  def cmd do
-    {data, 0} = System.cmd("sqlcmd", cmd_list(), stderr_to_stdout: true)
-    data
-  end
+  def operator_cmd(), do: call_sql_cmd(cmd_list(operator_sql()))
 
-  def cmd_list do
-    query = sql()
+  @impl Busloc.Cmd
+  def shuttle_cmd(), do: call_sql_cmd(cmd_list(shuttle_sql()))
 
+  @spec cmd_list(query :: String.t()) :: [String.t()]
+  def cmd_list(query) do
     cmd_list = [
       "-s",
       ",",
@@ -52,9 +76,39 @@ defmodule Busloc.Cmd.Sqlcmd do
     ]
 
     Logger.debug(fn ->
-      "executing TM query: #{query}"
+      "TM SQL command: #{query}"
     end)
 
     cmd_list
+  end
+
+  defp call_sql_cmd(cmd_list) do
+    {data, 0} = System.cmd("sqlcmd", cmd_list, stderr_to_stdout: true)
+    data
+  end
+
+  @line_splitter ~r/\r?\n/
+  @col_splitter ~r/\s*,\s*/
+
+  @type key :: {String.t(), String.t()}
+
+  @spec parse(String.t()) :: [map]
+  def parse(data) do
+    rows = Regex.split(@line_splitter, data)
+    [headers, _ignored | rest] = rows
+    headers = split_and_trim(@col_splitter, headers)
+
+    for row <- rest do
+      row = String.trim_leading(row)
+      columms = split_and_trim(@col_splitter, row)
+      header_column_pairs = Enum.zip(headers, columms)
+      Map.new(header_column_pairs)
+    end
+  end
+
+  defp split_and_trim(regex, string) do
+    regex
+    |> Regex.split(string)
+    |> Enum.map(&String.trim/1)
   end
 end

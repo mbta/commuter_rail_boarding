@@ -1,13 +1,13 @@
-defmodule Busloc.Fetcher.OperatorFetcher do
+defmodule Busloc.Fetcher.TmShuttleFetcher do
   @moduledoc """
-  Server to periodically query the TransitMaster DB for operator data.
+  Server to periodically query the TransitMaster DB for shuttle assignment data.
   """
   @frequency 30_000
   @default_name __MODULE__
-  @cmd Busloc.Utilities.ConfigHelpers.config(Operator, :cmd)
+  @cmd Busloc.Utilities.ConfigHelpers.config(TmShuttle, :cmd)
 
   use GenServer
-  alias Busloc.Operator
+  alias Busloc.TmShuttle
   alias Busloc.Cmd.Sqlcmd
   alias Busloc.MapDiff
   require Logger
@@ -19,9 +19,9 @@ defmodule Busloc.Fetcher.OperatorFetcher do
 
   def get_table(name \\ @default_name), do: name
 
-  def operator_by_vehicle_block(name \\ @default_name, vehicle_id, block_id) do
-    case :ets.lookup(name, {vehicle_id, block_id}) do
-      [{_, %Operator{} = op}] -> {:ok, op}
+  def shuttle_assignment_by_vehicle(name \\ @default_name, vehicle_id) do
+    case :ets.lookup(name, vehicle_id) do
+      [{_, %TmShuttle{} = op}] -> {:ok, op}
       [] -> :error
     end
   rescue
@@ -53,18 +53,18 @@ defmodule Busloc.Fetcher.OperatorFetcher do
 
   @impl GenServer
   def handle_info(:timeout, %{table: table} = state) do
-    new_operators =
-      @cmd.operator_cmd()
+    new_shuttles =
+      @cmd.shuttle_cmd()
       |> Sqlcmd.parse()
-      |> Enum.flat_map(&Operator.from_map/1)
-      |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
+      |> Enum.flat_map(&TmShuttle.from_map/1)
+      |> Map.new(fn %{vehicle_id: v} = x -> {v, x} end)
 
-    {added, changed, deleted} = MapDiff.split(new_operators, MapDiff.get_all(table))
+    {added, changed, deleted} = MapDiff.split(new_shuttles, MapDiff.get_all(table))
 
-    :ets.insert(table, Map.to_list(new_operators))
+    :ets.insert(table, Map.to_list(new_shuttles))
 
-    for operator <- Map.values(Map.merge(added, changed)) do
-      Logger.info(fn -> Operator.log_line(operator) end)
+    for shuttle <- Map.values(Map.merge(added, changed)) do
+      Logger.info(fn -> TmShuttle.log_line(shuttle) end)
     end
 
     # delete any items which weren't part of the update

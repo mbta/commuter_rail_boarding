@@ -17,6 +17,7 @@ defmodule Busloc.Fetcher.TmFetcherTest do
     setup do
       start_supervised!({Busloc.State, name: :transitmaster_state})
       start_supervised!({Busloc.Fetcher.OperatorFetcher, []})
+      start_supervised!({Busloc.Fetcher.TmShuttleFetcher, []})
       bypass = Bypass.open()
       {:ok, state} = init("http://127.0.0.1:#{bypass.port}")
       %{state: state, bypass: bypass}
@@ -46,8 +47,43 @@ defmodule Busloc.Fetcher.TmFetcherTest do
 
       assert {:noreply, _state} = handle_info(:timeout, state)
 
-      assert %Busloc.Vehicle{operator_name: "DIXON", operator_id: "65494", run: "128-1407"} =
+      assert %Busloc.Vehicle{operator_name: "OPERATOR1", operator_id: "40404", run: "128-1407"} =
                Busloc.State.get(:transitmaster_state, "0401")
+    end
+
+    @tag :capture_log
+    test "merges shuttle data", %{state: state, bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      assert {:noreply, _state} = handle_info(:timeout, state)
+
+      assert %Busloc.Vehicle{
+               operator_name: "SHUTTLEDRIVER2",
+               operator_id: "20202",
+               block: "9990501",
+               run: "9990501"
+             } = Busloc.State.get(:transitmaster_state, "0688")
+    end
+
+    @tag :capture_log
+    test "uses TM API block, operator query over shuttle block and operator", %{
+      state: state,
+      bypass: bypass
+    } do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      assert {:noreply, _state} = handle_info(:timeout, state)
+
+      assert %Busloc.Vehicle{
+               operator_name: "OPERATOR6",
+               operator_id: "90909",
+               block: "Q240-147",
+               run: "128-1433"
+             } = Busloc.State.get(:transitmaster_state, "0907")
     end
   end
 

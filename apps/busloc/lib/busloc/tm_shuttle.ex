@@ -1,6 +1,6 @@
-defmodule Busloc.Operator do
+defmodule Busloc.TmShuttle do
   @moduledoc """
-  Represents an operator's scheduled work.
+  Represents a TransitMaster shuttle login message.
   """
   defstruct [
     :vehicle_id,
@@ -12,13 +12,13 @@ defmodule Busloc.Operator do
 
   @type t :: %__MODULE__{
           vehicle_id: String.t(),
-          operator_name: String.t() | nil,
-          operator_id: String.t() | nil,
+          operator_name: String.t(),
+          operator_id: String.t(),
           block: String.t(),
-          run: String.t() | nil
+          run: String.t()
         }
 
-  defdelegate log_line(operator), to: Busloc.LogHelper, as: :log_struct
+  defdelegate log_line(shuttle), to: Busloc.LogHelper, as: :log_struct
 
   @spec from_map(map) :: [t()]
   def from_map(%{
