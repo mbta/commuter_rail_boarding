@@ -51,7 +51,7 @@ defmodule Busloc.Cmd.SqlcmdTest do
           "run_id" => "9990501"
         },
         %{
-          "vehicle_id" => "0425",
+          "vehicle_id" => "0907",
           "operator_name" => "SHUTTLEDRIVER3",
           "operator_id" => "30303",
           "block_id" => "9990502",
