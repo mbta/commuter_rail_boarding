@@ -71,6 +71,11 @@ defmodule Busloc.State do
     inserts =
       for vehicle <- vehicles, into: %{} do
         old_vehicle = get(table, vehicle.vehicle_id)
+
+        if old_vehicle && old_vehicle.source != vehicle.source do
+          Busloc.Vehicle.AsyncValidator.validate_speed(vehicle, old_vehicle)
+        end
+
         vehicle = merge_location(vehicle, old_vehicle || vehicle)
 
         vehicle =
