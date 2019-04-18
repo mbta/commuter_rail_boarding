@@ -61,13 +61,24 @@ defmodule Busloc.Cmd.Sqlcmd do
   end
 
   @impl Busloc.Cmd
-  def operator_cmd(), do: sql_cmd(operator_sql())
+  def operator_cmd(), do: call_sql_cmd(cmd_list(operator_sql()))
 
   @impl Busloc.Cmd
-  def shuttle_cmd(), do: sql_cmd(shuttle_sql())
+  def shuttle_cmd(), do: call_sql_cmd(cmd_list(shuttle_sql()))
 
-  defp sql_cmd(query) do
-    cmd_list = ["-s", ",", "-Q", query]
+  @spec cmd_list(query :: String.t()) :: [String.t()]
+  def cmd_list(query) do
+    cmd_list = [
+      "-s",
+      ",",
+      "-Q",
+      query
+    ]
+
+    cmd_list
+  end
+
+  defp call_sql_cmd(cmd_list) do
     {data, 0} = System.cmd("sqlcmd", cmd_list, stderr_to_stdout: true)
     data
   end

@@ -3,10 +3,13 @@ defmodule Busloc.MapDiff do
   Utilities for comparing maps.
   """
 
+  @spec get_all(:ets.tab()) :: map
+  @doc "Turn an ETS table of {key, value} tuples into a Map"
   def get_all(table) do
     Map.new(:ets.tab2list(table))
   end
 
+  @spec split(new :: map, existing :: map) :: {added :: map, changed :: map, deleted :: map}
   @doc """
   Split the `new` map into three maps, relative to the `existing` map:
 

@@ -28,6 +28,12 @@ defmodule Busloc.Cmd.SqlcmdTest do
     end
   end
 
+  describe "cmd_list/1" do
+    test "list includes the SQL query" do
+      assert "sql query" in cmd_list("sql query")
+    end
+  end
+
   describe "parse/1" do
     setup do
       cmd = Busloc.Utilities.ConfigHelpers.config(TmShuttle, :cmd)
