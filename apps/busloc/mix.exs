@@ -36,7 +36,7 @@ defmodule Busloc.MixProject do
       {:httpoison, "~> 1.0"},
       {:jason, "~> 1.1.1"},
       {:sweet_xml, "~> 0.6"},
-      {:timex, "~> 3.1"},
+      {:timex, "3.4.1"},
       {:fast_local_datetime, "~> 0.3"},
       {:xml_builder, "~> 2.1", override: true},
       {:plug, "~> 1.5"},

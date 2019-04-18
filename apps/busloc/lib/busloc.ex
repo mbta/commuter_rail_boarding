@@ -21,7 +21,8 @@ defmodule Busloc do
       Busloc.Supervisor.Eyeride,
       Busloc.Supervisor.Transitmaster,
       Busloc.Supervisor.Saucon,
-      Busloc.Supervisor.Tsp
+      Busloc.Supervisor.Tsp,
+      Busloc.Vehicle.AsyncValidator
     ] ++ publisher_children(config(:uploaders))
   end
 

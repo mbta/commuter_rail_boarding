@@ -42,6 +42,9 @@ config :busloc, SauconFetcher,
 
 config :busloc, Publisher, fetch_rate: 5000
 
+# 100 MPH in (lat/long) degrees per second
+config :busloc, AsyncValidator, ang_speed_threshold: 100 * 0.02 / 3600
+
 config :busloc, Operator, cmd: Busloc.Cmd.Sqlcmd
 config :busloc, TmShuttle, cmd: Busloc.Cmd.Sqlcmd
 
@@ -49,7 +52,7 @@ config :busloc, TmShuttle, cmd: Busloc.Cmd.Sqlcmd
 config :busloc, Busloc.Tsp.Sender, tsp_url: "http://tspester.requestcatcher.com/test?"
 
 config :busloc, Tsp,
-  # TSP socket port 9005 for prod; 9006 (default, defined in supervisor/tsp.ex) for dev, test, and staging. 
+  # TSP socket port 9005 for prod; 9006 (default, defined in supervisor/tsp.ex) for dev, test, and staging.
   # Needed because startup will fail if another busloc is listening on the same port on that machine,
   # or messages will get received by the wrong busloc.
 
