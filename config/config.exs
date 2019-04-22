@@ -58,4 +58,6 @@ config :goth, json: {:system, "GCS_CREDENTIAL_JSON"}
 config :logger,
   truncate: :infinity
 
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 import_config "#{Mix.env()}.exs"

@@ -14,13 +14,14 @@ defmodule DateHelpers do
   @spec service_date :: Date.t()
   @spec service_date(DateTime.t()) :: Date.t()
   def service_date do
-    service_date(Calendar.DateTime.now!(@timezone))
+    {:ok, now} = DateTime.now(@timezone)
+    service_date(now)
   end
 
   def service_date(%DateTime{} = dt) do
     dt
     |> ensure_timezone(@timezone)
-    |> Calendar.DateTime.subtract!(@three_hours_in_seconds)
+    |> DateTime.add(-@three_hours_in_seconds)
     |> DateTime.to_date()
   end
 
@@ -32,22 +33,22 @@ defmodule DateHelpers do
   @spec seconds_until_next_service_date :: non_neg_integer
   def seconds_until_next_service_date do
     today = service_date()
-    {:ok, tomorrow} = Calendar.Date.add(today, 1)
+    tomorrow = Date.add(today, 1)
+    {:ok, naive} = NaiveDateTime.new(tomorrow, ~T[03:00:00])
 
     {:ok, next_service_start} =
-      Calendar.DateTime.from_date_and_time_and_zone(
-        tomorrow,
-        ~T[03:00:00],
+      DateTime.from_naive(
+        naive,
         @timezone
       )
 
-    {:ok, seconds, microseconds, _} =
-      Calendar.DateTime.diff(next_service_start, DateTime.utc_now())
+    microseconds =
+      DateTime.diff(next_service_start, DateTime.utc_now(), :microsecond)
 
     # we want to return an integer, so we floor_div the seconds +
     # microseconds. the negatives make sure we floor towards
     # negative-infinity (getting a larger number)
-    -Integer.floor_div(seconds * 1_000_000 + microseconds, -1_000_000)
+    -Integer.floor_div(microseconds, -1_000_000)
   end
 
   defp ensure_timezone(%DateTime{time_zone: timezone} = dt, timezone) do
@@ -56,6 +57,7 @@ defmodule DateHelpers do
   end
 
   defp ensure_timezone(dt, timezone) do
-    Calendar.DateTime.shift_zone!(dt, timezone)
+    {:ok, dt} = DateTime.shift_zone(dt, timezone)
+    dt
   end
 end
