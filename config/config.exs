@@ -49,8 +49,6 @@ config :commuter_rail_boarding,
   uploader: Uploader.Console,
   # also overriden by CommuterRailBoarding.Application
   v3_api_key: System.get_env("V3_API_KEY"),
-  log_chunks: System.get_env("LOG_CHUNKS"),
-  event_producer: System.get_env("EVENT_PRODUCER") || "Producer",
   start_children?: true
 
 config :goth, json: {:system, "GCS_CREDENTIAL_JSON"}

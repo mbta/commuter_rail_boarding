@@ -10,12 +10,15 @@ defmodule BoardingStatus.ProducerConsumer do
   end
 
   def init(args) do
-    {:producer_consumer, :state, init_opts(args)}
+    producers = Keyword.fetch!(args, :subscribe_to)
+    {:producer_consumer, %{producers: producers}, init_opts(args)}
   end
 
   def handle_events(events, _from, state) do
+    maybe_refresh!(events, state)
+
     valid_event_data =
-      for event <- events,
+      for %{event: "put"} = event <- events,
           {:ok, data} <- [Poison.decode(event.data)],
           data <- valid_data(data) do
         data
@@ -49,5 +52,19 @@ defmodule BoardingStatus.ProducerConsumer do
 
   defp valid_data(_) do
     []
+  end
+
+  def maybe_refresh!(
+        events,
+        %{producers: producers},
+        refresh_fn \\ &ServerSentEventStage.refresh/1
+      ) do
+    if should_refresh?(events) do
+      Enum.each(producers, refresh_fn)
+    end
+  end
+
+  defp should_refresh?(events) do
+    Enum.any?(events, &(&1.event == "auth_revoked"))
   end
 end

@@ -29,18 +29,13 @@ defmodule CommuterRailBoarding.Application do
   end
 
   defp other_children(true) do
-    event_producer_binary =
-      Application.get_env(:commuter_rail_boarding, :event_producer)
-
-    event_producer = Module.concat([ServerSentEvent, event_producer_binary])
-
     [
-      {event_producer,
-       name: ServerSentEvent.Producer, url: {FirebaseUrl, :url, []}},
+      {ServerSentEventStage,
+       name: ServerSentEventStage, url: {FirebaseUrl, :url, []}},
       {BoardingStatus.ProducerConsumer,
        name: BoardingStatus.ProducerConsumer,
        dispatcher: GenStage.BroadcastDispatcher,
-       subscribe_to: [ServerSentEvent.Producer]},
+       subscribe_to: [ServerSentEventStage]},
       {TripUpdates.ProducerConsumer,
        name: TripUpdates.ProducerConsumer,
        subscribe_to: [BoardingStatus.ProducerConsumer]},
