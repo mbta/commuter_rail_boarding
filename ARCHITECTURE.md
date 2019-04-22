@@ -5,23 +5,20 @@
 The Commuter Rail Boarding application is implemented as a [GenStage][gen_stage]
 pipeline with four steps:
 
-* ServerSentEvent.Producer
+* ServerSentEventStage
 * BoardingStatus.ProducerConsumer
 * TripUpdates.ProducerConsumer
 * Uploader.Consumer
 
-### ServerSentEvent.Producer
+### ServerSentEventStage
 
-SSE.P is responsible for managing the connecting to the remote server,
-parsing the [Server Sent Event][server_sent_event] protocol, and passing the
-parsed event to its consumers.  Currently, it uses [HTTPoison][httpoison]'s
-async protocol to receive chunks of data. Once a full event has been
-received, it uses the ServerSentEvent module to parse the event into a
-structure (`%ServerSentEvent{}`) that downstream consumers work with.
+Provided by
+[`server_sent_event_stage`](https://hex.pm/packages/server_sent_event_stage),
+this turns the Firebase feed into a stage of `%ServerSentEventStage.Event{}` structs.
 
 ### BoardingStatus.ProducerConsumer
 
-BS.PC turns a `%ServerSentEvent{}` into a list of `%BoardingStatus{}` structs.
+BS.PC turns a `%ServerSentEventStage.Event{}` into a list of `%BoardingStatus{}` structs.
 It's a simplified mapping of the data, but one that makes it straightforward
 for downstream consumers of a `%BoardingStatus{}` to work with.
 

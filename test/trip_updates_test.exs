@@ -106,7 +106,8 @@ defmodule TripUpdatesTest do
 
     test "uses the previous day's date if the service is before 3am Eastern" do
       eastern_time =
-        DateTime.from_naive!(~N[2018-03-20T02:00:00],
+        DateTime.from_naive!(
+          ~N[2018-03-20T02:00:00],
           "America/New_York"
         )
 

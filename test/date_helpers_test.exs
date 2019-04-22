@@ -21,8 +21,7 @@ defmodule DateHelpersTest do
       assert ~D[2018-03-10] = service_date(local_dt!(~N[2018-03-11T03:30:00]))
       assert ~D[2018-03-11] = service_date(local_dt!(~N[2018-03-11T04:30:00]))
       # fall back
-      {:ambiguous, dt_one, dt_two} =
-        local_dt(~N[2018-11-04T01:30:00])
+      {:ambiguous, dt_one, dt_two} = local_dt(~N[2018-11-04T01:30:00])
 
       for local_dt <- [dt_one, dt_two] do
         {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
