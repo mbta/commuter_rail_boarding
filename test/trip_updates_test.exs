@@ -106,13 +106,11 @@ defmodule TripUpdatesTest do
 
     test "uses the previous day's date if the service is before 3am Eastern" do
       eastern_time =
-        Calendar.DateTime.from_date_and_time_and_zone!(
-          ~D[2018-03-20],
-          ~T[02:00:00],
+        DateTime.from_naive!(~N[2018-03-20T02:00:00],
           "America/New_York"
         )
 
-      utc_time = Calendar.DateTime.shift_zone!(eastern_time, "Etc/UTC")
+      {:ok, utc_time} = DateTime.shift_zone(eastern_time, "Etc/UTC")
 
       status = %BoardingStatus{
         scheduled_time: utc_time

@@ -35,7 +35,7 @@ defmodule CommuterRailBoarding.Mixfile do
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:gen_stage, "~> 0.14.1"},
-      {:calendar, "~> 0.17"},
+      {:tzdata, "~> 1.0-pre"},
       {:jason, "~> 1.0"},
       {:excoveralls, "~> 0.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},

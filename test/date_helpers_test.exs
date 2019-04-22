@@ -21,11 +21,11 @@ defmodule DateHelpersTest do
       assert ~D[2018-03-10] = service_date(local_dt!(~N[2018-03-11T03:30:00]))
       assert ~D[2018-03-11] = service_date(local_dt!(~N[2018-03-11T04:30:00]))
       # fall back
-      {:ambiguous, %{possible_date_times: possibilities}} =
+      {:ambiguous, dt_one, dt_two} =
         local_dt(~N[2018-11-04T01:30:00])
 
-      for local_dt <- possibilities do
-        utc_datetime = Calendar.DateTime.shift_zone!(local_dt, "Etc/UTC")
+      for local_dt <- [dt_one, dt_two] do
+        {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
         assert ~D[2018-11-03] = service_date(utc_datetime)
       end
 
@@ -37,20 +37,19 @@ defmodule DateHelpersTest do
   describe "seconds_until_next_service_date/1" do
     test "returns a number of seconds until 3am tomorrow" do
       seconds = seconds_until_next_service_date()
-      now = Calendar.DateTime.now!("America/New_York")
-      tomorrow = Calendar.DateTime.add!(now, seconds)
+      {:ok, now} = DateTime.now("America/New_York")
+      tomorrow = DateTime.add(now, seconds, :second)
       assert {tomorrow.hour, tomorrow.minute, tomorrow.second} == {3, 0, 0}
     end
   end
 
   defp local_dt(%NaiveDateTime{} = ndt) do
     with {:ok, local_dt} <-
-           Calendar.DateTime.from_date_and_time_and_zone(
-             ndt,
+           DateTime.from_naive(
              ndt,
              "America/New_York"
            ) do
-      Calendar.DateTime.shift_zone(local_dt, "Etc/UTC")
+      DateTime.shift_zone(local_dt, "Etc/UTC")
     end
   end
 
