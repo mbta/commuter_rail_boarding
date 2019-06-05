@@ -47,6 +47,9 @@ end
 release :train_loc do
   set version: current_version(:train_loc)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    train_loc: :permanent,
+    ex_aws: :permanent,
+    hackney: :permanent
   ]
 end
