@@ -20,5 +20,11 @@ defmodule TrainLoc.LoggingTest do
       iolist = log_string("Hi", :because)
       assert :erlang.iolist_to_binary(iolist) == expected
     end
+
+    test "given an error tuple, renders it with reason as the key" do
+      expected = ~s(Error - reason={:invalid, "p", 48})
+      iolist = log_string("Error", {:invalid, "p", 48})
+      assert :erlang.iolist_to_binary(iolist) == expected
+    end
   end
 end

@@ -9,7 +9,7 @@ defmodule TrainLoc.Logging do
   intended to be logged to splunk
   into an iolist.
   """
-  def log_string(title, reason) when is_atom(reason) do
+  def log_string(title, reason) when is_atom(reason) when is_tuple(reason) do
     log_string(title, %{reason: reason})
   end
 
@@ -19,7 +19,7 @@ defmodule TrainLoc.Logging do
 
   defp do_splunk_format(params) when is_map(params) do
     params
-    |> Enum.into([])
+    |> Map.to_list()
     |> do_splunk_format
   end
 
