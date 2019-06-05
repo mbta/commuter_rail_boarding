@@ -94,7 +94,7 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
     nil
   end
 
-  defp entity_vehicle(%{trip: trip_id} = vehicle) when is_binary(trip_id) do
+  defp entity_vehicle(%{block: block_id} = vehicle) when is_binary(block_id) do
     %{
       id: "y#{vehicle.vehicle_id}",
       label: vehicle.vehicle_id
@@ -102,7 +102,7 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
   end
 
   defp entity_vehicle(vehicle) do
-    entity = entity_vehicle(%{vehicle | trip: "unassigned"})
+    entity = entity_vehicle(%{vehicle | block: "unassigned"})
     Map.put(entity, :assignment_status, :unassigned)
   end
 end
