@@ -24,6 +24,10 @@ defmodule Busloc.Publisher do
     {:noreply, config}
   end
 
+  def handle_info({:ssl_closed, _}, config) do
+    {:noreply, config}
+  end
+
   def upload(config, now) do
     :ok =
       config.states
