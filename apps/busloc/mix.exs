@@ -39,10 +39,10 @@ defmodule Busloc.MixProject do
       {:timex, "3.4.1"},
       {:fast_local_datetime, "~> 0.3"},
       {:xml_builder, "~> 2.1", override: true},
-      {:plug, "~> 1.5"},
       {:logger_splunk_backend,
        github: "mbta/logger_splunk_backend", branch: "master", only: :prod},
-      {:bypass, "~> 0.8", only: :test}
+      {:bypass, "~> 1.0", only: :test},
+      {:plug, "~> 1.8"}
     ]
   end
 end
