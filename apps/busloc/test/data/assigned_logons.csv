@@ -1,0 +1,6 @@
+vehicle_id          ,operator_name       ,operator_id,block_id ,run_id
+--------------------,--------------------,-----------,---------,----------
+1416                ,ASSIGNEDDRIVER1     ,      64646,C66-123  ,125-4201
+0699                ,ASSIGNEDDRIVER2     ,      74747,L441-145 ,126-4090
+1294                ,ASSIGNEDDRIVER3     ,      84848,Q225-201 ,128-4092
+0401                ,ASSIGNEDOVERRIDDEN  ,      94949,F137-900 ,126-9920

@@ -45,7 +45,7 @@ defmodule Busloc.Fetcher.SamsaraFetcher do
       |> Stream.reject(&(Map.get(&1, "time", 0) == 0))
       |> Stream.map(&Vehicle.from_samsara_json/1)
       |> Stream.map(&log_vehicle(&1, now))
-      |> Enum.each(&Busloc.State.update(:transitmaster_state, &1))
+      |> Enum.each(&Busloc.State.update_location(:transitmaster_state, &1))
     end
 
     :ok = time(:ok, "process", process)

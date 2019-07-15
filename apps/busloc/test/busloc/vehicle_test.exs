@@ -34,6 +34,7 @@ defmodule Busloc.VehicleTest do
            heading: 135,
            source: :transitmaster,
            timestamp: BuslocTime.parse_transitmaster_timestamp("150646", datetime),
+           assignment_timestamp: BuslocTime.parse_transitmaster_timestamp("150646", datetime),
            start_date: ~D[2018-04-30]
          }}
 
@@ -298,6 +299,7 @@ defmodule Busloc.VehicleTest do
           route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
+          assignment_timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
           vehicle_id: "saucon165"
         },
         %Vehicle{
@@ -309,6 +311,7 @@ defmodule Busloc.VehicleTest do
           route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
+          assignment_timestamp: DateTime.from_naive!(~N[2018-05-11 21:33:37.638], "Etc/UTC"),
           vehicle_id: "saucon165"
         },
         %Vehicle{
@@ -320,6 +323,7 @@ defmodule Busloc.VehicleTest do
           route: "Shuttle005",
           source: :saucon,
           timestamp: DateTime.from_naive!(~N[2018-05-11 21:26:09.329], "Etc/UTC"),
+          assignment_timestamp: DateTime.from_naive!(~N[2018-05-11 21:26:09.329], "Etc/UTC"),
           vehicle_id: "saucon130"
         }
       ]

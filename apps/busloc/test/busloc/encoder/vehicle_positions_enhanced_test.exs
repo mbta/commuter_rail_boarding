@@ -4,6 +4,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
   import Busloc.Encoder.VehiclePositionsEnhanced
   alias Busloc.Vehicle
 
+  import Busloc.Utilities.ConfigHelpers
+
   describe "encode/1" do
     test "returns JSON" do
       assert {:ok, _} = Jason.decode(encode([]))
@@ -29,6 +31,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
 
   describe "entity/1" do
     test "renders an entity for a vehicle" do
+      now = DateTime.utc_now()
+
       v = %Vehicle{
         vehicle_id: "vehicle_id",
         block: "block",
@@ -42,11 +46,12 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
         heading: 90,
         speed: 5.1,
         source: :transitmaster,
-        timestamp: DateTime.utc_now(),
+        timestamp: now,
+        assignment_timestamp: now,
         start_date: ~D[2018-04-30]
       }
 
-      actual_entity = entity(v)
+      actual_entity = entity(v, now)
 
       assert %{
                id: <<_::binary>>,
@@ -93,8 +98,9 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
     end
 
     test "with a route but no trip ID, we generate a trip ID" do
-      v = %Vehicle{vehicle_id: "veh", timestamp: DateTime.utc_now(), route: "route"}
-      actual_entity = entity(v)
+      now = DateTime.utc_now()
+      v = %Vehicle{vehicle_id: "veh", timestamp: now, assignment_timestamp: now, route: "route"}
+      actual_entity = entity(v, DateTime.utc_now())
 
       assert %{
                trip_id: <<_::binary>>,
@@ -104,10 +110,56 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
     end
 
     test "without a block, we generated an unassigned status" do
-      v = %Vehicle{vehicle_id: "veh", timestamp: DateTime.utc_now(), trip: "trip", route: "route"}
-      actual_entity = entity(v)
+      now = DateTime.utc_now()
+      v = %Vehicle{vehicle_id: "veh", timestamp: now, trip: "trip", route: "route"}
+      actual_entity = entity(v, now)
 
       assert actual_entity.vehicle.vehicle.assignment_status == :unassigned
+    end
+
+    test "with a stale assignment_timestamp, we generated an unassigned status and null assignment values" do
+      now = DateTime.utc_now()
+
+      stale_assignment_timestamp =
+        Timex.shift(
+          now,
+          seconds: -config(VehiclePositionsEnhanced, :assignment_stale_seconds) - 60
+        )
+
+      v = %Vehicle{
+        vehicle_id: "veh",
+        block: "bl",
+        run: "ru",
+        operator_id: "op1",
+        operator_name: "oper_name",
+        timestamp: now,
+        assignment_timestamp: stale_assignment_timestamp,
+        trip: "trip",
+        route: "route"
+      }
+
+      actual_entity = entity(v, now)
+
+      # assert actual_entity.vehicle.vehicle.assignment_status == :unassigned
+
+      assert %{
+               id: <<_::binary>>,
+               is_deleted: false,
+               vehicle: %{
+                 trip: %{},
+                 vehicle: %{
+                   assignment_status: :unassigned,
+                   id: _,
+                   label: _
+                 },
+                 position: %{},
+                 operator: %{id: nil, name: nil},
+                 block_id: null,
+                 run_id: null,
+                 location_source: _,
+                 timestamp: _
+               }
+             } = actual_entity
     end
   end
 end

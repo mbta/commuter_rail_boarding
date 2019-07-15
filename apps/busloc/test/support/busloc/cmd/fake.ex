@@ -17,4 +17,9 @@ defmodule Busloc.Cmd.Fake do
   def shuttle_cmd do
     File.read!("test/data/shuttles.csv")
   end
+
+  @impl Busloc.Cmd
+  def assigned_logon_cmd do
+    File.read!("test/data/assigned_logons.csv")
+  end
 end

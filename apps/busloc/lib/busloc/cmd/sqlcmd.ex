@@ -1,6 +1,6 @@
 defmodule Busloc.Cmd.Sqlcmd do
   @moduledoc """
-  Executes a `sqlcmd` script to retrieve the operator or shuttle data.
+  Executes a `sqlcmd` script to retrieve the operator, shuttle, or dispatcher-assigned logon data.
   """
   @behaviour Busloc.Cmd
   require Logger
@@ -50,6 +50,46 @@ defmodule Busloc.Cmd.Sqlcmd do
           )]
   end
 
+  def assigned_logon_sql do
+    ~s[DECLARE @secs_since_midnight as numeric(5,0);
+      set @secs_since_midnight = DATEDIFF(SECOND, 0, Convert(Time, GetDate()));
+      declare @service_date as numeric(5,0);
+      if @secs_since_midnight > 10800    -- After 3 AM: service date is not a continuation of previous day
+      BEGIN
+        set @service_date = datediff(d, 0, getdate())
+      END
+      ELSE                       -- It's now between midnight and 3 AM: adjust to count from start of previous day
+      BEGIN
+        set @service_date = datediff(d, 0, getdate()) - 1;
+        set @secs_since_midnight = @secs_since_midnight + 86400
+      END
+      SELECT vehicle.PROPERTY_TAG as vehicle_id
+      ,operator.ONBOARD_LOGON_ID as 'operator_id'
+      ,operator.LAST_NAME as 'operator_name'
+      ,BLOCK_ABBR as 'block_id'
+      ,RUN_DESIGNATOR as 'run_id'
+      FROM TMDailylog.dbo.OPERATOR_ACTIVITY
+      inner join  -- Only the most recent entry for each vehicle
+        (SELECT assigned_vehicle_id, max(TIME) AS MaxDateTime
+          FROM (SELECT * from TMDailylog.dbo.OPERATOR_ACTIVITY WHERE OPERATOR_ACTIVITY.TIME > datediff(d, 0, getdate())) 
+	        AS TODAY_OPERATOR_ACTIVITY
+          inner join tmdailylog.dbo.DAILY_WORK_PIECE 
+          on TODAY_OPERATOR_ACTIVITY.WORK_PIECE_ID = DAILY_WORK_PIECE.DAILY_WORK_PIECE_ID
+          GROUP BY assigned_vehicle_id) groupedVehicles 
+        ON assigned_vehicle_id = groupedVehicles.assigned_vehicle_id 
+        AND OPERATOR_ACTIVITY.TIME = groupedVehicles.MaxDateTime
+      inner join tmdailylog.dbo.DAILY_WORK_PIECE on operator_activity.WORK_PIECE_ID = DAILY_WORK_PIECE.DAILY_WORK_PIECE_ID
+      inner join tmmain.dbo.vehicle on DAILY_WORK_PIECE.ASSIGNED_VEHICLE_ID = vehicle.vehicle_id
+      inner join tmmain.dbo.operator on operator_activity.OPERATOR_ID = OPERATOR.OPERATOR_ID
+      inner join tmmain.dbo.block on operator_activity.block_id = block.block_id
+      inner join tmmain.dbo.run on daily_work_piece.run_id = run.run_id
+      where time > @service_date
+      and @secs_since_midnight > (BEGIN_TIME - 600) -- include 10 minutes before run start
+      and @secs_since_midnight < (END_TIME + 1200)  -- include 20 minutes after run end
+      and daily_work_piece.current_operator_id is null  -- limit to failed logons
+      ]
+  end
+
   @impl Busloc.Cmd
   def can_connect? do
     case System.cmd("sqlcmd", ["-l", "1", "-Q", "select 1"], stderr_to_stdout: true) do
@@ -65,6 +105,9 @@ defmodule Busloc.Cmd.Sqlcmd do
 
   @impl Busloc.Cmd
   def shuttle_cmd(), do: call_sql_cmd(cmd_list(shuttle_sql()))
+
+  @impl Busloc.Cmd
+  def assigned_logon_cmd(), do: call_sql_cmd(cmd_list(assigned_logon_sql()))
 
   @spec cmd_list(query :: String.t()) :: [String.t()]
   def cmd_list(query) do

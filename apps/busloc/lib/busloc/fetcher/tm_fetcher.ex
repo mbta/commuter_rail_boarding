@@ -117,7 +117,7 @@ defmodule Busloc.Fetcher.TmFetcher do
   defp merge_shuttles(%{vehicle_id: id} = old_vehicle) do
     case TmShuttleFetcher.shuttle_assignment_by_vehicle(id) do
       {:ok, shuttle} ->
-        if old_vehicle.block != "" || not is_nil(old_vehicle.run) ||
+        if not is_nil(old_vehicle.block) || not is_nil(old_vehicle.run) ||
              not is_nil(old_vehicle.operator_id) || not is_nil(old_vehicle.operator_name) ||
              is_nil(shuttle.block) || is_nil(shuttle.run) || is_nil(shuttle.operator_id) ||
              is_nil(shuttle.operator_name) do

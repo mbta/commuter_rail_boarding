@@ -4,6 +4,9 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
   """
   @behaviour Busloc.Encoder
 
+  import Busloc.Utilities.Time
+  import Busloc.Utilities.ConfigHelpers
+
   @impl Busloc.Encoder
   def encode(vehicles) do
     vehicles
@@ -13,9 +16,11 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
 
   @spec vehicle_positions([Busloc.Vehicle.t()]) :: map
   def vehicle_positions(vehicles) do
+    now = DateTime.utc_now()
+
     %{
       header: header(),
-      entity: Enum.map(vehicles, &entity/1)
+      entity: Enum.map(vehicles, &entity(&1, now))
     }
   end
 
@@ -28,35 +33,43 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
     }
   end
 
-  @spec entity(Busloc.Vehicle.t()) :: map
-  def entity(vehicle) do
+  @spec entity(Busloc.Vehicle.t(), DateTime.t()) :: map
+  def entity(vehicle, now) do
     unix_timestamp = DateTime.to_unix(vehicle.timestamp)
+
+    opts =
+      if timestamp_stale(
+           vehicle.assignment_timestamp,
+           now,
+           config(VehiclePositionsEnhanced, :assignment_stale_seconds)
+         ) do
+        [stale_assignment?: true]
+      else
+        []
+      end
 
     %{
       id: "#{unix_timestamp}_#{vehicle.vehicle_id}",
       is_deleted: false,
       vehicle: %{
-        trip: trip(vehicle),
-        vehicle: entity_vehicle(vehicle),
         position: %{
           latitude: vehicle.latitude,
           longitude: vehicle.longitude,
           bearing: vehicle.heading,
           speed: vehicle.speed
         },
-        operator: %{
-          id: vehicle.operator_id,
-          name: vehicle.operator_name
-        },
-        block_id: vehicle.block,
-        run_id: vehicle.run,
         location_source: vehicle.source,
-        timestamp: unix_timestamp
+        timestamp: unix_timestamp,
+        trip: trip(vehicle, opts),
+        vehicle: entity_vehicle(vehicle, opts),
+        operator: entity_operator(vehicle, opts),
+        block_id: block(vehicle, opts),
+        run_id: run(vehicle, opts)
       }
     }
   end
 
-  defp trip(%{trip: trip_id, route: route_id} = vehicle)
+  defp trip(%{trip: trip_id, route: route_id} = vehicle, [])
        when is_binary(trip_id) or is_binary(route_id) do
     %{
       trip_id: trip_id(vehicle),
@@ -66,7 +79,8 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
     }
   end
 
-  defp trip(_) do
+  # no trip or route in vehicle, or opts stale_assignment?: true
+  defp trip(_, _) do
     %{}
   end
 
@@ -94,15 +108,47 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
     nil
   end
 
-  defp entity_vehicle(%{block: block_id} = vehicle) when is_binary(block_id) do
+  # non-nil block, and opts not stale
+  defp entity_vehicle(%{block: block_id} = vehicle, [])
+       when is_binary(block_id) and block_id != "" do
     %{
       id: "y#{vehicle.vehicle_id}",
       label: vehicle.vehicle_id
     }
   end
 
-  defp entity_vehicle(vehicle) do
-    entity = entity_vehicle(%{vehicle | block: "unassigned"})
+  defp entity_vehicle(vehicle, _) do
+    entity = entity_vehicle(%{vehicle | block: "unassigned"}, [])
     Map.put(entity, :assignment_status, :unassigned)
+  end
+
+  # opts not stale
+  defp entity_operator(%{operator_id: op_id, operator_name: op_name} = _vehicle, []) do
+    %{
+      id: op_id,
+      name: op_name
+    }
+  end
+
+  defp entity_operator(_, _) do
+    %{id: nil, name: nil}
+  end
+
+  # opts not stale
+  defp block(vehicle, []) do
+    vehicle.block
+  end
+
+  defp block(_, _) do
+    nil
+  end
+
+  # opts not stale
+  defp run(vehicle, []) do
+    vehicle.run
+  end
+
+  defp run(_, _) do
+    nil
   end
 end

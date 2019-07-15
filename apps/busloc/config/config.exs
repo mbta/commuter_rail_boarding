@@ -25,6 +25,12 @@ config :busloc, TmFetcher,
   fetch_rate: 5000,
   stale_seconds: 1800
 
+config :busloc, AssignedLogonFetcher,
+  fetch_rate: 30_000,
+  stale_seconds: 900
+
+config :busloc, VehiclePositionsEnhanced, assignment_stale_seconds: 18000
+
 config :busloc, SamsaraFetcher,
   url: {:system, "SAMSARA_URL"},
   post_body: "{\"groupId\":2155}",
@@ -47,6 +53,7 @@ config :busloc, AsyncValidator, ang_speed_threshold: 100 * 0.02 / 3600
 
 config :busloc, Operator, cmd: Busloc.Cmd.Sqlcmd
 config :busloc, TmShuttle, cmd: Busloc.Cmd.Sqlcmd
+config :busloc, AssignedLogon, cmd: Busloc.Cmd.Sqlcmd
 
 # dev and test recipient of TSP. Overridden for prod.
 config :busloc, Busloc.Tsp.Sender, tsp_url: "http://tspester.requestcatcher.com/test?"

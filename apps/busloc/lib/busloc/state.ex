@@ -6,6 +6,8 @@ defmodule Busloc.State do
   """
 
   use GenServer
+  import Busloc.Utilities.ConfigHelpers
+  import Busloc.Utilities.Time
 
   def start_link(opts \\ []) do
     name = Keyword.fetch!(opts, :name)
@@ -19,10 +21,10 @@ defmodule Busloc.State do
   end
 
   @doc """
-  This function is called by Busloc.SamsaraFetcher to update the location and timestamp
+  This function is called by Busloc.Fetcher.SamsaraFetcher to update the location and timestamp
   of a Vehicle. The vehicle's block assignment will not change.
   """
-  def update(table, vehicle) when is_map(vehicle) do
+  def update_location(table, vehicle) when is_map(vehicle) do
     if old_vehicle = get(table, vehicle.vehicle_id) do
       if not is_nil(vehicle.latitude) && not is_nil(vehicle.longitude) &&
            DateTime.compare(vehicle.timestamp, old_vehicle.timestamp) == :gt do
@@ -38,11 +40,59 @@ defmodule Busloc.State do
     %{
       new_vehicle
       | block: old_vehicle.block || new_vehicle.block,
+        assignment_timestamp:
+          old_vehicle.assignment_timestamp || new_vehicle.assignment_timestamp,
         run: old_vehicle.run || new_vehicle.run,
         route: old_vehicle.route || new_vehicle.route,
         trip: old_vehicle.trip || new_vehicle.trip,
         operator_id: old_vehicle.operator_id || new_vehicle.operator_id,
         operator_name: old_vehicle.operator_name || new_vehicle.operator_name
+    }
+  end
+
+  @doc """
+  This function is called by Busloc.Fetcher.AssignedLogonFetcher to insert an assigned logon to Vehicles.
+  Or if the Vehicle is present but has no assignment or a stale assignment, it updates the block, run, and operator assignment,
+  but does not change the position.
+  """
+  def update_assigned_logon(table, assigned_logon) when is_map(assigned_logon) do
+    now = DateTime.utc_now()
+
+    if old_vehicle = get(table, assigned_logon.vehicle_id) do
+      if is_nil(old_vehicle.block) || old_vehicle.block == "" ||
+           timestamp_stale(
+             old_vehicle.assignment_timestamp,
+             now,
+             config(AssignedLogonFetcher, :stale_seconds)
+           ) do
+        merged_vehicle = merge_assignment(old_vehicle, assigned_logon, now)
+        true = :ets.insert(table, {old_vehicle.vehicle_id, merged_vehicle})
+      end
+    else
+      new_vehicle = %Busloc.Vehicle{
+        vehicle_id: assigned_logon.vehicle_id,
+        operator_name: assigned_logon.operator_name,
+        operator_id: assigned_logon.operator_id,
+        block: assigned_logon.block,
+        assignment_timestamp: now,
+        run: assigned_logon.run,
+        timestamp: now
+      }
+
+      :ets.insert(table, {assigned_logon.vehicle_id, new_vehicle})
+    end
+  end
+
+  defp merge_assignment(old_vehicle, assigned_logon, now) do
+    %{
+      old_vehicle
+      | block: assigned_logon.block,
+        assignment_timestamp: now,
+        run: assigned_logon.run,
+        route: nil,
+        trip: nil,
+        operator_id: assigned_logon.operator_id,
+        operator_name: assigned_logon.operator_name
     }
   end
 

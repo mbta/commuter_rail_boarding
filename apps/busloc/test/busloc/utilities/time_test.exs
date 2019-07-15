@@ -45,4 +45,25 @@ defmodule Busloc.Utilities.TimeTest do
       assert datetime.time_zone == config(:time_zone)
     end
   end
+
+  describe "timestamp_stale/3" do
+    test "returns true if timestamp is nil" do
+      is_stale = timestamp_stale(nil, now(), 10)
+      assert is_stale
+    end
+
+    test "returns true if timestamp is older than stale threshold from now" do
+      now = now()
+      stale_time = Timex.shift(now, seconds: -15)
+      is_stale = timestamp_stale(stale_time, now, 10)
+      assert is_stale
+    end
+
+    test "returns false if timestamp is not older than stale threshold from now" do
+      now = now()
+      unstale_time = Timex.shift(now, seconds: -5)
+      is_stale = timestamp_stale(unstale_time, now, 10)
+      refute is_stale
+    end
+  end
 end

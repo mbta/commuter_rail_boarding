@@ -16,6 +16,9 @@ defmodule Busloc.LogHelper do
       iex> dt = DateTime.from_naive!(~N[1970-01-01T05:00:00], "Etc/UTC")
       iex> IO.iodata_to_binary(log_struct(%TestStruct{a: dt}))
       "TestStruct - a=1970-01-01T00:00:00-05:00"
+
+      iex> IO.iodata_to_binary(log_struct(%TestVehicleStruct{vehicle_id: "0222", operator_id: "12345", assignment_timestamp: "2019-07-08T09:00:00-04:00"}))
+      ~s(TestVehicleStruct - assign="2019-07-08T09:00:00-04:00" o_id="12345" v_id="0222")
   """
   def log_struct(%{__struct__: struct_name} = struct) do
     short_name = struct_name |> Module.split() |> List.last()
@@ -48,6 +51,7 @@ defmodule Busloc.LogHelper do
     case Atom.to_string(key) do
       "vehicle_" <> rest -> "v_" <> rest
       "operator_" <> rest -> "o_" <> rest
+      "assignment_timestamp" <> rest -> "assign" <> rest
       binary -> binary
     end
   end

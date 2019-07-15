@@ -15,6 +15,7 @@ defmodule Busloc.Vehicle do
     :speed,
     :source,
     :timestamp,
+    :assignment_timestamp,
     :start_date
   ]
 
@@ -32,6 +33,7 @@ defmodule Busloc.Vehicle do
           heading: 0..359,
           source: :transitmaster | :samsara | :saucon | :eyeride,
           timestamp: DateTime.t(),
+          assignment_timestamp: DateTime.t() | nil,
           start_date: Date.t() | nil
         }
 
@@ -42,17 +44,20 @@ defmodule Busloc.Vehicle do
 
   @spec from_transitmaster_map(map, DateTime.t()) :: {:ok, t} | {:error, any}
   def from_transitmaster_map(map, current_time \\ BuslocTime.now()) do
+    tm_timestamp = BuslocTime.parse_transitmaster_timestamp(map.timestamp, current_time)
+
     vehicle = %Busloc.Vehicle{
       vehicle_id: map.vehicle_id,
       route: transitmaster_route_id(map.route),
       trip: nil_if_equal(map.trip, "0"),
-      block: map.block,
+      block: nil_if_equal(map.block, ""),
       latitude: nil_if_equal(map.latitude, 0),
       longitude: nil_if_equal(map.longitude, 0),
       heading: map.heading,
       source: :transitmaster,
-      timestamp: BuslocTime.parse_transitmaster_timestamp(map.timestamp, current_time),
-      start_date: transitmaster_start_date(map.service_date)
+      timestamp: tm_timestamp,
+      start_date: transitmaster_start_date(map.service_date),
+      assignment_timestamp: if(map.block, do: tm_timestamp, else: nil)
     }
 
     {:ok, vehicle}
@@ -65,6 +70,7 @@ defmodule Busloc.Vehicle do
     %Busloc.Vehicle{
       vehicle_id: json["name"],
       block: nil,
+      assignment_timestamp: nil,
       latitude: nil_if_equal(json["latitude"], 0),
       longitude: nil_if_equal(json["longitude"], 0),
       speed: miles_hour_to_meters_second(json["speed"]),
@@ -121,7 +127,8 @@ defmodule Busloc.Vehicle do
       speed: miles_hour_to_meters_second(json["speed"]),
       heading: round(course),
       source: :saucon,
-      timestamp: DateTime.from_unix!(timestamp, :milliseconds)
+      timestamp: DateTime.from_unix!(timestamp, :milliseconds),
+      assignment_timestamp: DateTime.from_unix!(timestamp, :milliseconds)
     }
 
     {:ok, vehicle}

@@ -43,4 +43,8 @@ defmodule Busloc.Utilities.Time do
     {:ok, local_dt} = FastLocalDatetime.unix_to_datetime(DateTime.to_unix(dt), @time_zone)
     local_dt
   end
+
+  def timestamp_stale(timestamp, now, stale_seconds) do
+    !timestamp || DateTime.diff(now, timestamp) > stale_seconds
+  end
 end
