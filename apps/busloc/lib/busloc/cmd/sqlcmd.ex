@@ -40,7 +40,7 @@ defmodule Busloc.Cmd.Sqlcmd do
       WHERE calendar_id = @max_calendar_id
         AND message_type_id = 9
         AND cat_6 = 1
-        AND SYSPARAM_FLAG like '999050%'
+        AND SYSPARAM_FLAG like '9990%'
         AND transmitted_message_id IN
           (SELECT max(transmitted_message_id) 
            FROM TMDailylog.dbo.LOGGED_MESSAGE
