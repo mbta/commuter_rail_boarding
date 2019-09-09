@@ -13,7 +13,7 @@ defmodule TripCacheTest do
 
   describe "route_direction_id/1" do
     # you can get one of these from the API: https://api-v3.mbta.com/trips/?filter[route]=1&filter[direction_id]=0&page[limit]=1
-    @route_1_trip_id "40625724"
+    @route_1_trip_id "40667713"
     test "returns {:ok, route_id, direction_id} for a valid trip" do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
     end
@@ -53,10 +53,10 @@ defmodule TripCacheTest do
       unix_saturday = unix + 86_400 * (6 - day_of_week)
       saturday = DateTime.from_unix!(unix_saturday)
       # XXX will fail if run on a Saturday
-      assert route_trip_name_to_id("CR-Franklin", "1705", @datetime) == :error
+      assert route_trip_name_to_id("CR-Fitchburg", "1409", @datetime) == :error
 
       assert {:ok, "CR-Saturday-" <> _, 0} =
-               route_trip_name_to_id("CR-Franklin", "1705", saturday)
+               route_trip_name_to_id("CR-Fitchburg", "1409", saturday)
     end
   end
 
