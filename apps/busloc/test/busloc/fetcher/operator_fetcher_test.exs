@@ -57,4 +57,14 @@ defmodule Busloc.Fetcher.OperatorFetcherTest do
                operator_by_vehicle_block(:operator_fetcher_test_not_started, "1234", "1234")
     end
   end
+
+  describe "init/1" do
+    @tag :capture_log
+    test "Sends a timeout on a failing db command" do
+      {:ok, _state} =
+        init({:operator_fetcher_test_db_fail, cmd: Busloc.Cmd.Failing, wait_for_db_connection: 1})
+
+      assert_receive :timeout
+    end
+  end
 end

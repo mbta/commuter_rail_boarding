@@ -11,10 +11,18 @@ defmodule Busloc.Fetcher.AssignedLogonFetcherTest do
 
     @tag :capture_log
     test "updates vehicle state" do
-      {:ok, state} = init(:assigned_logon_fetcher_test)
+      {:ok, state} = init([])
       assert handle_info(:timeout, state) == {:noreply, state}
 
       refute Busloc.State.get_all(:transitmaster_state) == []
+    end
+  end
+
+  describe "init/1" do
+    @tag :capture_log
+    test "Sends a timeout on a failing db command" do
+      {:ok, _state} = init(cmd: Busloc.Cmd.Failing, wait_for_db_connection: 1)
+      assert_receive :timeout
     end
   end
 end

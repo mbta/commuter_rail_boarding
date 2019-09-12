@@ -3,6 +3,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
   Server to periodically query the TransitMaster DB for operator data.
   """
   @frequency 30_000
+  @wait_for_db_connection 300_000
   @default_name __MODULE__
   @cmd Busloc.Utilities.ConfigHelpers.config(Operator, :cmd)
 
@@ -29,22 +30,33 @@ defmodule Busloc.Fetcher.OperatorFetcher do
   end
 
   @impl GenServer
-  def init(table) do
-    if @cmd.can_connect?() do
-      :ets.new(table, [
-        :set,
-        :named_table,
-        :protected,
-        {:read_concurrency, true}
-      ])
+  def init({table, options}) do
+    :ets.new(table, [
+      :set,
+      :named_table,
+      :protected,
+      {:read_concurrency, true}
+    ])
 
-      state = %{table: table}
+    cmd = Keyword.get(options, :cmd, @cmd)
+
+    wait_for_db_connection =
+      Keyword.get(options, :wait_for_db_connection, @wait_for_db_connection)
+
+    state = %{table: table, cmd: cmd}
+
+    if cmd.can_connect?() do
       {_, state} = handle_info(:timeout, state)
       {:ok, state}
     else
       Logger.warn("not starting #{__MODULE__}: cannot connect to TM DB")
-      :ignore
+      Process.send_after(self(), :timeout, wait_for_db_connection)
+      {:ok, state}
     end
+  end
+
+  def init(table) do
+    init({table, []})
   end
 
   def schedule_timeout! do
@@ -54,7 +66,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
   @impl GenServer
   def handle_info(:timeout, %{table: table} = state) do
     new_operators =
-      @cmd.operator_cmd()
+      state.cmd.operator_cmd()
       |> Sqlcmd.parse()
       |> Enum.flat_map(&Operator.from_map/1)
       |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
