@@ -16,10 +16,11 @@ defmodule Busloc.Fetcher.OperatorFetcherTest do
                 operator_name: "OPERATOR1",
                 operator_id: "40404",
                 block: "Q225-84",
-                run: "128-1407"
-              }} == operator_by_vehicle_block(:operator_fetcher_test, "0401", "Q225-84")
+                run: "123-1508"
+              }} == operator_by_vehicle_run(:operator_fetcher_test, "0401", "123-1508")
 
-      assert :error == operator_by_vehicle_block(:operator_fetcher_test, "1234", "5678")
+      assert :error == operator_by_vehicle_run(:operator_fetcher_test, "1234", "123-5678")
+      assert :error == operator_by_vehicle_run(:operator_fetcher_test, "0401", "128-1234")
     end
 
     @tag :capture_log
@@ -28,33 +29,34 @@ defmodule Busloc.Fetcher.OperatorFetcherTest do
 
       operator = %Operator{
         vehicle_id: "new",
-        block: "new"
+        block: "newblock",
+        run: "newrun"
       }
 
-      :ets.insert(state.table, {{operator.vehicle_id, operator.block}, operator})
+      :ets.insert(state.table, {{operator.vehicle_id, operator.run}, operator})
 
       assert {:ok, ^operator} =
-               operator_by_vehicle_block(
+               operator_by_vehicle_run(
                  :operator_fetcher_test_delete,
                  operator.vehicle_id,
-                 operator.block
+                 operator.run
                )
 
       handle_info(:timeout, state)
 
       assert :error ==
-               operator_by_vehicle_block(
+               operator_by_vehicle_run(
                  :operator_fetcher_test_delete,
                  operator.vehicle_id,
-                 operator.block
+                 operator.run
                )
     end
   end
 
-  describe "operator_by_vehicle_block when not started" do
+  describe "operator_by_vehicle_run when not started" do
     test "returns :error" do
       assert :error ==
-               operator_by_vehicle_block(:operator_fetcher_test_not_started, "1234", "1234")
+               operator_by_vehicle_run(:operator_fetcher_test_not_started, "1234", "123-1234")
     end
   end
 

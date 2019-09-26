@@ -2,7 +2,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
   @moduledoc """
   Server to periodically query the TransitMaster DB for operator data.
   """
-  @frequency 30_000
+  @frequency 10_000
   @wait_for_db_connection 300_000
   @default_name __MODULE__
   @cmd Busloc.Utilities.ConfigHelpers.config(Operator, :cmd)
@@ -18,12 +18,13 @@ defmodule Busloc.Fetcher.OperatorFetcher do
     GenServer.start_link(__MODULE__, table, opts)
   end
 
-  def get_table(name \\ @default_name), do: name
+  def operator_by_vehicle_run(table_name \\ @default_name, vehicle_id, run_id) do
+    case :ets.lookup(table_name, {vehicle_id, run_id}) do
+      [{_, %Operator{} = op}] ->
+        {:ok, op}
 
-  def operator_by_vehicle_block(name \\ @default_name, vehicle_id, block_id) do
-    case :ets.lookup(name, {vehicle_id, block_id}) do
-      [{_, %Operator{} = op}] -> {:ok, op}
-      [] -> :error
+      [] ->
+        :error
     end
   rescue
     ArgumentError -> :error
@@ -69,7 +70,7 @@ defmodule Busloc.Fetcher.OperatorFetcher do
       state.cmd.operator_cmd()
       |> Sqlcmd.parse()
       |> Enum.flat_map(&Operator.from_map/1)
-      |> Map.new(fn %{vehicle_id: v, block: b} = x -> {{v, b}, x} end)
+      |> Map.new(fn %{vehicle_id: v, run: r} = x -> {{v, r}, x} end)
 
     {added, changed, deleted} = MapDiff.split(new_operators, MapDiff.get_all(table))
 

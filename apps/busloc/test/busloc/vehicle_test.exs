@@ -10,6 +10,9 @@ defmodule Busloc.VehicleTest do
     test "parses a map into a Vehicle struct" do
       map = %{
         block: "A60-36",
+        run: "123-2468",
+        overload_id: 1,
+        overload_offset: -2,
         route: "09",
         trip: "36680082",
         heading: 135,
@@ -29,6 +32,9 @@ defmodule Busloc.VehicleTest do
            route: "9",
            trip: "36680082",
            block: "A60-36",
+           run: "123-2468",
+           overload_id: 1,
+           overload_offset: -2,
            latitude: 42.3218438,
            longitude: -71.1777327,
            heading: 135,
@@ -42,9 +48,12 @@ defmodule Busloc.VehicleTest do
       assert expected == actual
     end
 
-    test "empty route ID and trip ID, lat, long of 0 are converted to nil" do
+    test "empty run ID, route ID and trip ID, and 0 overload_id, lat, long are converted to nil" do
       map = %{
         block: "A60-36",
+        run: "",
+        overload_id: 0,
+        overload_offset: 0,
         route: "",
         trip: "0",
         heading: 135,
@@ -57,8 +66,16 @@ defmodule Busloc.VehicleTest do
 
       datetime = Timex.to_datetime(~N[2018-03-26T15:11:05], "America/New_York")
 
-      assert {:ok, %Vehicle{trip: nil, route: nil, latitude: nil, longitude: nil}} =
-               from_transitmaster_map(map, datetime)
+      assert {:ok,
+              %Vehicle{
+                run: nil,
+                overload_id: nil,
+                overload_offset: nil,
+                trip: nil,
+                route: nil,
+                latitude: nil,
+                longitude: nil
+              }} = from_transitmaster_map(map, datetime)
     end
 
     test "returns an error if we're unable to convert the map" do
@@ -73,6 +90,9 @@ defmodule Busloc.VehicleTest do
       vehicle = %Vehicle{
         vehicle_id: "veh_id",
         block: "50",
+        run: "123-4321",
+        overload_id: 2,
+        overload_offset: 5,
         latitude: 1.234,
         longitude: -5.678,
         heading: 29,
@@ -85,6 +105,9 @@ defmodule Busloc.VehicleTest do
       assert actual =~ "o_id= "
       assert actual =~ "o_name= "
       assert actual =~ ~s(block="50")
+      assert actual =~ ~s(run="123-4321")
+      assert actual =~ "overload_id=2"
+      assert actual =~ "overload_offset=5"
       refute actual =~ "latitude=1.234"
       refute actual =~ "longitude=-5.678"
       refute actual =~ "heading=29"

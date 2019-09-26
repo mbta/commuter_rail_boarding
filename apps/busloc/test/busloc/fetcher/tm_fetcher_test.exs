@@ -48,8 +48,50 @@ defmodule Busloc.Fetcher.TmFetcherTest do
 
       assert {:noreply, _state} = handle_info(:timeout, state)
 
-      assert %Busloc.Vehicle{operator_name: "OPERATOR1", operator_id: "40404", run: "128-1407"} =
-               Busloc.State.get(:transitmaster_state, "0401")
+      assert %Busloc.Vehicle{operator_name: "OPERATOR2", operator_id: "50505", run: "125-1401"} =
+               Busloc.State.get(:transitmaster_state, "0417")
+    end
+
+    @tag :capture_log
+    test "clears assignment if operator not found", %{state: state, bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      assert {:noreply, _state} = handle_info(:timeout, state)
+
+      # This bus has no entry in operators.csv:
+      assert %Busloc.Vehicle{block: nil, run: nil, trip: nil, route: nil} =
+               Busloc.State.get(:transitmaster_state, "1111")
+    end
+
+    @tag :capture_log
+    test "clears assignment if no operator with matching runId is found", %{
+      state: state,
+      bypass: bypass
+    } do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      assert {:noreply, _state} = handle_info(:timeout, state)
+
+      # This bus has an entry in operators.csv, but not with the current runId
+      assert %Busloc.Vehicle{block: nil, run: nil, trip: nil, route: nil} =
+               Busloc.State.get(:transitmaster_state, "1737")
+    end
+
+    @tag :capture_log
+    test "clears assignment if runId is null", %{state: state, bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.send_resp(conn, 200, File.read!("test/data/transitmaster.xml"))
+      end)
+
+      assert {:noreply, _state} = handle_info(:timeout, state)
+
+      # This bus has a null runId in transitmaster.xml, but does have an entry in operators.csv:
+      assert %Busloc.Vehicle{block: nil, run: nil, trip: nil, route: nil} =
+               Busloc.State.get(:transitmaster_state, "1117")
     end
 
     @tag :capture_log
@@ -99,7 +141,7 @@ defmodule Busloc.Fetcher.TmFetcherTest do
                operator_name: "OPERATOR6",
                operator_id: "90909",
                block: "Q240-147",
-               run: "128-1433"
+               run: "128-1024"
              } = Busloc.State.get(:transitmaster_state, "0907")
     end
 
@@ -118,7 +160,7 @@ defmodule Busloc.Fetcher.TmFetcherTest do
                operator_name: "OPERATOR1",
                operator_id: "40404",
                block: "Q225-84",
-               run: "128-1407"
+               run: "123-1508"
              } = Busloc.State.get(:transitmaster_state, "0401")
     end
   end

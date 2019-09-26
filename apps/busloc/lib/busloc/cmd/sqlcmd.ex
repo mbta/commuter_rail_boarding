@@ -17,9 +17,9 @@ defmodule Busloc.Cmd.Sqlcmd do
       FROM TMDailylog.dbo.DAILY_WORK_PIECE
       INNER JOIN tmmain.dbo.VEHICLE ON current_vehicle_id = vehicle.vehicle_id
       INNER JOIN tmmain.dbo.operator ON current_operator_id = operator.operator_id
-      INNER JOIN tmmain.dbo.work_piece ON daily_work_piece.work_piece_id = work_piece.work_piece_id
-      INNER JOIN tmmain.dbo.block ON work_piece.block_id = block.block_id
-      INNER JOIN tmmain.dbo.run ON work_piece.run_id = run.run_id
+      INNER JOIN tmmain.dbo.run ON daily_work_piece.run_id = run.run_id
+      LEFT OUTER JOIN tmmain.dbo.work_piece ON daily_work_piece.work_piece_id = work_piece.work_piece_id
+      LEFT OUTER JOIN tmmain.dbo.block ON work_piece.block_id = block.block_id
       WHERE calendar_id = @max_calendar_id
         AND  actual_logoff_time IS NULL
       ORDER BY PROPERTY_TAG]

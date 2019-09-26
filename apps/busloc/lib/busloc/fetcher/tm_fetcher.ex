@@ -104,13 +104,15 @@ defmodule Busloc.Fetcher.TmFetcher do
     vehicle
   end
 
-  defp merge_operators(%{vehicle_id: id, block: block} = vehicle) do
-    case OperatorFetcher.operator_by_vehicle_block(id, block) do
+  defp merge_operators(%{vehicle_id: id, run: run} = vehicle) do
+    case OperatorFetcher.operator_by_vehicle_run(id, run) do
       {:ok, op} ->
-        %{vehicle | run: op.run, operator_id: op.operator_id, operator_name: op.operator_name}
+        %{vehicle | operator_id: op.operator_id, operator_name: op.operator_name}
 
+      # No operator means it was logged out, and shouldn't have a block or other assignment data.
+      # But the TM API sometimes hangs onto a block erroneously.
       :error ->
-        vehicle
+        %{vehicle | block: nil, run: nil, trip: nil, route: nil}
     end
   end
 

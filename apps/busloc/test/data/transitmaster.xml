@@ -1308,11 +1308,11 @@
     <ExtensionData />
     <assignmentInformation>
       <ExtensionData />
-      <blockId />
+      <blockId>T86-136</blockId>
       <overloadId>0</overloadId>
       <overloadOffset>0</overloadOffset>
-      <scheduledPullout>0</scheduledPullout>
-      <serviceDate />
+      <scheduledPullout>24080</scheduledPullout>
+      <serviceDate>20180430</serviceDate>
     </assignmentInformation>
     <locationDataArray>
       <LocationDataElement>
@@ -1328,7 +1328,7 @@
         <patternId />
         <revenue>false</revenue>
         <routeId />
-        <runId />
+        <runId>125-1401</runId>
         <startTime>0</startTime>
         <time>111446</time>
         <timepoint />

@@ -4,6 +4,8 @@ defmodule Busloc.Vehicle do
   defstruct [
     :vehicle_id,
     :block,
+    :overload_id,
+    :overload_offset,
     :run,
     :operator_id,
     :operator_name,
@@ -22,6 +24,8 @@ defmodule Busloc.Vehicle do
   @type t :: %__MODULE__{
           vehicle_id: String.t(),
           block: String.t() | nil,
+          overload_id: integer | nil,
+          overload_offset: integer | nil,
           run: String.t() | nil,
           operator_id: String.t() | nil,
           operator_name: String.t() | nil,
@@ -51,6 +55,9 @@ defmodule Busloc.Vehicle do
       route: transitmaster_route_id(map.route),
       trip: nil_if_equal(map.trip, "0"),
       block: nil_if_equal(map.block, ""),
+      run: nil_if_equal(map.run, ""),
+      overload_id: nil_if_equal(map.overload_id, 0),
+      overload_offset: if(map.overload_id == 0, do: nil, else: map.overload_offset),
       latitude: nil_if_equal(map.latitude, 0),
       longitude: nil_if_equal(map.longitude, 0),
       heading: map.heading,

@@ -18,8 +18,6 @@ defmodule Busloc.Fetcher.TmShuttleFetcher do
     GenServer.start_link(__MODULE__, table, opts)
   end
 
-  def get_table(name \\ @default_name), do: name
-
   def shuttle_assignment_by_vehicle(name \\ @default_name, vehicle_id) do
     case :ets.lookup(name, vehicle_id) do
       [{_, %TmShuttle{} = op}] -> {:ok, op}
