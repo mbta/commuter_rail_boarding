@@ -13,6 +13,7 @@ defmodule Busloc.VehicleTest do
         run: "123-2468",
         overload_id: 1,
         overload_offset: -2,
+        fig_merit: 1,
         route: "09",
         trip: "36680082",
         heading: 135,
@@ -35,6 +36,7 @@ defmodule Busloc.VehicleTest do
            run: "123-2468",
            overload_id: 1,
            overload_offset: -2,
+           fig_merit: 1,
            latitude: 42.3218438,
            longitude: -71.1777327,
            heading: 135,
@@ -54,6 +56,7 @@ defmodule Busloc.VehicleTest do
         run: "",
         overload_id: 0,
         overload_offset: 0,
+        fig_merit: 100,
         route: "",
         trip: "0",
         heading: 135,
@@ -71,6 +74,7 @@ defmodule Busloc.VehicleTest do
                 run: nil,
                 overload_id: nil,
                 overload_offset: nil,
+                fig_merit: 100,
                 trip: nil,
                 route: nil,
                 latitude: nil,
@@ -93,6 +97,7 @@ defmodule Busloc.VehicleTest do
         run: "123-4321",
         overload_id: 2,
         overload_offset: 5,
+        fig_merit: 1,
         latitude: 1.234,
         longitude: -5.678,
         heading: 29,
@@ -108,6 +113,7 @@ defmodule Busloc.VehicleTest do
       assert actual =~ ~s(run="123-4321")
       assert actual =~ "overload_id=2"
       assert actual =~ "overload_offset=5"
+      assert actual =~ "fig_merit=1"
       refute actual =~ "latitude=1.234"
       refute actual =~ "longitude=-5.678"
       refute actual =~ "heading=29"

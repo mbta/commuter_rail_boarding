@@ -96,16 +96,23 @@ defmodule Busloc.State do
     }
   end
 
-  defp merge_location(%{latitude: lat, longitude: lon} = new_vehicle, _old_vehicle)
-       when is_float(lat) and is_float(lon) do
+  # TransitMaster Figure of Merit 100 (aka 14 in TM Playback) means the GPS location is invalid.
+  # Samsara vehicles have a nil fig_merit.
+  defguardp is_valid_location(lat, lon, fig_merit)
+            when is_float(lat) and is_float(lon) and (is_nil(fig_merit) or fig_merit < 100)
+
+  defp merge_location(%{latitude: lat, longitude: lon, fig_merit: fm} = new_vehicle, _old_vehicle)
+       when is_valid_location(lat, lon, fm) do
     new_vehicle
   end
 
+  # New location is bad, so use old location with new assignment:
   defp merge_location(new_vehicle, old_vehicle) do
     %{
       new_vehicle
       | latitude: old_vehicle.latitude,
         longitude: old_vehicle.longitude,
+        fig_merit: old_vehicle.fig_merit,
         heading: old_vehicle.heading,
         source: old_vehicle.source,
         timestamp: old_vehicle.timestamp

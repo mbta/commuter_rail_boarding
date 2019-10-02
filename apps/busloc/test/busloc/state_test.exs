@@ -487,6 +487,61 @@ defmodule Busloc.StateTest do
       assert state == [expected_vehicle]
     end
 
+    test "doesn't update location if new fig_merit is 100, but does update assignment" do
+      timestamp = DateTime.utc_now()
+
+      vehicle1 = %Vehicle{
+        vehicle_id: "1235",
+        block: "A123-456",
+        run: "123-1001",
+        route: "123",
+        trip: "456",
+        fig_merit: 2,
+        latitude: 42.345,
+        longitude: -71.43,
+        heading: 45,
+        source: :transitmaster,
+        operator_id: "oper",
+        operator_name: "oper name",
+        timestamp: timestamp,
+        assignment_timestamp: timestamp
+      }
+
+      vehicle2 = %Vehicle{
+        vehicle_id: "1235",
+        block: "A124-700",
+        run: "123-1015",
+        route: "124",
+        trip: "457",
+        fig_merit: 100,
+        latitude: 42.456,
+        longitude: -71.98,
+        heading: 90,
+        source: :transitmaster,
+        operator_id: "oper2",
+        operator_name: "oper name2",
+        timestamp: Timex.shift(timestamp, minutes: 1),
+        assignment_timestamp: Timex.shift(timestamp, minutes: 1)
+      }
+
+      set(:set_table, [vehicle1])
+      set(:set_table, [vehicle2])
+      state = get_all(:set_table)
+
+      expected_vehicle = %{
+        vehicle1
+        | block: vehicle2.block,
+          run: vehicle2.run,
+          route: vehicle2.route,
+          trip: vehicle2.trip,
+          operator_id: vehicle2.operator_id,
+          operator_name: vehicle2.operator_name,
+          assignment_timestamp: vehicle2.assignment_timestamp
+      }
+
+      assert state == [expected_vehicle]
+    end
+
     test "doesn't cause an empty read" do
       vehicle = %Vehicle{
         vehicle_id: "5"
