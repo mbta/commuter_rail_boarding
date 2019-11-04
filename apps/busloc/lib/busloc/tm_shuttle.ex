@@ -1,4 +1,6 @@
 defmodule Busloc.TmShuttle do
+  import Busloc.Utilities.ConfigHelpers
+
   @moduledoc """
   Represents a TransitMaster shuttle login message.
   """
@@ -7,7 +9,8 @@ defmodule Busloc.TmShuttle do
     :operator_name,
     :operator_id,
     :block,
-    :run
+    :run,
+    :route
   ]
 
   @type t :: %__MODULE__{
@@ -15,10 +18,13 @@ defmodule Busloc.TmShuttle do
           operator_name: String.t(),
           operator_id: String.t(),
           block: String.t(),
-          run: String.t()
+          run: String.t(),
+          route: String.t()
         }
 
   defdelegate log_line(shuttle), to: Busloc.LogHelper, as: :log_struct
+
+  @run_to_route config(TmShuttle, :run_to_route)
 
   @spec from_map(map) :: [t()]
   def from_map(%{
@@ -34,7 +40,8 @@ defmodule Busloc.TmShuttle do
         operator_name: operator_name,
         operator_id: operator_id,
         block: block_id,
-        run: run_id
+        run: run_id,
+        route: @run_to_route[run_id]
       }
     ]
   end

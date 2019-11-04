@@ -16,8 +16,19 @@ defmodule Busloc.Fetcher.TmShuttleFetcherTest do
                 operator_name: "SHUTTLEDRIVER1",
                 operator_id: "10101",
                 block: "9990501",
-                run: "9990501"
+                run: "9990501",
+                route: "Shuttle-GenericBlue"
               }} == shuttle_assignment_by_vehicle(:tm_shuttle_fetcher_test, "1102")
+
+      assert {:ok,
+              %TmShuttle{
+                vehicle_id: "0907",
+                operator_name: "SHUTTLEDRIVER3",
+                operator_id: "30303",
+                block: "9990509",
+                run: "9990509",
+                route: nil
+              }} == shuttle_assignment_by_vehicle(:tm_shuttle_fetcher_test, "0907")
 
       assert :error == shuttle_assignment_by_vehicle(:tm_shuttle_fetcher_test, "1234")
     end

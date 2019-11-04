@@ -80,8 +80,8 @@ defmodule Busloc.Cmd.SqlcmdTest do
           "vehicle_id" => "0907",
           "operator_name" => "SHUTTLEDRIVER3",
           "operator_id" => "30303",
-          "block_id" => "9990502",
-          "run_id" => "9990502"
+          "block_id" => "9990509",
+          "run_id" => "9990509"
         }
       ]
 

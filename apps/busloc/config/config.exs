@@ -52,7 +52,18 @@ config :busloc, Publisher, fetch_rate: 5000
 config :busloc, AsyncValidator, ang_speed_threshold: 100 * 0.02 / 3600
 
 config :busloc, Operator, cmd: Busloc.Cmd.Sqlcmd
-config :busloc, TmShuttle, cmd: Busloc.Cmd.Sqlcmd
+
+config :busloc, TmShuttle,
+  cmd: Busloc.Cmd.Sqlcmd,
+  run_to_route: %{
+    "9990555" => "Shuttle-Generic",
+    "9990501" => "Shuttle-GenericBlue",
+    "9990502" => "Shuttle-GenericGreen",
+    "9990503" => "Shuttle-GenericOrange",
+    "9990504" => "Shuttle-GenericRed",
+    "9990505" => "Shuttle-GenericCommuterRail"
+  }
+
 config :busloc, AssignedLogon, cmd: Busloc.Cmd.Sqlcmd
 
 # dev and test recipient of TSP. Overridden for prod.

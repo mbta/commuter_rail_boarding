@@ -106,7 +106,8 @@ defmodule Busloc.Fetcher.TmFetcherTest do
                operator_name: "SHUTTLEDRIVER2",
                operator_id: "20202",
                block: "9990501",
-               run: "9990501"
+               run: "9990501",
+               route: "Shuttle-GenericBlue"
              } = Busloc.State.get(:transitmaster_state, "0688")
     end
 

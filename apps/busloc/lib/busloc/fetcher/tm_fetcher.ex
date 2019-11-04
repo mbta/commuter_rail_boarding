@@ -129,6 +129,7 @@ defmodule Busloc.Fetcher.TmFetcher do
             old_vehicle
             | block: shuttle.block,
               run: shuttle.run,
+              route: shuttle.route,
               operator_id: shuttle.operator_id,
               operator_name: shuttle.operator_name
           }
