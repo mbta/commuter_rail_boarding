@@ -6,7 +6,7 @@ defmodule TripCacheTest do
 
   @route_id "CR-Lowell"
   @trip_name "348"
-  @trip_id "CR-Weekday-Spring-19-348"
+  @trip_id "CR-Weekday-Fall-19-348"
   @direction_id 1
   # need a roughly-current date in order to look it up in the API
   @datetime DateTime.utc_now()

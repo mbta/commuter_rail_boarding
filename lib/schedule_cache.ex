@@ -15,7 +15,7 @@ defmodule ScheduleCache do
   @doc """
   Returns the stop_sequence for a trip/stop ID pair.
 
-  iex> ScheduleCache.stop_sequence("CR-Weekday-Spring-19-928", "Back Bay")
+  iex> ScheduleCache.stop_sequence("CR-Weekday-Fall-19-928", "Back Bay")
   {:ok, 6}
 
   iex> ScheduleCache.stop_sequence("unknown", "Back Bay")

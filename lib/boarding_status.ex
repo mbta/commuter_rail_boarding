@@ -68,6 +68,7 @@ defmodule BoardingStatus do
         } = map
       ) do
     with :ok <- validate_movement_type(map),
+         :ok <- validate_is_stopping(map),
          {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, trip_id, route_id, direction_id, added?} <-
            trip_route_direction_id(map, scheduled_time) do
@@ -127,6 +128,10 @@ defmodule BoardingStatus do
     # without a movement type, treat it as okay
     :ok
   end
+
+  # We can ignore any object with is_Stopping False
+  def validate_is_stopping(%{"is_Stopping" => "False"}), do: :ignore
+  def validate_is_stopping(_), do: :ok
 
   defp trip_route_direction_id(
          %{
