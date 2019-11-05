@@ -34,7 +34,7 @@ defmodule BoardingStatusTest do
       assert {:ok, status} = from_firebase(result)
 
       assert status.scheduled_time ==
-               DateTime.from_naive!(~N[2017-11-06T16:15:00], "Etc/UTC")
+               DateTime.from_naive!(~N[2019-11-01T14:00:00], "Etc/UTC")
 
       assert status.scheduled_time == status.predicted_time
     end
@@ -133,6 +133,30 @@ defmodule BoardingStatusTest do
       assert from_firebase(result) == :ignore
       result = Map.put(original, "movement_type", "O")
       assert {:ok, _} = from_firebase(result)
+    end
+
+    test "ignores items with is_Stopping False" do
+      result = %{
+        "current_display_status" => "",
+        "direction" => "1",
+        "gtfs_departure_time" => "",
+        "gtfs_route_id" => "CR-Franklin",
+        "gtfs_route_long_name" => "Franklin Line/Foxboro Pilot",
+        "gtfs_stop_name" => "Back Bay",
+        "gtfs_trip_id" => "CR-Weekday-Fall-19-746",
+        "gtfs_trip_short_name" => "746",
+        "gtfsrt_departure" => "",
+        "headsign" => "",
+        "is_Stopping" => "False",
+        "movementtype" => "",
+        "schedule_id" => "110075",
+        "status" => "",
+        "track" => "",
+        "trip_id" => "436059",
+        "trip_stop_id" => "7153739"
+      }
+
+      assert :ignore = from_firebase(result)
     end
   end
 end
