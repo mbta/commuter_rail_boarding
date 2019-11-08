@@ -48,6 +48,16 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
         []
       end
 
+    opts =
+      if vehicle_requires_assignment?(
+           vehicle,
+           config(VehiclePositionsEnhanced, :vehicles_not_requiring_assignment)
+         ) do
+        opts
+      else
+        [does_not_need_assignment: true] ++ opts
+      end
+
     %{
       id: "#{unix_timestamp}_#{vehicle.vehicle_id}",
       is_deleted: false,
@@ -117,9 +127,14 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
     }
   end
 
-  defp entity_vehicle(vehicle, _) do
+  defp entity_vehicle(vehicle, opts) do
     entity = entity_vehicle(%{vehicle | block: "unassigned"}, [])
-    Map.put(entity, :assignment_status, :unassigned)
+
+    if opts[:does_not_need_assignment] do
+      entity
+    else
+      Map.put(entity, :assignment_status, :unassigned)
+    end
   end
 
   # opts not stale
@@ -150,5 +165,14 @@ defmodule Busloc.Encoder.VehiclePositionsEnhanced do
 
   defp run(_, _) do
     nil
+  end
+
+  defp vehicle_requires_assignment?(%{vehicle_id: id}, [_ | _] = vehicle_ids)
+       when is_binary(id) do
+    id not in vehicle_ids
+  end
+
+  defp vehicle_requires_assignment?(_, _) do
+    true
   end
 end

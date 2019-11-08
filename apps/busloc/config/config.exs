@@ -29,7 +29,9 @@ config :busloc, AssignedLogonFetcher,
   fetch_rate: 30_000,
   stale_seconds: 900
 
-config :busloc, VehiclePositionsEnhanced, assignment_stale_seconds: 18000
+config :busloc, VehiclePositionsEnhanced,
+  assignment_stale_seconds: 18000,
+  vehicles_not_requiring_assignment: ["3000", "3001", "3002", "3003", "3004", "3005"]
 
 config :busloc, SamsaraFetcher,
   url: {:system, "SAMSARA_URL"},

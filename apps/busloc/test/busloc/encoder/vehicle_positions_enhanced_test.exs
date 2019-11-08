@@ -117,6 +117,14 @@ defmodule Busloc.Encoder.VehiclePositionsEnhancedTest do
       assert actual_entity.vehicle.vehicle.assignment_status == :unassigned
     end
 
+    test "do not generate unassigned status for Winthrop buses" do
+      now = DateTime.utc_now()
+      v = %Vehicle{vehicle_id: "3002", timestamp: now}
+      actual_entity = entity(v, now)
+
+      refute Map.has_key?(actual_entity.vehicle.vehicle, :assignment_status)
+    end
+
     test "with a stale assignment_timestamp, we generated an unassigned status and null assignment values" do
       now = DateTime.utc_now()
 
