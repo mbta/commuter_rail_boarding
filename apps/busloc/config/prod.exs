@@ -20,7 +20,7 @@ config :busloc,
     }
   ]
 
-config :busloc, Busloc.Tsp.Sender, tsp_url: "http://opstech3.mbta.com:8080/priority?"
+config :busloc, Busloc.Tsp.Sender, tsp_url: "http://tspserver.mbta.com/priority?"
 
 config :logger,
   backends: [{Logger.Backend.Splunk, :splunk}, :console],
