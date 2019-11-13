@@ -18,6 +18,9 @@ defmodule ScheduleCache do
   iex> ScheduleCache.stop_sequence("CR-Weekday-Fall-19-928", "Back Bay")
   {:ok, 6}
 
+  iex> ScheduleCache.stop_sequence("CR-Weekday-Fall-19-743", "South Station")
+  {:ok, 1}
+
   iex> ScheduleCache.stop_sequence("unknown", "Back Bay")
   :error
   """
@@ -52,7 +55,7 @@ defmodule ScheduleCache do
     end
   end
 
-  defp decode(%{"data" => [schedule]}) do
+  defp decode(%{"data" => [schedule | _]}) do
     {:ok, schedule["attributes"]["stop_sequence"]}
   end
 
