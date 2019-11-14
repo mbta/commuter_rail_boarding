@@ -66,15 +66,15 @@ defmodule Busloc.Cmd.SqlcmdTest do
           "vehicle_id" => "1102",
           "operator_name" => "SHUTTLEDRIVER1",
           "operator_id" => "10101",
-          "block_id" => "9990501",
-          "run_id" => "9990501"
+          "block_id" => "9990626",
+          "run_id" => "9990626"
         },
         %{
           "vehicle_id" => "0688",
           "operator_name" => "SHUTTLEDRIVER2",
           "operator_id" => "20202",
-          "block_id" => "9990501",
-          "run_id" => "9990501"
+          "block_id" => "9990621",
+          "run_id" => "9990621"
         },
         %{
           "vehicle_id" => "0907",

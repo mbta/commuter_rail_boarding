@@ -58,12 +58,44 @@ config :busloc, Operator, cmd: Busloc.Cmd.Sqlcmd
 config :busloc, TmShuttle,
   cmd: Busloc.Cmd.Sqlcmd,
   run_to_route: %{
+    "9990501" => "Shuttle-Generic-Blue",
+    "9990502" => "Shuttle-Generic-Green",
+    "9990503" => "Shuttle-Generic-Orange",
+    "9990504" => "Shuttle-Generic-Red",
+    "9990505" => "Shuttle-Generic-CommuterRail",
     "9990555" => "Shuttle-Generic",
-    "9990501" => "Shuttle-GenericBlue",
-    "9990502" => "Shuttle-GenericGreen",
-    "9990503" => "Shuttle-GenericOrange",
-    "9990504" => "Shuttle-GenericRed",
-    "9990505" => "Shuttle-GenericCommuterRail"
+    "9990620" => "Shuttle-Generic-Green-Trunk",
+    "9990621" => "Shuttle-Generic-Green-B",
+    "9990622" => "Shuttle-Generic-Green-C",
+    "9990623" => "Shuttle-Generic-Green-D",
+    "9990624" => "Shuttle-Generic-Green-E",
+    "9990640" => "Shuttle-Generic-Red-Trunk",
+    "9990641" => "Shuttle-Generic-Red-Ashmont",
+    "9990642" => "Shuttle-Generic-Red-Braintree",
+    "9990661" => "Shuttle-Generic-Fitchburg",
+    "9990662" => "Shuttle-Generic-Lowell",
+    "9990663" => "Shuttle-Generic-Haverhill",
+    "9990664" => "Shuttle-Generic-Newburyport",
+    "9990671" => "Shuttle-Generic-Worcester",
+    "9990672" => "Shuttle-Generic-Needham",
+    "9990673" => "Shuttle-Generic-Franklin",
+    "9990674" => "Shuttle-Generic-Providence",
+    "9990675" => "Shuttle-Generic-Fairmount",
+    "9990676" => "Shuttle-Generic-Middleborough",
+    "9990677" => "Shuttle-Generic-Kingston",
+    "9990678" => "Shuttle-Generic-Greenbush"
+  },
+  # If there isn't an exact match above, partial match on these prefixes.
+  # For example, 9990625 ... 9990629 match Shuttle-Generic-Green
+  run_prefix_to_route: %{
+    "999061" => "Shuttle-Generic-Blue",
+    "999062" => "Shuttle-Generic-Green",
+    "999063" => "Shuttle-Generic-Orange",
+    "999064" => "Shuttle-Generic-Red",
+    "999065" => "Shuttle-Generic-Mattapan",
+    "999066" => "Shuttle-Generic-CommuterRail-North",
+    "999067" => "Shuttle-Generic-CommuterRail-South",
+    "999069" => "Shuttle-Generic-Elevator"
   }
 
 config :busloc, AssignedLogon, cmd: Busloc.Cmd.Sqlcmd
