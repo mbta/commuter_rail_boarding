@@ -71,7 +71,6 @@ defmodule TripUpdates do
         stop_sequence_map(bs.stop_sequence),
         boarding_status_map(bs.status),
         platform_id_map(bs.stop_id, bs.track),
-        departure_map(bs.predicted_time),
         %{stop_id: bs.stop_id}
       ],
       &Map.merge/2
@@ -121,18 +120,6 @@ defmodule TripUpdates do
 
     %{
       stop_id: platform_id
-    }
-  end
-
-  defp departure_map(:unknown) do
-    %{}
-  end
-
-  defp departure_map(%DateTime{} = dt) do
-    %{
-      departure: %{
-        time: DateTime.to_unix(dt)
-      }
     }
   end
 end
