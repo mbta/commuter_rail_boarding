@@ -134,9 +134,6 @@ defmodule TripUpdatesTest do
       assert stop_time_update(status) == %{
                stop_id: "stop-05",
                stop_sequence: 5,
-               departure: %{
-                 time: 12_345
-               },
                boarding_status: "All aboard"
              }
     end
