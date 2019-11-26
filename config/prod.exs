@@ -1,7 +1,6 @@
 use Mix.Config
 
 config :commuter_rail_boarding,
-  firebase_url: {:system, "FIREBASE_URL"},
   uploader: Uploader.S3
 
 config :commuter_rail_boarding, Uploader.S3,
@@ -18,3 +17,9 @@ config :logger,
   backends: [:console]
 
 config :ehmon, :report_mf, {:ehmon, :info_report}
+
+config :sasl, errlog_type: :error
+
+config :train_loc,
+  s3_api: TrainLoc.S3.HTTPClient,
+  s3_bucket: {:system, "S3_BUCKET"}
