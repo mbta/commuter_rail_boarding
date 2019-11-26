@@ -167,9 +167,10 @@ defmodule TripCache do
   end
 
   def handle_info(:timeout, state) do
-    Logger.info(fn ->
-      "#{__MODULE__} expiring cache"
-    end)
+    _ =
+      Logger.info(fn ->
+        "#{__MODULE__} expiring cache"
+      end)
 
     :ets.delete_all_objects(@table)
     timeout = DateHelpers.seconds_until_next_service_date()

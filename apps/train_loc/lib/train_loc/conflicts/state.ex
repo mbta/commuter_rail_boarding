@@ -46,7 +46,7 @@ defmodule TrainLoc.Conflicts.State do
   # Server Callbacks
 
   def init(_) do
-    Logger.debug(fn -> "Starting #{__MODULE__}..." end)
+    _ = Logger.debug(fn -> "Starting #{__MODULE__}..." end)
     {:ok, Conflicts.new()}
   end
 

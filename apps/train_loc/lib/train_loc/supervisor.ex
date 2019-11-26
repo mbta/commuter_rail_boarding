@@ -26,7 +26,7 @@ defmodule TrainLoc.Supervisor do
       ])
     ]
 
-    Logger.debug(fn -> "Starting State supervisor..." end)
+    _ = Logger.debug(fn -> "Starting State supervisor..." end)
     supervise(children, strategy: :one_for_one)
   end
 end

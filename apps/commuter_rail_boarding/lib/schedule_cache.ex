@@ -81,9 +81,10 @@ defmodule ScheduleCache do
   end
 
   def handle_info(:timeout, state) do
-    Logger.info(fn ->
-      "#{__MODULE__} expiring cache"
-    end)
+    _ =
+      Logger.info(fn ->
+        "#{__MODULE__} expiring cache"
+      end)
 
     :ets.delete_all_objects(@table)
     schedule_timeout()

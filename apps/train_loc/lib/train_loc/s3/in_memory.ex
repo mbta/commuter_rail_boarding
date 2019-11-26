@@ -21,7 +21,8 @@ defmodule TrainLoc.S3.InMemory do
   end
 
   def start do
-    Agent.start(fn -> %{} end, name: @name)
+    _ = Agent.start(fn -> %{} end, name: @name)
+    :ok
   end
 
   def list_objects do

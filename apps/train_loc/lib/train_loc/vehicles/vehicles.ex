@@ -50,7 +50,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
     log_changed_assigns(old_vehicles, new_vehicles)
     # Convert the incoming list of vehicles to a map
     Enum.reduce(new_vehicles, old_vehicles, fn new_vehicle, acc ->
-      Vehicle.log_vehicle(new_vehicle)
+      _ = Vehicle.log_vehicle(new_vehicle)
       Map.put(acc, new_vehicle.vehicle_id, new_vehicle)
     end)
   end
@@ -95,21 +95,25 @@ defmodule TrainLoc.Vehicles.Vehicles do
     for new <- new_vehicles do
       old = Map.get(old_vehicles, new.vehicle_id, new)
 
-      if old.block != new.block do
-        Logger.debug(fn ->
-          "BLOCK CHANGE #{Time.format_datetime(new.timestamp)} - #{
-            new.vehicle_id
-          }: #{old.block}->#{new.block}"
-        end)
-      end
+      _ =
+        if old.block != new.block do
+          Logger.debug(fn ->
+            "BLOCK CHANGE #{Time.format_datetime(new.timestamp)} - #{
+              new.vehicle_id
+            }: #{old.block}->#{new.block}"
+          end)
+        end
 
-      if old.trip != new.trip do
-        Logger.debug(fn ->
-          "TRIP CHANGE #{Time.format_datetime(new.timestamp)} - #{
-            new.vehicle_id
-          }: #{old.trip}->#{new.trip}"
-        end)
-      end
+      _ =
+        if old.trip != new.trip do
+          Logger.debug(fn ->
+            "TRIP CHANGE #{Time.format_datetime(new.timestamp)} - #{
+              new.vehicle_id
+            }: #{old.trip}->#{new.trip}"
+          end)
+        end
     end
+
+    :ok
   end
 end

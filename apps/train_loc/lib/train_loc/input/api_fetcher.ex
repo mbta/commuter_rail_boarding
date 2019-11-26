@@ -48,7 +48,7 @@ defmodule TrainLoc.Input.APIFetcher do
 
   def handle_info(:connect, state) do
     url = compute_url(state)
-    Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
+    _ = Logger.debug(fn -> "#{__MODULE__} requesting #{url}" end)
 
     headers = [
       {"Accept", "text/event-stream"}
@@ -63,7 +63,7 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def handle_info(%HTTPoison.AsyncStatus{code: 200}, state) do
-    Logger.debug(fn -> "#{__MODULE__} connected" end)
+    _ = Logger.debug(fn -> "#{__MODULE__} connected" end)
     {:noreply, state}
   end
 
@@ -99,7 +99,7 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def handle_info(%HTTPoison.AsyncEnd{}, state) do
-    Logger.info(fn -> "Keolis API Disconnected. Retrying..." end)
+    _ = Logger.info(fn -> "Keolis API Disconnected. Retrying..." end)
     state = %{state | buffer: ""}
     send(self(), :connect)
     {:noreply, state}
@@ -173,12 +173,13 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def send_events_for_processing(events, send_to) when is_list(events) do
-    Logger.info(fn -> "#{__MODULE__} received #{length(events)} events" end)
+    _ = Logger.info(fn -> "#{__MODULE__} received #{length(events)} events" end)
 
     for event <- events do
-      Logger.debug(fn ->
-        inspect(event, limit: :infinity, printable_limit: :infinity)
-      end)
+      _ =
+        Logger.debug(fn ->
+          inspect(event, limit: :infinity, printable_limit: :infinity)
+        end)
     end
 
     send_events_to(events, send_to)
@@ -194,9 +195,12 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   def log_keolis_error(fields) when is_map(fields) do
-    Logger.error(fn ->
-      Logging.log_string("Keolis API Failure", fields)
-    end)
+    _ =
+      Logger.error(fn ->
+        Logging.log_string("Keolis API Failure", fields)
+      end)
+
+    :ok
   end
 
   def log_keolis_error(reason) when is_binary(reason) do
@@ -213,10 +217,13 @@ defmodule TrainLoc.Input.APIFetcher do
   end
 
   defp log_keolis_error(state, message_fn) do
-    Logger.error(fn ->
-      "#{__MODULE__} Keolis API Failure - url=#{inspect(state.url)} error_type=#{
-        inspect(message_fn.())
-      }"
-    end)
+    _ =
+      Logger.error(fn ->
+        "#{__MODULE__} Keolis API Failure - url=#{inspect(state.url)} error_type=#{
+          inspect(message_fn.())
+        }"
+      end)
+
+    :ok
   end
 end

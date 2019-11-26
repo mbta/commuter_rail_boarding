@@ -5,7 +5,7 @@ defmodule TrainLoc.Mixfile do
     [
       app: :train_loc,
       version: "0.1.0",
-      elixir: "~> 1.5 or ~> 1.6",
+      elixir: "~> 1.8log_",
       elixirc_paths: elixirc_paths(Mix.env()),
       config_path: "config/config.exs",
       build_path: "../../_build",
@@ -20,7 +20,6 @@ defmodule TrainLoc.Mixfile do
         "coveralls.html": :test,
         "coveralls.json": :test
       ],
-      dialyzer: [ignore_warnings: "dialyzer.ignore-warnings"]
     ]
   end
 
@@ -52,7 +51,6 @@ defmodule TrainLoc.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:distillery, "~> 2.0", runtime: false},
       {:ehmon, git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod},
       {:ex_aws, "~> 2.0"},
