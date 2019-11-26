@@ -6,11 +6,11 @@ Path.join(["rel", "plugins", "*.exs"])
 |> Path.wildcard()
 |> Enum.map(&Code.eval_file(&1))
 
-use Mix.Releases.Config,
+use Distillery.Releases.Config,
     # This sets the default release built by `mix release`
     default_release: :default,
     # This sets the default environment used by `mix release`
-    default_environment: Mix.env()
+    default_environment: :prod
 
 # For a full list of config options for both releases
 # and environments, visit https://hexdocs.pm/distillery/configuration.html
@@ -21,16 +21,10 @@ use Mix.Releases.Config,
 # when building in that environment, this combination of release
 # and environment configuration is called a profile
 
-environment :dev do
-  set dev_mode: true
-  set include_erts: false
-  set cookie: :"jJ9[cD^M])([@RQMoC}c7UKJePuh`?ow*4DJ6YG_A?&[aYS^!|Vc_Lt)!&imU/uC"
-end
-
 environment :prod do
   set include_erts: true
   set include_src: false
-  set cookie: :"afe2]UFbg3yG!]$KFj=hP)k1rpeU0EH&K&5fsOj;`c`SNj[spwi1Il][GuG[=S<x"
+  set cookie: :"${NODE_COOKIE}"
 end
 
 # You may define one or more releases in this file.
@@ -41,7 +35,10 @@ end
 release :commuter_rail_boarding do
   set version: current_version(:commuter_rail_boarding)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    commuter_rail_boarding: :permanent,
+    train_loc: :permanent,
+    ex_aws: :permanent,
+    hackney: :permanent
   ]
 end
-
