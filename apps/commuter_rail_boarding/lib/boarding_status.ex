@@ -203,10 +203,12 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
   end
 
   defp predicted_time(iso_dt, scheduled_time, _) do
-    with {:ok, predicted_time, _} <- DateTime.from_iso8601(iso_dt) do
-      predicted_time
-    else
-      _ -> scheduled_time
+    case DateTime.from_iso8601(iso_dt) do
+      {:ok, predicted_time, _} ->
+        predicted_time
+
+      _ ->
+        scheduled_time
     end
   end
 

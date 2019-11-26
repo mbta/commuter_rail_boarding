@@ -10,6 +10,7 @@ defmodule TrainLoc.Manager.EventJsonParser do
   """
 
   alias TrainLoc.Manager.Event
+  alias TrainLoc.Vehicles.JsonValidator
 
   def parse(data) when is_binary(data) do
     with {:ok, json} <- Poison.decode(data),
@@ -40,7 +41,7 @@ defmodule TrainLoc.Manager.EventJsonParser do
   defp validate_vehicles_json(vehicles_json) when is_list(vehicles_json) do
     Enum.reduce(vehicles_json, :ok, fn
       vehicle, :ok ->
-        TrainLoc.Vehicles.JsonValidator.validate(vehicle)
+        JsonValidator.validate(vehicle)
 
       _, {:error, _} = err ->
         err

@@ -17,7 +17,7 @@ defmodule TrainLoc.Utilities.Time do
   end
 
   @spec unix_now() :: integer
-  def unix_now() do
+  def unix_now do
     System.system_time(:second)
   end
 

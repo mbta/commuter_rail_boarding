@@ -3,9 +3,9 @@ defmodule TrainLoc.Vehicles.Vehicles do
   Functions for working with collections of vehicles.
   """
 
-  alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Utilities.Time
+  alias TrainLoc.Vehicles.Vehicle
 
   use Timex
 
@@ -13,7 +13,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
 
   @spec new() :: %{}
   @spec new([Vehicle.t()]) :: map
-  def new() do
+  def new do
     %{}
   end
 

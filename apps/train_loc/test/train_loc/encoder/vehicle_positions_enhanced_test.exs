@@ -1,8 +1,9 @@
 defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
+  @moduledoc false
   use ExUnit.Case, async: true
+  alias TrainLoc.Encoder.VehiclePositionsEnhanced
   import TrainLoc.Encoder.VehiclePositionsEnhanced
   alias TrainLoc.Vehicles.Vehicle
-  alias TrainLoc.Encoder.VehiclePositionsEnhanced
 
   describe "encode/1" do
     test "produces valid GTFS-realtime enhanced JSON from list of vehicles" do
@@ -107,7 +108,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         minute: 30,
         second: 0,
         std_offset: 0,
-        utc_offset: -18000,
+        utc_offset: -18_000,
         time_zone: "America/New_York",
         zone_abbr: "EST"
       }

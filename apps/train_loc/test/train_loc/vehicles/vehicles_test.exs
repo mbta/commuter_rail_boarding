@@ -1,9 +1,10 @@
 defmodule TrainLoc.Vehicles.VehiclesTest do
+  @moduledoc false
   use ExUnit.Case, async: true
 
-  alias TrainLoc.Vehicles.Vehicles
-  alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Conflicts.Conflict
+  alias TrainLoc.Vehicles.Vehicle
+  alias TrainLoc.Vehicles.Vehicles
 
   setup do
     iso_8601 = "2017-08-04T11:01:51Z"

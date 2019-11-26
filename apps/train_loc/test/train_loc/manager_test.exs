@@ -1,12 +1,13 @@
 defmodule TrainLoc.ManagerTest do
+  @moduledoc false
   use ExUnit.Case
   import ExUnit.CaptureLog
   import TrainLoc.Utilities.ConfigHelpers
-  alias TrainLoc.Manager
   alias TrainLoc.Input.ServerSentEvent
+  alias TrainLoc.Manager
+  alias TrainLoc.Utilities.Time, as: TrainLocTime
   alias TrainLoc.Vehicles.PreviousBatch
   alias TrainLoc.Vehicles.Vehicle
-  alias TrainLoc.Utilities.Time, as: TrainLocTime
 
   setup do
     Application.ensure_all_started(:train_loc)
@@ -123,7 +124,7 @@ defmodule TrainLoc.ManagerTest do
     end
   end
 
-  defp generate_invalid_timestamp() do
+  defp generate_invalid_timestamp do
     local_offset =
       :time_zone
       |> config()
