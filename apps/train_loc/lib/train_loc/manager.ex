@@ -39,7 +39,7 @@ defmodule TrainLoc.Manager do
   end
 
   def init(_) do
-    Logger.debug(fn -> "Starting #{__MODULE__}..." end)
+    _ = Logger.debug(fn -> "Starting #{__MODULE__}..." end)
     {time_mod, time_fn} = config(:time_baseline_fn)
     time_baseline_fn = fn -> apply(time_mod, time_fn, []) end
     excluded_vehicles = MapSet.new(config(:excluded_vehicles))
@@ -62,16 +62,22 @@ defmodule TrainLoc.Manager do
 
   def handle_info({:events, events}, state) do
     for event <- events, event.event == "put" do
-      Logger.debug(fn -> "#{__MODULE__}: received event - #{inspect(event)}" end)
+      _ =
+        Logger.debug(fn ->
+          "#{__MODULE__}: received event - #{inspect(event)}"
+        end)
 
       case ManagerEvent.from_string(event.data) do
         {:ok, manager_event} ->
           update_vehicles(manager_event, state)
 
         {:error, reason} ->
-          Logger.error(fn ->
-            Logging.log_string("Manager Event Parsing Error", reason)
-          end)
+          _ =
+            Logger.error(fn ->
+              Logging.log_string("Manager Event Parsing Error", reason)
+            end)
+
+          :ok
       end
     end
 
@@ -79,7 +85,7 @@ defmodule TrainLoc.Manager do
   end
 
   def handle_info(_msg, state) do
-    Logger.warn(fn -> "#{__MODULE__}: Unknown message received." end)
+    _ = Logger.warn(fn -> "#{__MODULE__}: Unknown message received." end)
     {:noreply, state}
   end
 
@@ -106,11 +112,11 @@ defmodule TrainLoc.Manager do
 
   defp possibly_log_conflicts(false, new_conflicts, removed_conflicts) do
     Enum.each(new_conflicts, fn c ->
-      Logger.info(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
+      _ = Logger.info(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
     end)
 
     Enum.each(removed_conflicts, fn c ->
-      Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
+      _ = Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
     end)
   end
 
@@ -140,9 +146,12 @@ defmodule TrainLoc.Manager do
   end
 
   defp log_invalid_vehicle(reason) when is_atom(reason) do
-    Logger.warn(fn ->
-      Logging.log_string("Manager Vehicle Validation Failed", reason)
-    end)
+    _ =
+      Logger.warn(fn ->
+        Logging.log_string("Manager Vehicle Validation Failed", reason)
+      end)
+
+    :ok
   end
 
   defp reject_stale_vehicles(vehicles, time_baseline) do
@@ -165,22 +174,28 @@ defmodule TrainLoc.Manager do
   end
 
   defp end_of_batch_logging(all_conflicts, all_vehicles) do
-    Logger.debug(fn ->
-      "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids())} vehicles."
-    end)
+    _ =
+      Logger.debug(fn ->
+        "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids())} vehicles."
+      end)
 
-    Logger.debug(fn ->
-      "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active."
-    end)
+    _ =
+      Logger.debug(fn ->
+        "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active."
+      end)
 
-    Logger.info(fn ->
-      "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}"
-    end)
+    _ =
+      Logger.info(fn ->
+        "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}"
+      end)
+
+    :ok
   end
 
   defp upload_vehicles_to_s3 do
     vehicles = VState.all_vehicles()
     json = VehiclePositionsEnhanced.encode(vehicles)
-    @s3_api.put_object("VehiclePositions_enhanced.json", json)
+    {:ok, _} = @s3_api.put_object("VehiclePositions_enhanced.json", json)
+    :ok
   end
 end

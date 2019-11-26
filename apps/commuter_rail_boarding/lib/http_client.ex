@@ -6,9 +6,10 @@ defmodule HTTPClient do
   require Logger
 
   def process_url(url) do
-    Logger.debug(fn ->
-      "#{__MODULE__}:#{inspect(self())} requesting #{url}"
-    end)
+    _ =
+      Logger.debug(fn ->
+        "#{__MODULE__}:#{inspect(self())} requesting #{url}"
+      end)
 
     key = Application.get_env(:commuter_rail_boarding, :v3_api_key)
 

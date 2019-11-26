@@ -99,12 +99,13 @@ defmodule TrainLoc.Vehicles.Vehicle do
   """
   @spec log_vehicle(Vehicle.t()) :: Vehicle.t()
   def log_vehicle(vehicle) do
-    Logger.debug(fn ->
-      Enum.reduce(Map.from_struct(vehicle), "Vehicle - ", fn {key, value},
-                                                             acc ->
-        acc <> format_key_value_pair(key, value)
+    _ =
+      Logger.debug(fn ->
+        Enum.reduce(Map.from_struct(vehicle), "Vehicle - ", fn {key, value},
+                                                               acc ->
+          acc <> format_key_value_pair(key, value)
+        end)
       end)
-    end)
 
     vehicle
   end

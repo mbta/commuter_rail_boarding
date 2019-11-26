@@ -46,7 +46,7 @@ defmodule TrainLoc.Vehicles.State do
   # Server Callbacks
 
   def init(_) do
-    Logger.debug(fn -> "Starting #{__MODULE__}..." end)
+    _ = Logger.debug(fn -> "Starting #{__MODULE__}..." end)
     {:ok, Vehicles.new()}
   end
 

@@ -29,7 +29,7 @@ defmodule TrainLoc do
       ])
     ]
 
-    Logger.info(fn -> "Starting main TrainLoc supervisor..." end)
+    _ = Logger.info(fn -> "Starting main TrainLoc supervisor..." end)
     opts = [strategy: :one_for_all, name: __MODULE__]
     Supervisor.start_link(children, opts)
   end

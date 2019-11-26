@@ -13,6 +13,14 @@ defmodule LocUmbrella.Mixfile do
         coveralls: :test,
         "coveralls.html": :test,
         "coveralls.json": :test
+      ],
+      dialyzer: [
+        plt_add_deps: :transitive,
+        flags: [
+          :race_conditions,
+          :unmatched_returns
+        ],
+        ignore_warnings: "dialyzer.ignore-warnings"
       ]
     ]
   end
@@ -34,6 +42,8 @@ defmodule LocUmbrella.Mixfile do
   # Dependencies listed here are available only for this project
   # and cannot be accessed from applications inside the apps folder
   defp deps do
-    []
+    [
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
+    ]
   end
 end
