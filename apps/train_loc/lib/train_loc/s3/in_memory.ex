@@ -1,4 +1,9 @@
 defmodule TrainLoc.S3.InMemory do
+  @moduledoc """
+  S3 behavior which keeps track of the uploads in memory.
+
+  Used for testing.
+  """
   @behaviour TrainLoc.S3
 
   @name __MODULE__
@@ -15,7 +20,7 @@ defmodule TrainLoc.S3.InMemory do
     {:ok, body}
   end
 
-  def start() do
+  def start do
     Agent.start(fn -> %{} end, name: @name)
   end
 

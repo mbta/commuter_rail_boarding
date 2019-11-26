@@ -1,4 +1,7 @@
 defmodule TrainLoc.S3.HTTPClient do
+  @moduledoc """
+  S3 behaviour which actually uploads to S3.
+  """
   @behaviour TrainLoc.S3
 
   @impl TrainLoc.S3
@@ -12,7 +15,7 @@ defmodule TrainLoc.S3.HTTPClient do
     |> ExAws.request()
   end
 
-  defp get_bucket() do
+  defp get_bucket do
     case Application.get_env(:train_loc, :s3_bucket) do
       {:system, varname} -> System.get_env(varname)
       _ -> nil

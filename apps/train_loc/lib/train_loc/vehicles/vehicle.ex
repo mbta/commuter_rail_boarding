@@ -3,8 +3,8 @@ defmodule TrainLoc.Vehicles.Vehicle do
   Functions for working with individual vehicles.
   """
 
-  alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Utilities.Time, as: TrainLocTime
+  alias TrainLoc.Vehicles.Vehicle
 
   require Logger
 

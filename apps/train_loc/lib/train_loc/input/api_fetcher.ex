@@ -158,7 +158,7 @@ defmodule TrainLoc.Input.APIFetcher do
     url
   end
 
-  def log_empty_events_error() do
+  def log_empty_events_error do
     log_keolis_error("No events parsed")
   end
 

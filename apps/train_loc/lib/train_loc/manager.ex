@@ -9,14 +9,14 @@ defmodule TrainLoc.Manager do
   use Timex
 
   import TrainLoc.Utilities.ConfigHelpers
-  alias TrainLoc.Manager.Event, as: ManagerEvent
-  alias TrainLoc.Vehicles.Validator, as: VehicleValidator
-  alias TrainLoc.Vehicles.{Vehicle, PreviousBatch}
-  alias TrainLoc.Logging
   alias TrainLoc.Conflicts.Conflict
-  alias TrainLoc.Vehicles.State, as: VState
   alias TrainLoc.Conflicts.State, as: CState
   alias TrainLoc.Encoder.VehiclePositionsEnhanced
+  alias TrainLoc.Logging
+  alias TrainLoc.Manager.Event, as: ManagerEvent
+  alias TrainLoc.Vehicles.{PreviousBatch, Vehicle}
+  alias TrainLoc.Vehicles.State, as: VState
+  alias TrainLoc.Vehicles.Validator, as: VehicleValidator
 
   require Logger
 
@@ -101,15 +101,25 @@ defmodule TrainLoc.Manager do
       run_end_of_batch_tasks(all_conflicts)
     end
 
-    if not first_message? do
-      Enum.each(new_conflicts, fn c ->
-        Logger.info(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
-      end)
+    possibly_log_conflicts(first_message?, new_conflicts, removed_conflicts)
+  end
 
-      Enum.each(removed_conflicts, fn c ->
-        Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
-      end)
-    end
+  defp possibly_log_conflicts(false, new_conflicts, removed_conflicts) do
+    Enum.each(new_conflicts, fn c ->
+      Logger.info(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
+    end)
+
+    Enum.each(removed_conflicts, fn c ->
+      Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
+    end)
+  end
+
+  defp possibly_log_conflicts(
+         _first_message?,
+         _new_conflicts,
+         _removed_conflicts
+       ) do
+    :ok
   end
 
   def vehicles_from_data(data) when is_list(data) do
@@ -168,7 +178,7 @@ defmodule TrainLoc.Manager do
     end)
   end
 
-  defp upload_vehicles_to_s3() do
+  defp upload_vehicles_to_s3 do
     vehicles = VState.all_vehicles()
     json = VehiclePositionsEnhanced.encode(vehicles)
     @s3_api.put_object("VehiclePositions_enhanced.json", json)

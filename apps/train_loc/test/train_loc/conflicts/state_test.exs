@@ -1,22 +1,23 @@
 defmodule TrainLoc.Conflicts.StateTest do
+  @moduledoc false
   use ExUnit.Case, async: true
-  alias TrainLoc.Conflicts.{Conflict, Conflicts}
+  alias TrainLoc.Conflicts.{Conflict, Conflicts, State}
 
   setup do
     Application.ensure_all_started(:train_loc)
   end
 
   test "handles undefined call" do
-    assert GenServer.call(TrainLoc.Conflicts.State, :invalid_callback) ==
+    assert GenServer.call(State, :invalid_callback) ==
              {:error, "Unknown callback."}
   end
 
   test "handles undefined cast" do
-    GenServer.cast(TrainLoc.Conflicts.State, :unknown_cast)
+    GenServer.cast(State, :unknown_cast)
   end
 
   test "handles undefined message" do
-    send(TrainLoc.Conflicts.State, :unknown_message)
+    send(State, :unknown_message)
   end
 
   test "updates state of known conflicts and returns a diff" do
@@ -47,7 +48,7 @@ defmodule TrainLoc.Conflicts.StateTest do
     removed_conflicts = Conflicts.new()
 
     assert {removed_conflicts, pre_existing} ==
-             TrainLoc.Conflicts.State.set_conflicts(pre_existing)
+             State.set_conflicts(pre_existing)
 
     current = Conflicts.new([conflict2, conflict3])
 
@@ -55,8 +56,8 @@ defmodule TrainLoc.Conflicts.StateTest do
     removed_conflicts = Conflicts.new([conflict1])
 
     assert {removed_conflicts, unseen_conflicts} ==
-             TrainLoc.Conflicts.State.set_conflicts(current)
+             State.set_conflicts(current)
 
-    assert current == TrainLoc.Conflicts.State.all_conflicts()
+    assert current == State.all_conflicts()
   end
 end

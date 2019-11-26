@@ -14,7 +14,7 @@ defmodule TrainLoc.Vehicles.PreviousBatch do
     GenServer.call(pid, {:put, vehicles})
   end
 
-  def only_old_locations_warning() do
+  def only_old_locations_warning do
     "Keolis API Error - Only old locations in Keolis batch"
   end
 

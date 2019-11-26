@@ -39,6 +39,17 @@ defmodule BoardingStatusTest do
       assert status.scheduled_time == status.predicted_time
     end
 
+    test "predicted_time is scheduled_time when the departue is invalid" do
+      result = List.first(@results)
+      result = put_in(result["gtfsrt_departure"], "invalid")
+      assert {:ok, status} = from_firebase(result)
+
+      assert status.scheduled_time ==
+               DateTime.from_naive!(~N[2019-11-01T14:00:00], "Etc/UTC")
+
+      assert status.scheduled_time == status.predicted_time
+    end
+
     test "predicted_time comes from gtfsrt_departure if present" do
       result = List.first(@results)
       result = put_in(result["gtfsrt_departure"], "2018-09-01T07:02:03-05:00")

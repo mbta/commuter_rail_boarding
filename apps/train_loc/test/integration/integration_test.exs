@@ -4,6 +4,8 @@ defmodule TrainLoc.IntegrationTest do
   """
   use ExUnit.Case
   require Logger
+  alias TrainLoc.Input.APIFetcher
+  alias TrainLoc.S3.InMemory
 
   setup do
     Application.ensure_all_started(:train_loc)
@@ -24,7 +26,7 @@ defmodule TrainLoc.IntegrationTest do
     assert TrainLoc.Conflicts.State.all_conflicts() ==
              test_module.expected_conflict_state
 
-    assert Map.size(TrainLoc.S3.InMemory.list_objects()) == 1
+    assert Map.size(InMemory.list_objects()) == 1
   end
 
   @spec send_data([[String.t()]]) :: any
@@ -38,7 +40,7 @@ defmodule TrainLoc.IntegrationTest do
     end
 
     # waits for the messages sent above to be processed
-    TrainLoc.Input.APIFetcher.await()
+    APIFetcher.await()
     TrainLoc.Manager.await()
     TrainLoc.Vehicles.State.await()
     TrainLoc.Conflicts.State.await()

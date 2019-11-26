@@ -4,8 +4,8 @@ defmodule TrainLoc.Conflicts.Conflict do
 
   A conflict is when multiple vehicles are assigned to the same trip or block.
   """
-  alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Utilities.Time
+  alias TrainLoc.Vehicles.Vehicle
 
   defstruct [
     :assign_type,
