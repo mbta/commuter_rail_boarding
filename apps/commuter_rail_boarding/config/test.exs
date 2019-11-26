@@ -6,7 +6,8 @@ config :commuter_rail_boarding,
   start_children?: false
 
 # test-credentials.json comes from the goth repo
-config :goth, json: File.read!("test/test-credentials.json")
+config :goth,
+  json: File.read!("apps/commuter_rail_boarding/test/test-credentials.json")
 
 # increase default assert_receive timeout
 config :ex_unit, assert_receive_timeout: 1_000
