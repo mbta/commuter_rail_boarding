@@ -2,6 +2,7 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
   @moduledoc false
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureLog
   alias TrainLoc.Conflicts.Conflict
   alias TrainLoc.Vehicles.Vehicle
   alias TrainLoc.Vehicles.Vehicles
@@ -91,22 +92,56 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
     assert Vehicles.get(vehicles, test_id) == nil
   end
 
-  test "upsert/2 updates or inserts vehicles", %{vehicles: test_vehicles} do
-    vehicles_list = Map.values(test_vehicles)
+  describe "upsert/2" do
+    test "updates or inserts vehicles", %{vehicles: test_vehicles} do
+      vehicles_list = Map.values(test_vehicles)
 
-    vehicles = Vehicles.upsert(Vehicles.new(), vehicles_list)
+      vehicles = Vehicles.upsert(Vehicles.new(), vehicles_list)
 
-    assert Vehicles.get(vehicles, test_vehicles.vehicle1.vehicle_id) ==
-             test_vehicles.vehicle1
+      assert Vehicles.get(vehicles, test_vehicles.vehicle1.vehicle_id) ==
+               test_vehicles.vehicle1
 
-    assert Vehicles.get(vehicles, test_vehicles.vehicle2.vehicle_id) ==
-             test_vehicles.vehicle2
+      assert Vehicles.get(vehicles, test_vehicles.vehicle2.vehicle_id) ==
+               test_vehicles.vehicle2
 
-    assert Vehicles.get(vehicles, test_vehicles.vehicle3.vehicle_id) ==
-             test_vehicles.vehicle3
+      assert Vehicles.get(vehicles, test_vehicles.vehicle3.vehicle_id) ==
+               test_vehicles.vehicle3
 
-    assert Vehicles.get(vehicles, test_vehicles.vehicle4.vehicle_id) ==
-             test_vehicles.vehicle4
+      assert Vehicles.get(vehicles, test_vehicles.vehicle4.vehicle_id) ==
+               test_vehicles.vehicle4
+    end
+
+    test "logs warning if the vehicle has changed block", %{vehicles: vehicles} do
+      vehicle = vehicles.vehicle1
+      new_vehicle = %{vehicle | block: vehicle.block + 1}
+      list = Vehicles.new(Map.values(vehicles))
+
+      log =
+        capture_log(fn ->
+          Vehicles.upsert(list, [new_vehicle])
+        end)
+
+      assert log =~ "BLOCK CHANGE"
+      assert log =~ Integer.to_string(vehicle.vehicle_id)
+      assert log =~ Integer.to_string(vehicle.block)
+      assert log =~ Integer.to_string(new_vehicle.block)
+    end
+
+    test "logs warning if the vehicle has changed trip", %{vehicles: vehicles} do
+      vehicle = vehicles.vehicle1
+      new_vehicle = %{vehicle | trip: vehicle.trip + 1}
+      list = Vehicles.new(Map.values(vehicles))
+
+      log =
+        capture_log(fn ->
+          Vehicles.upsert(list, [new_vehicle])
+        end)
+
+      assert log =~ "TRIP CHANGE"
+      assert log =~ Integer.to_string(vehicle.vehicle_id)
+      assert log =~ Integer.to_string(vehicle.trip)
+      assert log =~ Integer.to_string(new_vehicle.trip)
+    end
   end
 
   test "Identifies duplicate logins", %{
