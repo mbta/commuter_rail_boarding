@@ -169,5 +169,15 @@ defmodule BoardingStatusTest do
 
       assert :ignore = from_firebase(result)
     end
+
+    test "ignores items with bad status" do
+      original = List.first(@results)
+      result = Map.put(original, "status", "BS")
+      assert :ignore = from_firebase(result)
+      result = Map.put(original, "status", "GL")
+      assert :ignore = from_firebase(result)
+      result = Map.put(original, "status", "BL")
+      assert :ignore = from_firebase(result)
+    end
   end
 end
