@@ -69,6 +69,7 @@ defmodule BoardingStatus do
       ) do
     with :ok <- validate_movement_type(map),
          :ok <- validate_is_stopping(map),
+         :ok <- validate_route_id(map),
          :ok <- validate_status(status),
          {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, trip_id, route_id, direction_id, added?} <-
@@ -133,6 +134,10 @@ defmodule BoardingStatus do
   # We can ignore any object with is_Stopping False
   def validate_is_stopping(%{"is_Stopping" => "False"}), do: :ignore
   def validate_is_stopping(_), do: :ok
+
+  # ignore the Downeaster
+  def validate_route_id(%{"gtfs_route_id" => "ADE"}), do: :ignore
+  def validate_route_id(_), do: :ok
 
   # Ignore statuses "Bus substitution" and "Not stopping here"
   def validate_status(status) do

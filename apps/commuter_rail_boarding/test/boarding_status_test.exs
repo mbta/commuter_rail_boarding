@@ -179,5 +179,11 @@ defmodule BoardingStatusTest do
       result = Map.put(original, "status", "BL")
       assert :ignore = from_firebase(result)
     end
+
+    test "ignores the Downeaster" do
+      original = List.first(@results)
+      result = %{original | "gtfs_route_id" => "ADE"}
+      assert :ignore = from_firebase(result)
+    end
   end
 end
