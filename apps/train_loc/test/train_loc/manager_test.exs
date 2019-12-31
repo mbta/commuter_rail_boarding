@@ -3,7 +3,7 @@ defmodule TrainLoc.ManagerTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
   import TrainLoc.Utilities.ConfigHelpers
-  alias TrainLoc.Input.ServerSentEvent
+  alias ServerSentEventStage.Event, as: ServerSentEvent
   alias TrainLoc.Manager
   alias TrainLoc.Utilities.Time, as: TrainLocTime
   alias TrainLoc.Vehicles.PreviousBatch
@@ -17,6 +17,20 @@ defmodule TrainLoc.ManagerTest do
       TrainLoc.Conflicts.State.reset()
       TrainLoc.Vehicles.State.reset()
     end)
+  end
+
+  describe "handle_info/2" do
+    test "logs a warning with invalid messages" do
+      message = {:unknown, System.unique_integer()}
+
+      log =
+        capture_log(fn ->
+          send(Manager, message)
+          Manager.await()
+        end)
+
+      assert log =~ inspect(message)
+    end
   end
 
   describe "`:events` callback logs 'only old locations in batch' warning" do

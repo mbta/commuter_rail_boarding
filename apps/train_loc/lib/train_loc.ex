@@ -14,23 +14,32 @@ defmodule TrainLoc do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    children = [
-      supervisor(TrainLoc.Supervisor, []),
-      worker(TrainLoc.Manager, [
-        [
-          name: TrainLoc.Manager
-        ]
-      ]),
-      worker(TrainLoc.Input.APIFetcher, [
-        [
-          name: TrainLoc.Input.APIFetcher,
-          url: {TrainLoc.Utilities.FirebaseUrl, :url, []}
-        ]
-      ])
-    ]
+    children =
+      [
+        supervisor(TrainLoc.Supervisor, [])
+      ] ++
+        start_children(
+          Application.get_env(:train_loc, APIFetcher)[:connect_at_startup?]
+        )
 
     _ = Logger.info(fn -> "Starting main TrainLoc supervisor..." end)
     opts = [strategy: :one_for_all, name: __MODULE__]
     Supervisor.start_link(children, opts)
+  end
+
+  defp start_children(true) do
+    [
+      {ServerSentEventStage,
+       name: TrainLoc.Input.APIFetcher,
+       url: {TrainLoc.Utilities.FirebaseUrl, :url, []}},
+      {TrainLoc.Manager,
+       name: TrainLoc.Manager, subscribe_to: TrainLoc.Input.APIFetcher}
+    ]
+  end
+
+  defp start_children(false) do
+    [
+      {TrainLoc.Manager, name: TrainLoc.Manager}
+    ]
   end
 end
