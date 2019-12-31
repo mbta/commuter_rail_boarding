@@ -5,7 +5,7 @@ defmodule TrainLoc.Manager do
   and reports conflicts to Splunk Cloud (via Logger).
   """
 
-  use GenServer
+  use GenStage
   use Timex
 
   import TrainLoc.Utilities.ConfigHelpers
@@ -24,43 +24,50 @@ defmodule TrainLoc.Manager do
   @s3_api Application.get_env(:train_loc, :s3_api)
 
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    GenStage.start_link(__MODULE__, opts, opts)
   end
 
   def reset(pid \\ __MODULE__) do
-    GenServer.call(pid, :reset)
+    GenStage.call(pid, :reset)
   end
 
   @doc """
   Awaits a reply.
   """
   def await(pid \\ __MODULE__) do
-    GenServer.call(pid, :await)
+    GenStage.call(pid, :await)
   end
 
-  def init(_) do
+  def init(opts) do
     _ = Logger.debug(fn -> "Starting #{__MODULE__}..." end)
     {time_mod, time_fn} = config(:time_baseline_fn)
     time_baseline_fn = fn -> apply(time_mod, time_fn, []) end
     excluded_vehicles = MapSet.new(config(:excluded_vehicles))
 
-    {:ok,
+    opts =
+      if subscribe_to = Keyword.get(opts, :subscribe_to) do
+        [subscribe_to: List.wrap(subscribe_to)]
+      else
+        []
+      end
+
+    {:consumer,
      %{
        first_message?: true,
        time_baseline: time_baseline_fn,
        excluded_vehicles: excluded_vehicles
-     }}
+     }, opts}
   end
 
   def handle_call(:reset, _from, state) do
-    {:reply, :ok, %{state | first_message?: true}}
+    {:reply, :ok, [], %{state | first_message?: true}}
   end
 
   def handle_call(:await, _from, state) do
-    {:reply, true, state}
+    {:reply, true, [], state}
   end
 
-  def handle_info({:events, events}, state) do
+  def handle_events(events, _from, state) do
     for event <- events, event.event == "put" do
       _ =
         Logger.debug(fn ->
@@ -81,12 +88,21 @@ defmodule TrainLoc.Manager do
       end
     end
 
-    {:noreply, %{state | first_message?: false}}
+    {:noreply, [], %{state | first_message?: false}}
   end
 
-  def handle_info(_msg, state) do
-    _ = Logger.warn(fn -> "#{__MODULE__}: Unknown message received." end)
-    {:noreply, state}
+  def handle_info({:events, events}, state) do
+    # only for testing
+    handle_events(events, :from, state)
+  end
+
+  def handle_info(msg, state) do
+    _ =
+      Logger.warn(fn ->
+        "#{__MODULE__}: Unknown message received message=#{inspect(msg)}"
+      end)
+
+    {:noreply, [], state}
   end
 
   defp update_vehicles(%ManagerEvent{} = manager_event, %{

@@ -5,9 +5,9 @@ defmodule TrainLoc.Mixfile do
     [
       app: :train_loc,
       version: "0.1.0",
-      elixir: "~> 1.8log_",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
-      config_path: "config/config.exs",
+      config_path: "../../config/config.exs",
       build_path: "../../_build",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
@@ -51,6 +51,8 @@ defmodule TrainLoc.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:server_sent_event_stage, "~> 1.0"},
+      {:castore, "~> 0.1"},
       {:distillery, "~> 2.0", runtime: false},
       {:ehmon, git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod},
       {:ex_aws, "~> 2.0"},
