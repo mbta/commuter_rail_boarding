@@ -133,6 +133,7 @@ defmodule BoardingStatus do
 
   # We can ignore any object with is_Stopping False
   def validate_is_stopping(%{"is_Stopping" => "False"}), do: :ignore
+  def validate_is_stopping(%{"is_stopping" => "False"}), do: :ignore
   def validate_is_stopping(_), do: :ok
 
   # ignore the Downeaster

@@ -168,6 +168,13 @@ defmodule BoardingStatusTest do
       }
 
       assert :ignore = from_firebase(result)
+
+      result =
+        result
+        |> Map.delete("is_Stopping")
+        |> Map.put("is_stopping", "False")
+
+      assert :ignore = from_firebase(result)
     end
 
     test "ignores items with bad status" do
