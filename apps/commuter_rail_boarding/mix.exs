@@ -41,7 +41,7 @@ defmodule CommuterRailBoarding.Mixfile do
       {:gen_stage, "~> 0.14.1"},
       {:tzdata, "~> 1.0-pre"},
       {:jason, "~> 1.0"},
-      {:server_sent_event_stage, "~> 0.4"},
+      {:server_sent_event_stage, "~> 1.0"},
       {:excoveralls, "~> 0.7", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:bypass, "~> 1.0", only: :test},
