@@ -69,4 +69,7 @@ config :train_loc,
   firebase_url: {:system, "TRAIN_LOC_FIREBASE_URL"},
   s3_api: TrainLoc.S3.InMemory
 
+config :ex_aws,
+  json_codec: Jason
+
 import_config "#{Mix.env()}.exs"

@@ -34,13 +34,12 @@ defmodule CommuterRailBoarding.Mixfile do
   defp deps do
     [
       {:goth, "~> 1.0"},
-      {:poison, "~> 4.0"},
       {:httpoison, "~> 1.5"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:gen_stage, "~> 0.14.1"},
       {:tzdata, "~> 1.0-pre"},
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.1"},
       {:server_sent_event_stage, "~> 1.0"},
       {:castore, "~> 0.1"},
       {:excoveralls, "~> 0.7", only: [:dev, :test], runtime: false},

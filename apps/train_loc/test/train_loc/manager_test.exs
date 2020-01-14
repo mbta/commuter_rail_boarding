@@ -54,7 +54,7 @@ defmodule TrainLoc.ManagerTest do
 
       events =
         for data <- [vehicle_1_data, end_of_batch_event_data] do
-          %ServerSentEvent{event: "put", data: Poison.encode!(data)}
+          %ServerSentEvent{event: "put", data: Jason.encode!(data)}
         end
 
       fun = fn ->
@@ -105,7 +105,7 @@ defmodule TrainLoc.ManagerTest do
 
       events =
         for data <- [vehicle_1_data, end_of_batch_event_data] do
-          %ServerSentEvent{event: "put", data: Poison.encode!(data)}
+          %ServerSentEvent{event: "put", data: Jason.encode!(data)}
         end
 
       fun = fn ->

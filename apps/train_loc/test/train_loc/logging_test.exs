@@ -26,5 +26,11 @@ defmodule TrainLoc.LoggingTest do
       iolist = log_string("Error", {:invalid, "p", 48})
       assert :erlang.iolist_to_binary(iolist) == expected
     end
+
+    test "given a list as one of the values, renders it as JSON" do
+      expected = ~s(Hi - list=[1,"2"])
+      iolist = log_string("Hi", %{list: [1, "2"]})
+      assert :erlang.iolist_to_binary(iolist) == expected
+    end
   end
 end

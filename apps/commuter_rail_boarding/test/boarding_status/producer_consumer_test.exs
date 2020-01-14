@@ -6,7 +6,7 @@ defmodule BoardingStatus.ProducerConsumerTest do
   @moduletag :capture_log
   @data "test/fixtures/firebase.json"
         |> File.read!()
-        |> Poison.decode!()
+        |> Jason.decode!()
   @state %{producers: []}
 
   describe "handle_events/2" do
@@ -15,7 +15,7 @@ defmodule BoardingStatus.ProducerConsumerTest do
 
       event = %ServerSentEventStage.Event{
         event: "put",
-        data: Poison.encode!(%{data: results})
+        data: Jason.encode!(%{data: results})
       }
 
       assert {:noreply, [statuses], @state} =
@@ -35,7 +35,7 @@ defmodule BoardingStatus.ProducerConsumerTest do
     test "handles the secondary value, which is nested differently" do
       event = %ServerSentEventStage.Event{
         event: "put",
-        data: Poison.encode!(%{data: @data})
+        data: Jason.encode!(%{data: @data})
       }
 
       assert {:noreply, [statuses], @state} =

@@ -59,7 +59,7 @@ defmodule TrainLoc.Mixfile do
       {:ex_aws_s3, "~> 2.0"},
       {:excoveralls, "~> 0.8", only: :test},
       {:goth, "~> 1.0"},
-      {:poison, "~> 4.0"},
+      {:jason, "~> 1.1"},
       {:timex, "~> 3.6.1"}
     ]
   end

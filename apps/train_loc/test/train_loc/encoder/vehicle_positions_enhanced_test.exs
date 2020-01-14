@@ -42,7 +42,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
 
       json = VehiclePositionsEnhanced.encode(vehicles)
 
-      decoded_json = Poison.decode!(json)
+      decoded_json = Jason.decode!(json)
 
       header = decoded_json["header"]
       assert header["gtfs_realtime_version"] == "1.0"
@@ -82,7 +82,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
 
       json = VehiclePositionsEnhanced.encode(vehicles)
 
-      decoded_json = Poison.decode!(json)
+      decoded_json = Jason.decode!(json)
 
       json_contents = decoded_json["entity"]
       assert length(json_contents) == 2

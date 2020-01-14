@@ -19,7 +19,7 @@ defmodule BoardingStatus.ProducerConsumer do
 
     valid_event_data =
       for %{event: "put"} = event <- events,
-          {:ok, data} <- [Poison.decode(event.data)],
+          {:ok, data} <- [Jason.decode(event.data, strings: :copy)],
           data <- valid_data(data) do
         data
       end

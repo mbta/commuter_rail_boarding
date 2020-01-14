@@ -7,7 +7,7 @@ defmodule BoardingStatusTest do
   @moduletag :capture_log
   @results "test/fixtures/firebase.json"
            |> File.read!()
-           |> Poison.decode!()
+           |> Jason.decode!()
            |> Map.get("results")
 
   setup_all do

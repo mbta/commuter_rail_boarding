@@ -14,9 +14,9 @@ defmodule TrainLoc.Manager.EventJsonParserTest do
     "VehicleID" => 1633,
     "WorkID" => 0
   }
-  @valid_json Poison.encode!(@valid_map)
-  @bad_value @valid_map |> Map.put("Heading", "other") |> Poison.encode!()
-  @missing_key @valid_map |> Map.drop(["Speed"]) |> Poison.encode!()
+  @valid_json Jason.encode!(@valid_map)
+  @bad_value @valid_map |> Map.put("Heading", "other") |> Jason.encode!()
+  @missing_key @valid_map |> Map.drop(["Speed"]) |> Jason.encode!()
 
   describe "parse/1" do
     test "works on a valid json string" do
