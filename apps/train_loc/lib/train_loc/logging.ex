@@ -45,7 +45,7 @@ defmodule TrainLoc.Logging do
   end
 
   defp to_value(list) when is_list(list) do
-    Poison.encode!(list)
+    Jason.encode_to_iodata!(list)
   end
 
   defp to_value(tuple) when is_tuple(tuple) do

@@ -13,7 +13,7 @@ defmodule TrainLoc.Manager.EventJsonParser do
   alias TrainLoc.Vehicles.JsonValidator
 
   def parse(data) when is_binary(data) do
-    with {:ok, json} <- Poison.decode(data),
+    with {:ok, json} <- Jason.decode(data, strings: :copy),
          vehicles_json <- extract_vehicles_json(json),
          date <- extract_date(json),
          :ok <- validate_vehicles_json(vehicles_json) do
@@ -23,7 +23,7 @@ defmodule TrainLoc.Manager.EventJsonParser do
          date: date
        }}
     else
-      {:error, %Poison.ParseError{}} ->
+      {:error, %Jason.DecodeError{}} ->
         {:error, :invalid_json}
 
       {:error, _} = err ->

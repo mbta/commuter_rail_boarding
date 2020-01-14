@@ -5,7 +5,7 @@ defmodule TrainLoc.Manager.EventTest do
 
   test "from_string/1" do
     raw_vehicle_json =
-      Poison.encode!(%{
+      Jason.encode!(%{
         "1633" => %{
           "Heading" => 0,
           "Latitude" => 42.37405,

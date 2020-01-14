@@ -9,6 +9,6 @@ defmodule Mix.Tasks.BlockConflicts do
       |> File.read!()
       |> BlockConflicts.run()
 
-    IO.puts(Poison.encode!(conflicts))
+    IO.puts(Jason.encode!(conflicts))
   end
 end

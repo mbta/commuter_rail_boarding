@@ -14,7 +14,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
       entity: feed_entity(list)
     }
 
-    Poison.encode!(message)
+    Jason.encode!(message)
   end
 
   defp feed_header do

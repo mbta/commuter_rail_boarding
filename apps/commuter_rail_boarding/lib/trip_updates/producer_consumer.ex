@@ -18,7 +18,7 @@ defmodule TripUpdates.ProducerConsumer do
       events
       |> List.last()
       |> TripUpdates.to_map()
-      |> Poison.encode!()
+      |> Jason.encode!()
 
     {:noreply, [{"TripUpdates_enhanced.json", binary}], state}
   end
