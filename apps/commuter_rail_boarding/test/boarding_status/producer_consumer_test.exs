@@ -7,7 +7,7 @@ defmodule BoardingStatus.ProducerConsumerTest do
   @data "test/fixtures/firebase.json"
         |> File.read!()
         |> Jason.decode!()
-  @state %{producers: []}
+  @state %BoardingStatus.ProducerConsumer{producers: []}
 
   describe "handle_events/2" do
     test "returns a list of parsed %BoardingStatus{} from %ServerSentEvent{}" do
@@ -18,7 +18,7 @@ defmodule BoardingStatus.ProducerConsumerTest do
         data: Jason.encode!(%{data: results})
       }
 
-      assert {:noreply, [statuses], @state} =
+      assert {:noreply, [statuses], %BoardingStatus.ProducerConsumer{}} =
                handle_events(
                  [%ServerSentEventStage.Event{}, event],
                  :from,
@@ -38,20 +38,51 @@ defmodule BoardingStatus.ProducerConsumerTest do
         data: Jason.encode!(%{data: @data})
       }
 
-      assert {:noreply, [statuses], @state} =
+      assert {:noreply, [statuses], %BoardingStatus.ProducerConsumer{}} =
                handle_events([event], :from, @state)
 
       refute statuses == []
     end
 
     test "ignores invalid JSON" do
-      assert {:noreply, [], @state} =
+      assert {:noreply, [], %BoardingStatus.ProducerConsumer{}} =
                handle_events([%ServerSentEventStage.Event{}], :from, @state)
     end
   end
 
+  describe "timeouts" do
+    test "receives a timeout message if we haven't gotten an event" do
+      init(subscribe_to: [], timeout_after: 50)
+      assert_receive :timeout
+    end
+
+    test "does not receive a timeout after a message" do
+      {_, state, _} = init(subscribe_to: [], timeout_after: 50)
+      {_, [], state2} = handle_events([], :from, state)
+      refute_received :timeout
+      assert state2.timeout_ref != state.timeout_ref
+    end
+  end
+
+  describe "handle_info/2" do
+    test ":timeout reschedules the timer" do
+      state = %BoardingStatus.ProducerConsumer{producers: []}
+
+      assert {:noreply, [], state2} = handle_info(:timeout, state)
+      assert state2.timeout_ref != state.timeout_ref
+    end
+
+    test ":timeout refreshes the connection" do
+      state = %BoardingStatus.ProducerConsumer{producers: [:x]}
+
+      handle_info(:timeout, state, &__MODULE__.send_self/1)
+
+      assert_received :x
+    end
+  end
+
   describe "maybe_refresh!/1" do
-    @state %{
+    @state %BoardingStatus.ProducerConsumer{
       producers: [:one, :two]
     }
     @refresh_fn &__MODULE__.send_self/1
