@@ -5,16 +5,30 @@ defmodule BoardingStatus.ProducerConsumer do
   use GenStage
   import StageHelpers
 
+  @five_minutes_ms 5 * 60 * 1000
+  defstruct [:producers, :timeout_ref, timeout_after: @five_minutes_ms]
+
   def start_link(args) do
     GenStage.start_link(__MODULE__, args, start_link_opts(args))
   end
 
   def init(args) do
+    state = %__MODULE__{}
     producers = Keyword.fetch!(args, :subscribe_to)
-    {:producer_consumer, %{producers: producers}, init_opts(args)}
+    timeout_after = Keyword.get(args, :timeout_after, state.timeout_after)
+
+    state =
+      schedule_timeout(%{
+        state
+        | producers: producers,
+          timeout_after: timeout_after
+      })
+
+    {:producer_consumer, state, init_opts(args)}
   end
 
   def handle_events(events, _from, state) do
+    state = schedule_timeout(state)
     maybe_refresh!(events, state)
 
     valid_event_data =
@@ -42,6 +56,16 @@ defmodule BoardingStatus.ProducerConsumer do
     {:noreply, statuses, state}
   end
 
+  def handle_info(
+        :timeout,
+        state,
+        refresh_fn \\ &ServerSentEventStage.refresh/1
+      ) do
+    state = schedule_timeout(state)
+    Enum.each(state.producers, refresh_fn)
+    {:noreply, [], state}
+  end
+
   defp valid_data(%{"data" => list}) when is_list(list) do
     [list]
   end
@@ -66,5 +90,14 @@ defmodule BoardingStatus.ProducerConsumer do
 
   defp should_refresh?(events) do
     Enum.any?(events, &(&1.event == "auth_revoked"))
+  end
+
+  defp schedule_timeout(state) do
+    if state.timeout_ref do
+      Process.cancel_timer(state.timeout_ref)
+    end
+
+    ref = Process.send_after(self(), :timeout, state.timeout_after)
+    %{state | timeout_ref: ref}
   end
 end
