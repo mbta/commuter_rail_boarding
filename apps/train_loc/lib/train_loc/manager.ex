@@ -23,6 +23,8 @@ defmodule TrainLoc.Manager do
   @stale_data_seconds 30 |> Duration.from_minutes() |> Duration.to_seconds()
   @s3_api Application.get_env(:train_loc, :s3_api)
 
+  defstruct [:time_baseline, :excluded_vehicles, first_message?: true]
+
   def start_link(opts) do
     GenStage.start_link(__MODULE__, opts, opts)
   end
@@ -51,12 +53,7 @@ defmodule TrainLoc.Manager do
         []
       end
 
-    {:consumer,
-     %{
-       first_message?: true,
-       time_baseline: time_baseline_fn,
-       excluded_vehicles: excluded_vehicles
-     }, opts}
+    {:consumer, %__MODULE__{time_baseline: time_baseline_fn, excluded_vehicles: excluded_vehicles}, opts}
   end
 
   def handle_call(:reset, _from, state) do
