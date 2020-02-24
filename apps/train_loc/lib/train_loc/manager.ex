@@ -20,10 +20,19 @@ defmodule TrainLoc.Manager do
 
   require Logger
 
+  @five_minutes_ms 5 * 60 * 1000
   @stale_data_seconds 30 |> Duration.from_minutes() |> Duration.to_seconds()
   @s3_api Application.get_env(:train_loc, :s3_api)
 
-  defstruct [:time_baseline, :excluded_vehicles, first_message?: true]
+  defstruct [
+    :time_baseline,
+    :excluded_vehicles,
+    :producers,
+    :timeout_ref,
+    first_message?: true,
+    timeout_after: @five_minutes_ms,
+    refresh_fn: &ServerSentEventStage.refresh/1
+  ]
 
   def start_link(opts) do
     GenStage.start_link(__MODULE__, opts, opts)
@@ -46,25 +55,36 @@ defmodule TrainLoc.Manager do
     time_baseline_fn = fn -> apply(time_mod, time_fn, []) end
     excluded_vehicles = MapSet.new(config(:excluded_vehicles))
 
-    opts =
-      if subscribe_to = Keyword.get(opts, :subscribe_to) do
-        [subscribe_to: List.wrap(subscribe_to)]
-      else
-        []
-      end
+    producers =
+      if subscribe_to = Keyword.get(opts, :subscribe_to),
+        do: List.wrap(subscribe_to),
+        else: []
 
-    {:consumer, %__MODULE__{time_baseline: time_baseline_fn, excluded_vehicles: excluded_vehicles}, opts}
+    state =
+      schedule_timeout(%__MODULE__{
+        time_baseline: time_baseline_fn,
+        excluded_vehicles: excluded_vehicles,
+        producers: producers,
+        timeout_after:
+          Keyword.get(opts, :timeout_after, %__MODULE__{}.timeout_after)
+      })
+
+    {:consumer, state, subscribe_to: producers}
   end
 
   def handle_call(:reset, _from, state) do
+    state = schedule_timeout(state)
     {:reply, :ok, [], %{state | first_message?: true}}
   end
 
   def handle_call(:await, _from, state) do
+    state = schedule_timeout(state)
     {:reply, true, [], state}
   end
 
   def handle_events(events, _from, state) do
+    state = schedule_timeout(state)
+
     for event <- events, event.event == "put" do
       _ =
         Logger.debug(fn ->
@@ -91,6 +111,13 @@ defmodule TrainLoc.Manager do
   def handle_info({:events, events}, state) do
     # only for testing
     handle_events(events, :from, state)
+  end
+
+  def handle_info(:timeout, state) do
+    Enum.each(state.producers, state.refresh_fn)
+
+    state = schedule_timeout(state)
+    {:noreply, [], state}
   end
 
   def handle_info(msg, state) do
@@ -210,5 +237,14 @@ defmodule TrainLoc.Manager do
     json = VehiclePositionsEnhanced.encode(vehicles)
     {:ok, _} = @s3_api.put_object("VehiclePositions_enhanced.json", json)
     :ok
+  end
+
+  defp schedule_timeout(state) do
+    if state.timeout_ref do
+      Process.cancel_timer(state.timeout_ref)
+    end
+
+    ref = Process.send_after(self(), :timeout, state.timeout_after)
+    %{state | timeout_ref: ref}
   end
 end

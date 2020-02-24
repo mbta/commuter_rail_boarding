@@ -31,6 +31,21 @@ defmodule TrainLoc.ManagerTest do
 
       assert log =~ inspect(message)
     end
+
+    test ":timeout reschedules the timer" do
+      state = %Manager{producers: []}
+
+      assert {:noreply, [], state2} = Manager.handle_info(:timeout, state)
+      assert state2.timeout_ref != state.timeout_ref
+    end
+
+    test ":timeout refreshes the connection" do
+      state = %Manager{producers: [:x], refresh_fn: &__MODULE__.send_self/1}
+
+      Manager.handle_info(:timeout, state)
+
+      assert_received :x
+    end
   end
 
   describe "`:events` callback logs 'only old locations in batch' warning" do
@@ -138,6 +153,20 @@ defmodule TrainLoc.ManagerTest do
     end
   end
 
+  describe "timeouts" do
+    test "receives a timeout message if we haven't gotten an event" do
+      Manager.init(subscribe_to: [], timeout_after: 50)
+      assert_receive :timeout
+    end
+
+    test "does not receive a timeout after a message" do
+      {_, state, _} = Manager.init(subscribe_to: [], timeout_after: 50)
+      {_, [], state2} = Manager.handle_events([], :from, state)
+      refute_received :timeout
+      assert state2.timeout_ref != state.timeout_ref
+    end
+  end
+
   defp generate_invalid_timestamp do
     local_offset =
       :time_zone
@@ -148,5 +177,9 @@ defmodule TrainLoc.ManagerTest do
     DateTime.utc_now()
     |> Timex.shift(seconds: local_offset)
     |> Timex.format!("{ISO:Extended:Z}")
+  end
+
+  def send_self(message) do
+    send(self(), message)
   end
 end
