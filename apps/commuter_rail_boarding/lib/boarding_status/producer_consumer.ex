@@ -5,8 +5,9 @@ defmodule BoardingStatus.ProducerConsumer do
   use GenStage
   import StageHelpers
 
-  @five_minutes_ms 5 * 60 * 1000
-  defstruct [:producers, :timeout_ref, timeout_after: @five_minutes_ms]
+  # 5 minutes in milliseconds
+  @default_timeout 5 * 60 * 1000
+  defstruct [:producers, :timeout_ref, timeout_after: @default_timeout]
 
   def start_link(args) do
     GenStage.start_link(__MODULE__, args, start_link_opts(args))
