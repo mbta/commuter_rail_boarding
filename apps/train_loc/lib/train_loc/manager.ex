@@ -20,7 +20,8 @@ defmodule TrainLoc.Manager do
 
   require Logger
 
-  @five_minutes_ms 5 * 60 * 1000
+  # five minutes in milliseconds
+  @default_timeout 5 * 60 * 1000
   @stale_data_seconds 30 |> Duration.from_minutes() |> Duration.to_seconds()
   @s3_api Application.get_env(:train_loc, :s3_api)
 
@@ -30,7 +31,7 @@ defmodule TrainLoc.Manager do
     :producers,
     :timeout_ref,
     first_message?: true,
-    timeout_after: @five_minutes_ms,
+    timeout_after: @default_timeout,
     refresh_fn: &ServerSentEventStage.refresh/1
   ]
 
