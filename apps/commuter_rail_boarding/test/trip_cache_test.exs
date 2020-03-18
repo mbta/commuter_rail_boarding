@@ -5,8 +5,8 @@ defmodule TripCacheTest do
   import TripCache
 
   @route_id "CR-Lowell"
-  @trip_name "348"
-  @trip_id "CR-Weekday-Fall-19-348"
+  @trip_name "1314"
+  @trip_id "CR-Weekday-Storm-19-1314C0"
   @direction_id 1
   # need a roughly-current date in order to look it up in the API
   @datetime DateTime.utc_now()
@@ -52,10 +52,9 @@ defmodule TripCacheTest do
       unix = DateTime.to_unix(@datetime)
       unix_saturday = unix + 86_400 * (6 - day_of_week)
       saturday = DateTime.from_unix!(unix_saturday)
-      # XXX will fail if run on a Saturday
-      assert route_trip_name_to_id("CR-Fitchburg", "1409", @datetime) == :error
+      assert route_trip_name_to_id("CR-Fitchburg", "0000", @datetime) == :error
 
-      assert {:ok, "CR-Saturday-" <> _, 0} =
+      assert {:ok, "CR-" <> _, 0} =
                route_trip_name_to_id("CR-Fitchburg", "1409", saturday)
     end
   end
