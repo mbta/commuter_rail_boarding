@@ -37,7 +37,7 @@ defmodule CommuterRailBoarding.Mixfile do
       {:httpoison, "~> 1.5"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:gen_stage, "~> 0.14.1"},
+      {:gen_stage, "~> 1.0"},
       {:tzdata, "~> 1.0-pre"},
       {:jason, "~> 1.1"},
       {:server_sent_event_stage, "~> 1.0"},
