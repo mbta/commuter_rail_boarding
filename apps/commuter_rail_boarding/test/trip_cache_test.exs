@@ -12,8 +12,9 @@ defmodule TripCacheTest do
   @datetime DateTime.utc_now()
 
   describe "route_direction_id/1" do
-    # you can get one of these from the API: https://api-v3.mbta.com/trips/?filter[route]=1&filter[direction_id]=0&page[limit]=1
-    @route_1_trip_id "43756724"
+    # you can get one of these from the API: https://api-v3.mbta.com/schedules/?filter[route]=1&filter[direction_id]=0&page[limit]=1
+    # try to run this on a weekday, so that you get a weekday trip ID.
+    @route_1_trip_id "45030860"
     test "returns {:ok, route_id, direction_id} for a valid trip" do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
     end
