@@ -3,8 +3,6 @@ use Mix.Config
 config :commuter_rail_boarding,
   firebase_url: {:system, "CRB_FIREBASE_URL"},
   stop_ids: %{
-    "Boston" => "South Station",
-    "Boston North Station" => "North Station",
     "South Station" => "NEC-2287",
     "North Station" => "BNT-0000",
     "Back Bay" => "NEC-2276"
