@@ -16,7 +16,7 @@ defmodule TripCacheTest do
     # try to run this on a weekday, so that you get a weekday trip ID.
     @route_1_trip_id "45686049"
     test "returns {:ok, route_id, direction_id} for a valid trip" do
-      assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
+      assert {:ok, "CR-Lowell", 1} = route_direction_id(@route_1_trip_id)
     end
 
     test "returns :error for an invalid trip" do
