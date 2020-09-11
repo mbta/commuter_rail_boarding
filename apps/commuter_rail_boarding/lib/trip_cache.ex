@@ -78,6 +78,8 @@ defmodule TripCache do
          %{status_code: 200, body: body} <- response,
          {:ok, route_id, direction_id, trip_name, trip_headsign} <-
            decode_single_trip(body) do
+      IO.inspect(trip_headsign)
+      IO.inspect("HIIII")
       row = {{:trip, trip_id}, route_id, direction_id, trip_name, trip_headsign}
       _ = :ets.insert_new(@table, row)
       {:ok, route_id, direction_id, trip_name, trip_headsign}

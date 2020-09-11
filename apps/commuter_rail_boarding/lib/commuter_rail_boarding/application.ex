@@ -12,6 +12,12 @@ defmodule CommuterRailBoarding.Application do
       System.get_env("V3_API_KEY")
     )
 
+    Application.put_env(
+      :commuter_rail_boarding,
+      :v3_api_url,
+      System.get_env("V3_API_URL", "https://api.mbtace.com")
+    )
+
     # List all child processes to be supervised
     children = [
       TripCache,
