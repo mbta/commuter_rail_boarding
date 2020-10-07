@@ -3,6 +3,7 @@ defmodule RouteCache do
   Caches information about GTFS routes for later use.
   """
   use GenServer
+  require Logger
 
   @table __MODULE__.Table
 
@@ -35,6 +36,8 @@ defmodule RouteCache do
   end
 
   defp insert_and_return(route_name) do
+    Logger.info("insert_and_return #{inspect(route_name)}")
+
     with {:ok, response} <-
            HTTPClient.get("/routes/?fields[route]=long_name&type=2"),
          %{status_code: 200, body: body} <- response,
@@ -43,7 +46,9 @@ defmodule RouteCache do
       # try to fetch from the table again
       do_id_from_long_name(route_name, fn _ -> :error end)
     else
-      _ -> :error
+      e ->
+        Logger.info("insert_and_return error #{inspect(e)}")
+        :error
     end
   end
 
