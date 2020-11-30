@@ -151,6 +151,20 @@ defmodule BoardingStatus do
 
   defp trip_route_direction_id(
          %{
+           "gtfs_route_id" => route_id,
+           "gtfs_trip_short_name" => trip_name,
+           "trip_id" => keolis_trip_id
+         },
+         dt
+       ) do
+    {:ok, trip_id, direction_id, added?} =
+      create_trip_id(route_id, trip_name, keolis_trip_id, dt)
+
+    {:ok, trip_id, route_id, direction_id, added?}
+  end
+
+  defp trip_route_direction_id(
+         %{
            "gtfs_route_long_name" => long_name,
            "gtfs_trip_short_name" => trip_name,
            "trip_id" => keolis_trip_id
