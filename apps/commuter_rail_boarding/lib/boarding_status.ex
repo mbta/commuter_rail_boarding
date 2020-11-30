@@ -163,22 +163,6 @@ defmodule BoardingStatus do
     {:ok, trip_id, route_id, direction_id, added?}
   end
 
-  defp trip_route_direction_id(
-         %{
-           "gtfs_route_long_name" => long_name,
-           "gtfs_trip_short_name" => trip_name,
-           "trip_id" => keolis_trip_id
-         },
-         dt
-       ) do
-    # we can look the trip ID up with the trip name
-    with {:ok, route_id} <- RouteCache.id_from_long_name(long_name),
-         {:ok, trip_id, direction_id, added?} <-
-           create_trip_id(route_id, trip_name, keolis_trip_id, dt) do
-      {:ok, trip_id, route_id, direction_id, added?}
-    end
-  end
-
   defp create_trip_id(route_id, "", keolis_trip_id, _dt) do
     # no trip name, build a new trip_id
     _ =

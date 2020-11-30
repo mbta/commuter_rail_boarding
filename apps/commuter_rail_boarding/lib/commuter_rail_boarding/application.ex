@@ -15,7 +15,6 @@ defmodule CommuterRailBoarding.Application do
     # List all child processes to be supervised
     children = [
       TripCache,
-      RouteCache,
       ScheduleCache
       | other_children(
           Application.get_env(:commuter_rail_boarding, :start_children?)
