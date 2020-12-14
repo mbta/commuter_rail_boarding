@@ -23,7 +23,7 @@ defmodule TrainLoc.Manager do
   # five minutes in milliseconds
   @default_timeout 5 * 60 * 1000
   @stale_data_seconds 30 |> Duration.from_minutes() |> Duration.to_seconds()
-  @s3_api Application.get_env(:train_loc, :s3_api)
+  @s3_api Application.compile_env!(:train_loc, :s3_api)
 
   defstruct [
     :time_baseline,
