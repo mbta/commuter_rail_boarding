@@ -4,15 +4,15 @@ defmodule BoardingStatusTest do
   import BoardingStatus
   import ExUnit.CaptureLog
 
+  # To update the `firebase.json` fixture: set CRB_FIREBASE_URL and GCS_CREDENTIAL_JSON in the
+  # environment to the values stored in 1Password under "Keolis production Firebase credentials",
+  # run `FirebaseUrl.url()` in an IEx shell (`iex -S mix`), and fetch the resulting URL.
+
   @moduletag :capture_log
   @results "test/fixtures/firebase.json"
            |> File.read!()
            |> Jason.decode!()
            |> Map.get("results")
-
-  setup_all do
-    :ok
-  end
 
   describe "from_firebase/1" do
     test "returns {:ok, t} for all items from fixture" do
@@ -34,18 +34,18 @@ defmodule BoardingStatusTest do
       assert {:ok, status} = from_firebase(result)
 
       assert status.scheduled_time ==
-               DateTime.from_naive!(~N[2019-11-01T14:00:00], "Etc/UTC")
+               DateTime.from_naive!(~N[2020-12-15T15:40:00], "Etc/UTC")
 
       assert status.scheduled_time == status.predicted_time
     end
 
-    test "predicted_time is scheduled_time when the departue is invalid" do
+    test "predicted_time is scheduled_time when the departure is invalid" do
       result = List.first(@results)
       result = put_in(result["gtfsrt_departure"], "invalid")
       assert {:ok, status} = from_firebase(result)
 
       assert status.scheduled_time ==
-               DateTime.from_naive!(~N[2019-11-01T14:00:00], "Etc/UTC")
+               DateTime.from_naive!(~N[2020-12-15T15:40:00], "Etc/UTC")
 
       assert status.scheduled_time == status.predicted_time
     end
@@ -83,7 +83,7 @@ defmodule BoardingStatusTest do
 
       assert {:ok, status} = from_firebase(result)
       refute status.trip_id == ""
-      assert status.route_id == "CR-Fitchburg"
+      assert status.route_id == "CR-Worcester"
       assert status.stop_sequence == :unknown
       assert status.added?
     end
@@ -109,7 +109,7 @@ defmodule BoardingStatusTest do
         end)
 
       assert message =~ "unexpected missing GTFS trip ID"
-      assert message =~ "CR-Fitchburg"
+      assert message =~ "CR-Worcester"
       assert message =~ result["gtfs_trip_short_name"]
       assert message =~ result["trip_id"]
     end

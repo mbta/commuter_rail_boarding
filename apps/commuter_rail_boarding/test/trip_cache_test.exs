@@ -4,17 +4,20 @@ defmodule TripCacheTest do
 
   import TripCache
 
-  @route_id "CR-Lowell"
-  @trip_name "312"
-  @trip_id "CR-Weekday-Fall-20-312"
+  @route_id "CR-Worcester"
+  @trip_id "CR-Weekday-Storm-20-1500"
+  @trip_name "1500"
+  @trip_headsign "South Station"
   @direction_id 1
   # need a roughly-current date in order to look it up in the API
   @datetime DateTime.utc_now()
 
   describe "route_direction_id/1" do
-    # you can get one of these from the API: https://api-v3.mbta.com/schedules/?filter[route]=1&filter[direction_id]=0&page[limit]=1
+    # you can get one of these from the API:
+    # https://api-v3.mbta.com/schedules/?filter[route]=1&filter[direction_id]=0&page[limit]=1
     # try to run this on a weekday, so that you get a weekday trip ID.
     @route_1_trip_id "45683746"
+
     test "returns {:ok, route_id, direction_id} for a valid trip" do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
     end
@@ -26,7 +29,7 @@ defmodule TripCacheTest do
 
   describe "trip_name_headsign/1" do
     test "returns {:ok, trip_name, trip_headsign} for a valid ID" do
-      assert trip_name_headsign(@trip_id) == {:ok, @trip_name, "North Station"}
+      assert trip_name_headsign(@trip_id) == {:ok, @trip_name, @trip_headsign}
     end
 
     test "returns :error for an invalid trip" do
