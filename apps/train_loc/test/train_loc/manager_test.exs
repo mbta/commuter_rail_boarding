@@ -42,9 +42,14 @@ defmodule TrainLoc.ManagerTest do
     test ":timeout refreshes the connection" do
       state = %Manager{producers: [:x], refresh_fn: &__MODULE__.send_self/1}
 
-      Manager.handle_info(:timeout, state)
+      log =
+        capture_log([level: :warn], fn ->
+          Manager.handle_info(:timeout, state)
 
-      assert_received :x
+          assert_received :x
+        end)
+
+      assert log =~ "Connection timed out, refreshing..."
     end
   end
 
