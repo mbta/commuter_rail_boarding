@@ -5,7 +5,7 @@ defmodule TripCacheTest do
   import TripCache
 
   @route_id "CR-Worcester"
-  @trip_id "CR-Weekday-Storm-20-1500"
+  @trip_id "CR-Saturday-Fall-20-1500"
   @trip_name "1500"
   @trip_headsign "South Station"
   @direction_id 1
@@ -16,7 +16,7 @@ defmodule TripCacheTest do
     # you can get one of these from the API:
     # https://api-v3.mbta.com/schedules/?filter[route]=1&filter[direction_id]=0&page[limit]=1
     # try to run this on a weekday, so that you get a weekday trip ID.
-    @route_1_trip_id "45683746"
+    @route_1_trip_id "46498934"
 
     test "returns {:ok, route_id, direction_id} for a valid trip" do
       assert {:ok, "1", 0} = route_direction_id(@route_1_trip_id)
