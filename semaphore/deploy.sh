@@ -3,8 +3,6 @@ set -e -x -u
 #!/bin/bash
 set -e -u
 
-sudo pip install -U awscli
-
 # bash script should be called with aws environment ($APP-dev / $APP-dev-green / $APP-prod)
 # other required configuration:
 # * APP
