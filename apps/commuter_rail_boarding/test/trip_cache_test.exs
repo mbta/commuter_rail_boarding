@@ -5,7 +5,7 @@ defmodule TripCacheTest do
   import TripCache
 
   @route_id "CR-Worcester"
-  @trip_id "CR-Saturday-Fall-20-1500"
+  @trip_id "CR-Weekday-Winter-21-1500"
   @trip_name "1500"
   @trip_headsign "South Station"
   @direction_id 1
