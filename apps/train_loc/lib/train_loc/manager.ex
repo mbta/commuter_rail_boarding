@@ -115,6 +115,8 @@ defmodule TrainLoc.Manager do
   end
 
   def handle_info(:timeout, state) do
+    Logger.warn(fn -> "#{__MODULE__}: Connection timed out, refreshing..." end)
+
     Enum.each(state.producers, state.refresh_fn)
 
     state = schedule_timeout(state)
