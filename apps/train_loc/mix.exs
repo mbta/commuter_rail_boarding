@@ -60,7 +60,7 @@ defmodule TrainLoc.Mixfile do
       {:excoveralls, "~> 0.8", only: :test},
       {:goth, "~> 1.0"},
       {:jason, "~> 1.1"},
-      {:timex, "~> 3.6.1"}
+      {:timex, "~> 3.7.2"}
     ]
   end
 end
