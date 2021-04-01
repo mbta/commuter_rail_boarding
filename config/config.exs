@@ -5,7 +5,8 @@ config :commuter_rail_boarding,
   stop_ids: %{
     "South Station" => "NEC-2287",
     "North Station" => "BNT-0000",
-    "Back Bay" => "NEC-2276"
+    "Back Bay" => "NEC-2276",
+    "Ruggles" => "NEC-2265"
   },
   headsigns: %{
     "Forge Park/495" => "Forge Park / 495",
