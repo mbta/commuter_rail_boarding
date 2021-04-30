@@ -4,7 +4,8 @@ config :logger, backends: [:console], level: :debug
 
 config :logger, :console, level: :warn
 
-# test-credentials.json comes from the goth repo
+# test-credentials.json comes from the goth repo:
+# https://github.com/peburrows/goth/blob/be68c4b034dd2700b9ddbc02488b45f9ce7e56ba/config/test-credentials.json
 config :goth, json: File.read!("test/test-credentials.json")
 
 config :commuter_rail_boarding,
