@@ -8,14 +8,9 @@ defmodule LocUmbrella.Mixfile do
       build_embedded: Mix.env() == :prod,
       deps: deps(),
       source_url: "https://github.com/mbta/commuter_rail_boarding",
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.html": :test,
-        "coveralls.json": :test
-      ],
+      test_coverage: [tool: LcovEx],
       dialyzer: [
-        plt_add_deps: :transitive,
+        plt_add_deps: :app_tree,
         flags: [
           :race_conditions,
           :unmatched_returns
@@ -43,7 +38,7 @@ defmodule LocUmbrella.Mixfile do
   # and cannot be accessed from applications inside the apps folder
   defp deps do
     [
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
