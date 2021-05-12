@@ -14,12 +14,12 @@ defmodule TrainLoc.Mixfile do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      test_coverage: [tool: ExCoveralls],
+      test_coverage: [tool: LcovEx],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.html": :test,
         "coveralls.json": :test
-      ],
+      ]
     ]
   end
 
@@ -54,10 +54,11 @@ defmodule TrainLoc.Mixfile do
       {:server_sent_event_stage, "~> 1.0"},
       {:castore, "~> 0.1"},
       {:distillery, "~> 2.0", runtime: false},
-      {:ehmon, git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod},
+      {:ehmon,
+       git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
-      {:excoveralls, "~> 0.8", only: :test},
+      {:lcov_ex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:goth, "~> 1.0"},
       {:jason, "~> 1.1"},
       {:timex, "~> 3.6.1"}
