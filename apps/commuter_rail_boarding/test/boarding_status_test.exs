@@ -34,7 +34,7 @@ defmodule BoardingStatusTest do
       assert {:ok, status} = from_firebase(result)
 
       assert status.scheduled_time ==
-               DateTime.from_naive!(~N[2020-12-15T15:40:00], "Etc/UTC")
+               DateTime.from_naive!(~N[2021-05-13T16:25:00], "Etc/UTC")
 
       assert status.scheduled_time == status.predicted_time
     end
@@ -45,7 +45,7 @@ defmodule BoardingStatusTest do
       assert {:ok, status} = from_firebase(result)
 
       assert status.scheduled_time ==
-               DateTime.from_naive!(~N[2020-12-15T15:40:00], "Etc/UTC")
+               DateTime.from_naive!(~N[2021-05-13T16:25:00], "Etc/UTC")
 
       assert status.scheduled_time == status.predicted_time
     end
@@ -83,7 +83,7 @@ defmodule BoardingStatusTest do
 
       assert {:ok, status} = from_firebase(result)
       refute status.trip_id == ""
-      assert status.route_id == "CR-Worcester"
+      assert status.route_id == "CR-Providence"
       assert status.stop_sequence == :unknown
       assert status.added?
     end
@@ -109,7 +109,7 @@ defmodule BoardingStatusTest do
         end)
 
       assert message =~ "unexpected missing GTFS trip ID"
-      assert message =~ "CR-Worcester"
+      assert message =~ "CR-Providence"
       assert message =~ result["gtfs_trip_short_name"]
       assert message =~ result["trip_id"]
     end
