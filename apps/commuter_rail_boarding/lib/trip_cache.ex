@@ -178,4 +178,8 @@ defmodule TripCache do
     Logger.info(["whereis TripCache.Table? ", inspect(:ets.whereis(TripCache.Table), pretty: true)])
     {:noreply, state, 10}
   end
+
+  def terminate(reason, _state) do
+    Logger.info(["TripCache terminating, reason: ", reason])
+  end
 end
