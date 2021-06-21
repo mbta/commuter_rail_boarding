@@ -14,12 +14,14 @@ defmodule CommuterRailBoarding.ApplicationTest do
         :start_children?,
         start_children?
       )
+
+      Application.stop(:commuter_rail_boarding)
+      Application.ensure_started(:commuter_rail_boarding)
     end)
   end
 
   test "starts the application" do
     Application.stop(:commuter_rail_boarding)
-    assert {:ok, _} = Application.ensure_all_started(:commuter_rail_boarding)
-    Application.stop(:commuter_rail_boarding)
+    assert Application.ensure_started(:commuter_rail_boarding) == :ok
   end
 end
