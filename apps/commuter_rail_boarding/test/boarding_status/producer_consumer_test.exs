@@ -19,6 +19,8 @@ defmodule BoardingStatus.ProducerConsumerTest do
         data: Jason.encode!(%{data: results})
       }
 
+      tables = :ets.all()
+      Logger.info(["ETS tables: ", inspect(tables, pretty: true)])
       Logger.info("running ProducerConsumerTest (parsed BoardingStatus)")
 
       assert {:noreply, [statuses], %BoardingStatus.ProducerConsumer{}} =
@@ -41,6 +43,8 @@ defmodule BoardingStatus.ProducerConsumerTest do
         data: Jason.encode!(%{data: @data})
       }
 
+      tables = :ets.all()
+      Logger.info(["ETS tables: ", inspect(tables, pretty: true)])
       Logger.info("running ProducerConsumerTest (secondary value)")
 
       assert {:noreply, [statuses], %BoardingStatus.ProducerConsumer{}} =
