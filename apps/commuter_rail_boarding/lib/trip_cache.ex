@@ -174,7 +174,8 @@ defmodule TripCache do
       end)
 
     :ets.delete_all_objects(@table)
-    timeout = DateHelpers.seconds_until_next_service_date()
-    {:noreply, state, :timer.seconds(timeout)}
+    # timeout = DateHelpers.seconds_until_next_service_date()
+    Logger.info(["whereis TripCache.Table? ", inspect(:ets.whereis(TripCache.Table), pretty: true)])
+    {:noreply, state, :timer.seconds(1)}
   end
 end
