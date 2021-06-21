@@ -163,8 +163,8 @@ defmodule TripCache do
 
     result = :ets.new(@table, ets_options)
     Logger.info(["table init: ", inspect(result)])
-    timeout = DateHelpers.seconds_until_next_service_date()
-    {:ok, :state, :timer.seconds(timeout)}
+    # timeout = DateHelpers.seconds_until_next_service_date()
+    {:ok, :state, :timer.seconds(1)}
   end
 
   def handle_info(:timeout, state) do
