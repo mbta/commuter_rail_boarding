@@ -46,7 +46,7 @@ jobs:
           mix local.hex --force
           mix deps.get
       - name: Compile (warnings as errors)
-        run: mix compile --force
+        run: mix compile --force --warnings-as-errors
 
   test:
     name: Test
