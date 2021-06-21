@@ -12,11 +12,9 @@ defmodule TrainLoc do
   def env, do: @env
 
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
-
     children =
       [
-        supervisor(TrainLoc.Supervisor, [])
+        TrainLoc.Supervisor
       ] ++
         start_children(
           Application.get_env(:train_loc, APIFetcher)[:connect_at_startup?]
