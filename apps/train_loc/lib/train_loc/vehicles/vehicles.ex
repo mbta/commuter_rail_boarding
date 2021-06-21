@@ -98,18 +98,14 @@ defmodule TrainLoc.Vehicles.Vehicles do
       _ =
         if old.block != new.block do
           Logger.debug(fn ->
-            "BLOCK CHANGE #{Time.format_datetime(new.timestamp)} - #{
-              new.vehicle_id
-            }: #{old.block}->#{new.block}"
+            "BLOCK CHANGE #{Time.format_datetime(new.timestamp)} - #{new.vehicle_id}: #{old.block}->#{new.block}"
           end)
         end
 
       _ =
         if old.trip != new.trip do
           Logger.debug(fn ->
-            "TRIP CHANGE #{Time.format_datetime(new.timestamp)} - #{
-              new.vehicle_id
-            }: #{old.trip}->#{new.trip}"
+            "TRIP CHANGE #{Time.format_datetime(new.timestamp)} - #{new.vehicle_id}: #{old.trip}->#{new.trip}"
           end)
         end
     end
