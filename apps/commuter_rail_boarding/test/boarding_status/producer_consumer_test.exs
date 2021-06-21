@@ -1,6 +1,6 @@
 defmodule BoardingStatus.ProducerConsumerTest do
   @moduledoc false
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   import BoardingStatus.ProducerConsumer
   require Logger
 
