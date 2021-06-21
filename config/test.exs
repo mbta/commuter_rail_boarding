@@ -2,7 +2,7 @@ use Mix.Config
 
 config :logger, backends: [:console], level: :debug
 
-config :logger, :console, level: :warn
+config :logger, :console, level: :info
 
 # test-credentials.json comes from the goth repo:
 # https://github.com/peburrows/goth/blob/be68c4b034dd2700b9ddbc02488b45f9ce7e56ba/config/test-credentials.json

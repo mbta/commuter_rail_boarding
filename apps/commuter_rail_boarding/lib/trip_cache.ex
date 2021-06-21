@@ -161,7 +161,8 @@ defmodule TripCache do
       {:write_concurrency, true}
     ]
 
-    _ = :ets.new(@table, ets_options)
+    result = :ets.new(@table, ets_options)
+    Logger.info(["table init: ", inspect(result)])
     timeout = DateHelpers.seconds_until_next_service_date()
     {:ok, :state, :timer.seconds(timeout)}
   end

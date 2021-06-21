@@ -3,7 +3,7 @@ defmodule BoardingStatus.ProducerConsumerTest do
   use ExUnit.Case
   import BoardingStatus.ProducerConsumer
 
-  @moduletag :capture_log
+  # @moduletag :capture_log
   @data "test/fixtures/firebase.json"
         |> File.read!()
         |> Jason.decode!()
