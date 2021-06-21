@@ -95,7 +95,7 @@ jobs:
       # - name: Credo
       #   run: mix credo --strict
       - name: Run tests
-        run: mix test --cover
+        run: mix test --exclude test --include 'describe:handle_events/2' apps/commuter_rail_boarding/test/boarding_status/producer_consumer_test.exs --cover
       - name: Save PR information
         run: |
           echo "${{ github.event.pull_request.number }}" > cover/PR_NUMBER
