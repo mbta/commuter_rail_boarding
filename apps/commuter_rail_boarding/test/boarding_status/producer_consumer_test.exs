@@ -2,6 +2,7 @@ defmodule BoardingStatus.ProducerConsumerTest do
   @moduledoc false
   use ExUnit.Case
   import BoardingStatus.ProducerConsumer
+  require Logger
 
   # @moduletag :capture_log
   @data "test/fixtures/firebase.json"
@@ -17,6 +18,8 @@ defmodule BoardingStatus.ProducerConsumerTest do
         event: "put",
         data: Jason.encode!(%{data: results})
       }
+
+      Logger.info("running ProducerConsumerTest (parsed BoardingStatus)")
 
       assert {:noreply, [statuses], %BoardingStatus.ProducerConsumer{}} =
                handle_events(
@@ -37,6 +40,8 @@ defmodule BoardingStatus.ProducerConsumerTest do
         event: "put",
         data: Jason.encode!(%{data: @data})
       }
+
+      Logger.info("running ProducerConsumerTest (secondary value)")
 
       assert {:noreply, [statuses], %BoardingStatus.ProducerConsumer{}} =
                handle_events([event], :from, @state)
