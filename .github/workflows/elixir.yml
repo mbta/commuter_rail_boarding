@@ -51,7 +51,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    needs: build
     env:
       V3_API_KEY: ${{ secrets.V3_API_KEY }}
 
