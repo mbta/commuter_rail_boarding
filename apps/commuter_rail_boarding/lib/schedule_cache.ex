@@ -15,10 +15,10 @@ defmodule ScheduleCache do
   @doc """
   Returns the stop_sequence for a trip/stop ID pair.
 
-  iex> ScheduleCache.stop_sequence("CR-483685-802", "NEC-2276")
-  {:ok, 100}
+  iex> ScheduleCache.stop_sequence("CR-483206-818", "NEC-2276")
+  {:ok, 80}
 
-  iex> ScheduleCache.stop_sequence("CR-483656-506-NewtonRailBus", "WML-0364")
+  iex> ScheduleCache.stop_sequence("CR-483100-500-NewtonRailBus", "WML-0364")
   {:ok, 10}
 
   iex> ScheduleCache.stop_sequence("unknown", "Back Bay")

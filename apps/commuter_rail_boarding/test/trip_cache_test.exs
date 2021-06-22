@@ -5,7 +5,7 @@ defmodule TripCacheTest do
   import TripCache
 
   @route_id "CR-Worcester"
-  @trip_id "CR-483656-506-NewtonRailBus"
+  @trip_id "CR-483102-506-NewtonRailBus"
   @trip_name "506"
   @trip_headsign "South Station"
   @direction_id 1
