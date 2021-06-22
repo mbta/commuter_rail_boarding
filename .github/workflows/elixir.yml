@@ -2,7 +2,6 @@ name: Elixir CI
 
 on:
   push:
-    branches: main
   pull_request:
 
 jobs:
@@ -22,17 +21,7 @@ jobs:
       # only run `asdf install` if we didn't hit the cache
       - uses: asdf-vm/actions/install@v1
         if: steps.asdf-cache.outputs.cache-hit != 'true'
-      # if we did hit the cache, set up the environment
-      - name: Setup ASDF environment
-        run: |
-          echo "ASDF_DIR=$HOME/.asdf" >> $GITHUB_ENV
-          echo "ASDF_DATA_DIR=$HOME/.asdf" >> $GITHUB_ENV
-        if: steps.asdf-cache.outputs.cache-hit == 'true'
-      - name: Reshim ASDF
-        run: |
-          echo "$ASDF_DIR/bin" >> $GITHUB_PATH
-          echo "$ASDF_DIR/shims" >> $GITHUB_PATH
-          $ASDF_DIR/bin/asdf reshim
+      - uses: mbta/actions/reshim-asdf@v1
       - name: Restore dependencies cache
         id: deps-cache
         uses: actions/cache@v2
@@ -45,8 +34,6 @@ jobs:
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
-      - name: Compile (warnings as errors)
-        run: mix compile --force --warnings-as-errors
 
   test:
     name: Test
@@ -64,20 +51,7 @@ jobs:
           path: ~/.asdf
           key: ${{ runner.os }}-asdf-v2-${{ hashFiles('.tool-versions') }}
         id: asdf-cache
-      # only run `asdf install` if we didn't hit the cache
-      - uses: asdf-vm/actions/install@v1
-        if: steps.asdf-cache.outputs.cache-hit != 'true'
-      # if we did hit the cache, set up the environment
-      - name: Setup ASDF environment
-        run: |
-          echo "ASDF_DIR=$HOME/.asdf" >> $GITHUB_ENV
-          echo "ASDF_DATA_DIR=$HOME/.asdf" >> $GITHUB_ENV
-        if: steps.asdf-cache.outputs.cache-hit == 'true'
-      - name: Reshim ASDF
-        run: |
-          echo "$ASDF_DIR/bin" >> $GITHUB_PATH
-          echo "$ASDF_DIR/shims" >> $GITHUB_PATH
-          $ASDF_DIR/bin/asdf reshim
+      - uses: mbta/actions/reshim-asdf@v1
       - name: Restore dependencies cache
         id: deps-cache
         uses: actions/cache@v2
@@ -85,11 +59,8 @@ jobs:
           path: deps
           key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-
-      - name: Install dependencies
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-          mix deps.get
+      - name: Compile (warnings as errors)
+        run: mix compile --force --warnings-as-errors
       - name: Check formatting
         run: mix format --check-formatted
       - name: Credo
@@ -107,4 +78,3 @@ jobs:
           name: elixir-lcov
           path: cover/
       - uses: mbta/actions/dialyzer@v1
-
