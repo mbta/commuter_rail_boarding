@@ -63,7 +63,6 @@ jobs:
         with:
           name: elixir-lcov
           path: cover/
-      - uses: mbta/actions/dialyzer@v1
 
   format:
     name: Format
