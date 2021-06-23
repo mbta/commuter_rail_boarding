@@ -15,7 +15,7 @@ defmodule LocUmbrella.Mixfile do
         "coveralls.json": :test
       ],
       dialyzer: [
-        plt_add_deps: :transitive,
+        plt_add_deps: :app_tree,
         flags: [
           :race_conditions,
           :unmatched_returns
@@ -43,7 +43,7 @@ defmodule LocUmbrella.Mixfile do
   # and cannot be accessed from applications inside the apps folder
   defp deps do
     [
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
