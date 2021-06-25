@@ -1,0 +1,16 @@
+name: Deploy to Prod
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    name: Deploy to Dev
+    runs-on: ubuntu-latest
+    environment: prod
+    concurrency: prod
+    env:
+      ECS_CLUSTER: commuter-rail-boarding
+      ECS_SERVICE: commuter-rail-boarding-prod
+
+    steps:
+      - uses: actions/checkout@v2
