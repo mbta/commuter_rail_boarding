@@ -47,14 +47,10 @@ defmodule TrainLoc.Conflicts.Conflict do
 
   @spec log_string(t) :: String.t()
   def log_string(c) do
-    "#{c.service_date}: Conflict in #{c.assign_type} #{c.assign_id}. Assigned vehicles: #{
-      Enum.join(c.vehicles, ", ")
-    }"
+    "#{c.service_date}: Conflict in #{c.assign_type} #{c.assign_id}. Assigned vehicles: #{Enum.join(c.vehicles, ", ")}"
   end
 
   def email_string(c) do
-    "#{to_string(c.assign_type)} #{c.assign_id}, vehicles: #{
-      Enum.join(c.vehicles, ", ")
-    }"
+    "#{to_string(c.assign_type)} #{c.assign_id}, vehicles: #{Enum.join(c.vehicles, ", ")}"
   end
 end

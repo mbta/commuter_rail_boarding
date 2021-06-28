@@ -17,20 +17,20 @@ defmodule HTTPClientTest do
     test "returns path unchanged when no key provided" do
       Application.put_env(:commuter_rail_boarding, :v3_api_key, nil)
 
-      assert HTTPClient.process_url("/some_path") == "the_url/some_path"
+      assert HTTPClient.process_request_url("/some_path") == "the_url/some_path"
     end
 
     test "appends api_key using ? when the only query parameter" do
       Application.put_env(:commuter_rail_boarding, :v3_api_key, "the_api_key")
 
-      assert HTTPClient.process_url("/some_path") ==
+      assert HTTPClient.process_request_url("/some_path") ==
                "the_url/some_path?api_key=the_api_key"
     end
 
     test "appends api_key using & when other parameters" do
       Application.put_env(:commuter_rail_boarding, :v3_api_key, "the_api_key")
 
-      assert HTTPClient.process_url("/some_path?query=val") ==
+      assert HTTPClient.process_request_url("/some_path?query=val") ==
                "the_url/some_path?query=val&api_key=the_api_key"
     end
   end
