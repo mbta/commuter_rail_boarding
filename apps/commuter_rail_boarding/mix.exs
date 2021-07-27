@@ -14,8 +14,7 @@ defmodule CommuterRailBoarding.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       aliases: aliases(),
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [{:"coveralls.html", :test}]
+      test_coverage: [tool: LcovEx]
     ]
   end
 
@@ -42,12 +41,11 @@ defmodule CommuterRailBoarding.Mixfile do
       {:jason, "~> 1.1"},
       {:server_sent_event_stage, "~> 1.0"},
       {:castore, "~> 0.1"},
-      {:excoveralls, "~> 0.7", only: [:dev, :test], runtime: false},
+      {:lcov_ex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:bypass, "~> 1.0", only: :test},
       {:distillery, "~> 2.0", runtime: false},
-      {:ehmon,
-       git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod}
+      {:ehmon, git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod}
     ]
   end
 

@@ -28,3 +28,4 @@ erl_crash.dump
 !/rel/Dockerfile
 !/rel/config.exs
 /.env
+/.envrc

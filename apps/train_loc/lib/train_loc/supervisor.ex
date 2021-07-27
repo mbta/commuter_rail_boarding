@@ -13,20 +13,18 @@ defmodule TrainLoc.Supervisor do
 
   require Logger
 
-  def start_link do
+  def start_link(_opts) do
     Supervisor.start_link(__MODULE__, :ok)
   end
 
   def init(:ok) do
     children = [
-      worker(TrainLoc.Conflicts.State, [[name: TrainLoc.Conflicts.State]]),
-      worker(TrainLoc.Vehicles.State, [[name: TrainLoc.Vehicles.State]]),
-      worker(TrainLoc.Vehicles.PreviousBatch, [
-        [name: TrainLoc.Vehicles.PreviousBatch]
-      ])
+      {TrainLoc.Conflicts.State, [name: TrainLoc.Conflicts.State]},
+      {TrainLoc.Vehicles.State, [name: TrainLoc.Vehicles.State]},
+      {TrainLoc.Vehicles.PreviousBatch, [name: TrainLoc.Vehicles.PreviousBatch]}
     ]
 
     _ = Logger.debug(fn -> "Starting State supervisor..." end)
-    supervise(children, strategy: :one_for_one)
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end

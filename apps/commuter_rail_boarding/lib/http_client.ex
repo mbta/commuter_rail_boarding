@@ -5,7 +5,7 @@ defmodule HTTPClient do
   use HTTPoison.Base
   require Logger
 
-  def process_url(path) do
+  def process_request_url(path) do
     _ =
       Logger.debug(fn ->
         "#{__MODULE__}:#{inspect(self())} requesting #{path}"

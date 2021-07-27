@@ -14,6 +14,8 @@ defmodule CommuterRailBoarding.ApplicationTest do
         :start_children?,
         start_children?
       )
+
+      Application.ensure_all_started(:commuter_rail_boarding)
     end)
   end
 
