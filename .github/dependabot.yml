@@ -1,0 +1,17 @@
+version: 2
+updates:
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/train_loc"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: mix
+  directory: "/apps/commuter_rail_boarding"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
