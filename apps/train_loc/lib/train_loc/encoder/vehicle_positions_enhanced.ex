@@ -7,16 +7,55 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
 
   alias TrainLoc.Vehicles.Vehicle
 
+  @type feed() :: %{
+          header: feed_header(),
+          entity: [entity()]
+        }
+
+  @type feed_header() :: %{
+          gtfs_realtime_version: String.t(),
+          incrementality: integer(),
+          timestamp: integer()
+        }
+
+  @type entity() :: %{
+          id: String.t(),
+          vehicle: %{
+            trip: entity_trip_t(),
+            vehicle: entity_vehicle_t(),
+            position: %{
+              latitude: float() | nil,
+              longitude: float() | nil,
+              bearing: 0..359,
+              speed: float()
+            },
+            timestamp: non_neg_integer()
+          }
+        }
+
+  @type entity_trip_t() :: %{
+          :start_date => String.t(),
+          optional(:trip_short_name) => String.t()
+        }
+
+  @type entity_vehicle_t() :: %{
+          :id => non_neg_integer(),
+          optional(:assignment_status) => String.t()
+        }
+
   @spec encode([Vehicle.t()]) :: String.t()
   def encode(list) when is_list(list) do
-    message = %{
-      header: feed_header(),
-      entity: feed_entity(list)
-    }
-
-    Jason.encode!(message)
+    list
+    |> feed()
+    |> Jason.encode!()
   end
 
+  @spec feed([TrainLoc.Vehicles.Vehicle.t()]) :: feed()
+  def feed(vehicles) do
+    %{header: feed_header(), entity: feed_entity(vehicles)}
+  end
+
+  @spec feed_header() :: feed_header()
   defp feed_header do
     %{
       gtfs_realtime_version: "1.0",
@@ -25,11 +64,13 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     }
   end
 
+  @spec feed_entity([Vehicle.t()]) :: [entity()]
   defp feed_entity(list), do: Enum.map(list, &build_entity/1)
 
+  @spec build_entity(Vehicle.t()) :: entity() | []
   defp build_entity(%Vehicle{} = vehicle) do
     %{
-      id: "#{:erlang.phash2(vehicle)}",
+      id: Integer.to_string(:erlang.phash2(vehicle)),
       vehicle: %{
         trip: entity_trip(vehicle),
         vehicle: entity_vehicle(vehicle),
@@ -46,6 +87,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
 
   defp build_entity(_), do: []
 
+  @spec entity_trip(Vehicle.t()) :: entity_trip_t()
   defp entity_trip(%{trip: "000"} = vehicle) do
     %{start_date: start_date(vehicle.timestamp)}
   end
@@ -59,6 +101,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     %{start_date: start_date(vehicle.timestamp)}
   end
 
+  @spec entity_vehicle(Vehicle.t()) :: entity_vehicle_t()
   defp entity_vehicle(%{trip: "000"} = vehicle) do
     %{
       id: vehicle.vehicle_id,
@@ -72,16 +115,19 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     }
   end
 
+  @spec start_date(DateTime.t()) :: String.t()
   def start_date(%DateTime{} = timestamp) do
     timestamp
     |> get_service_date()
     |> Date.to_iso8601(:basic)
   end
 
+  @spec miles_per_hour_to_meters_per_second(non_neg_integer()) :: float()
   defp miles_per_hour_to_meters_per_second(miles_per_hour) do
     miles_per_hour * 0.447
   end
 
+  @spec format_timestamp(DateTime.t()) :: integer()
   defp format_timestamp(%DateTime{} = timestamp) do
     DateTime.to_unix(timestamp)
   end

@@ -64,6 +64,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
 
   defp from_json_elem({_, _}), do: []
 
+  @spec from_json(map) :: t()
   def from_json(veh_data) when is_map(veh_data) do
     %__MODULE__{
       vehicle_id: veh_data["VehicleID"],

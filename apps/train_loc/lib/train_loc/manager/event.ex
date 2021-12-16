@@ -6,9 +6,15 @@ defmodule TrainLoc.Manager.Event do
 
   alias TrainLoc.Manager.EventJsonParser
 
+  @type t() :: %__MODULE__{
+          date: String.t() | nil,
+          vehicles_json: [map()]
+        }
+
   defstruct date: nil,
             vehicles_json: []
 
+  @spec from_string(String.t()) :: {:ok, t()} | {:error, any()}
   def from_string(string) when is_binary(string) do
     EventJsonParser.parse(string)
   end
