@@ -74,7 +74,7 @@ defmodule BoardingStatus do
          {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, trip_id, route_id, direction_id, added?} <-
            trip_route_direction_id(map, scheduled_time) do
-      stop_id = stop_id(stop_name)
+      stop_id = stop_id(stop_name, track)
 
       {:ok,
        %__MODULE__{
@@ -226,8 +226,12 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
     end
   end
 
-  def stop_id(stop_name) do
-    Map.get(config(:stop_ids), stop_name, stop_name)
+  def stop_id(stop_name, track) do
+    case Map.get(config(:stop_ids), stop_name) do
+      nil -> stop_name
+      stop_id when is_binary(stop_id) -> stop_id
+      stop_ids when is_map(stop_ids) -> Map.get(stop_ids, track, stop_name)
+    end
   end
 
   statuses = Application.get_env(:commuter_rail_boarding, :statuses)
