@@ -94,6 +94,15 @@ defmodule BoardingStatusTest do
       assert from_firebase(result) == from_firebase(original)
     end
 
+    test "assigns a stop ID based on the track number for Back Bay" do
+      original = List.first(@results)
+      track1 = %{original | "gtfs_stop_name" => "Back Bay", "track" => "1"}
+      track5 = %{original | "gtfs_stop_name" => "Back Bay", "track" => "5"}
+
+      assert {:ok, %{stop_id: "NEC-2276"}} = from_firebase(track1)
+      assert {:ok, %{stop_id: "WML-0012"}} = from_firebase(track5)
+    end
+
     test "logs a warning if we have a non-matched trip short name but no trip ID" do
       original = List.first(@results)
 
