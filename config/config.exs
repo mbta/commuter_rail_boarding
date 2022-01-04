@@ -1,11 +1,18 @@
 use Mix.Config
 
+# Mapping of `gtfs_stop_name` values to stop IDs. Note these are expected to be valid *both* on
+# their own, and when a track number is appended, if the boarding status has a track assignment
+# (see `TripUpdates.platform_id_map/2`).
+#
+# When the value is a map, this maps specific track numbers to stop IDs. The key `""` must be
+# present to account for boarding statuses with no track assignment. Only the `""` stop ID needs
+# to be valid on its own.
 config :commuter_rail_boarding,
-  firebase_url: {:system, "CRB_FIREBASE_URL"},
   stop_ids: %{
     "South Station" => "NEC-2287",
     "North Station" => "BNT-0000",
     "Back Bay" => %{
+      "" => "NEC-2276",
       "1" => "NEC-2276",
       "2" => "NEC-2276",
       "3" => "NEC-2276",
@@ -13,7 +20,10 @@ config :commuter_rail_boarding,
       "7" => "WML-0012"
     },
     "Ruggles" => "NEC-2265"
-  },
+  }
+
+config :commuter_rail_boarding,
+  firebase_url: {:system, "CRB_FIREBASE_URL"},
   headsigns: %{
     "Forge Park/495" => "Forge Park / 495",
     "Anderson/Woburn" => "Anderson / Woburn",
