@@ -74,8 +74,6 @@ defmodule BoardingStatus do
          {:ok, scheduled_time, _} <- DateTime.from_iso8601(schedule_time_iso),
          {:ok, trip_id, route_id, direction_id, added?} <-
            trip_route_direction_id(map, scheduled_time) do
-      stop_id = stop_id(stop_name, track)
-
       {:ok,
        %__MODULE__{
          scheduled_time: scheduled_time,
@@ -83,8 +81,8 @@ defmodule BoardingStatus do
            predicted_time(predicted_time_iso, scheduled_time, status),
          route_id: route_id,
          trip_id: trip_id,
-         stop_id: stop_id,
-         stop_sequence: stop_sequence(trip_id, stop_id, added?),
+         stop_id: stop_id(stop_name, track),
+         stop_sequence: stop_sequence(trip_id, stop_name, added?),
          direction_id: direction_id,
          status: status_string(status),
          track: track,
@@ -191,14 +189,16 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
     end
   end
 
-  defp stop_sequence(trip_id, stop_id, added?)
-
-  defp stop_sequence(_, _, true) do
-    # added trips don't have a stop sequence ID
+  defp stop_sequence(_trip_id, _stop_name, true) do
+    # added trips don't have a stop sequence
     :unknown
   end
 
-  defp stop_sequence(trip_id, stop_id, _) do
+  defp stop_sequence(trip_id, stop_name, _added?) do
+    # get the stop ID as though there was no track assignment, since only the "generic" stop IDs
+    # are in the static schedule
+    stop_id = stop_id(stop_name, "")
+
     case ScheduleCache.stop_sequence(trip_id, stop_id) do
       {:ok, sequence} -> sequence
       :error -> :unknown
