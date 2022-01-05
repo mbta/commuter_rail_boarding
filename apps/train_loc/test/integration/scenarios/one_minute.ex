@@ -112,8 +112,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.07462,
         trip: "000",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:30 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:30 America/New_York", time_format),
         vehicle_id: 1625,
         block: "000"
       },
@@ -123,8 +122,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.07749,
         trip: "000",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:30 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:30 America/New_York", time_format),
         vehicle_id: 1626,
         block: "000"
       },
@@ -134,8 +132,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.07744,
         trip: "000",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:31 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:31 America/New_York", time_format),
         vehicle_id: 1627,
         block: "000"
       },
@@ -145,8 +142,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.06314,
         trip: "168",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:18 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:18 America/New_York", time_format),
         vehicle_id: 1628,
         block: "402"
       },
@@ -156,8 +152,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.06286,
         trip: "214",
         speed: 2,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:37 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:37 America/New_York", time_format),
         vehicle_id: 1629,
         block: "300"
       },
@@ -167,8 +162,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.07522,
         trip: "000",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:31 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:31 America/New_York", time_format),
         vehicle_id: 1630,
         block: "000"
       },
@@ -178,8 +172,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.06332,
         trip: "324",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:19:15 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:19:15 America/New_York", time_format),
         vehicle_id: 1631,
         block: "200"
       },
@@ -189,8 +182,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.07494,
         trip: "000",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:21 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:21 America/New_York", time_format),
         vehicle_id: 1632,
         block: "000"
       },
@@ -200,8 +192,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -70.87048,
         trip: "116",
         speed: 19,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:33 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:33 America/New_York", time_format),
         vehicle_id: 1633,
         block: "104"
       },
@@ -211,8 +202,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.11536,
         trip: "321",
         speed: 30,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:25 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:25 America/New_York", time_format),
         vehicle_id: 1636,
         block: "200"
       },
@@ -222,8 +212,7 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         longitude: -71.07525,
         trip: "000",
         speed: 0,
-        timestamp:
-          Timex.parse!("2018-01-29 14:23:25 America/New_York", time_format),
+        timestamp: Timex.parse!("2018-01-29 14:23:25 America/New_York", time_format),
         vehicle_id: 1637,
         block: "000"
       }

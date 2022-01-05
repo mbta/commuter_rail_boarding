@@ -63,22 +63,19 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     test "errors non-floats" do
       veh = %Vehicle{latitude: :atom, vehicle_id: 1}
 
-      assert {:error, :invalid_vehicle} =
-               Validator.must_have_valid_latitude(veh)
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_latitude(veh)
     end
 
     test "errors for high values" do
       veh = %Vehicle{latitude: 44.6, vehicle_id: 1}
 
-      assert {:error, :invalid_vehicle} =
-               Validator.must_have_valid_latitude(veh)
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_latitude(veh)
     end
 
     test "errors for low values" do
       veh = %Vehicle{latitude: 32.0, vehicle_id: 1}
 
-      assert {:error, :invalid_vehicle} =
-               Validator.must_have_valid_latitude(veh)
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_latitude(veh)
     end
   end
 
@@ -96,22 +93,19 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
     test "errors non-floats" do
       veh = %Vehicle{longitude: :atom, vehicle_id: 1}
 
-      assert {:error, :invalid_vehicle} =
-               Validator.must_have_valid_longitude(veh)
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_longitude(veh)
     end
 
     test "errors for high values" do
       veh = %Vehicle{longitude: -68.0, vehicle_id: 1}
 
-      assert {:error, :invalid_vehicle} =
-               Validator.must_have_valid_longitude(veh)
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_longitude(veh)
     end
 
     test "errors for low values" do
       veh = %Vehicle{longitude: -73.0, vehicle_id: 1}
 
-      assert {:error, :invalid_vehicle} =
-               Validator.must_have_valid_longitude(veh)
+      assert {:error, :invalid_vehicle} = Validator.must_have_valid_longitude(veh)
     end
   end
 

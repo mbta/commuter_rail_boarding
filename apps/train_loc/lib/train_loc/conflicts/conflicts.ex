@@ -28,11 +28,8 @@ defmodule TrainLoc.Conflicts.Conflicts do
   """
   @spec diff(conflicts_acc, conflicts_acc) :: {conflicts_acc, conflicts_acc}
   def diff(pre_existing_conflicts, current_conflicts) do
-    new_conflicts =
-      filter_only_unknown(pre_existing_conflicts, current_conflicts)
-
-    removed_conflicts =
-      filter_only_removed(pre_existing_conflicts, current_conflicts)
+    new_conflicts = filter_only_unknown(pre_existing_conflicts, current_conflicts)
+    removed_conflicts = filter_only_removed(pre_existing_conflicts, current_conflicts)
 
     {removed_conflicts, new_conflicts}
   end

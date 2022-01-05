@@ -92,8 +92,8 @@ defmodule TripCache do
            "attributes" => attributes
          }
        }) do
-    {:ok, relationships["route"]["data"]["id"], attributes["direction_id"],
-     attributes["name"], attributes["headsign"]}
+    {:ok, relationships["route"]["data"]["id"], attributes["direction_id"], attributes["name"],
+     attributes["headsign"]}
   end
 
   defp decode_single_trip(%{"data" => []}) do
@@ -139,10 +139,7 @@ defmodule TripCache do
   defp decode_trips(%{"data" => data}) when is_list(data) do
     {:ok,
      for trip <- data do
-       key =
-         {:route, trip["relationships"]["route"]["data"]["id"],
-          trip["attributes"]["name"]}
-
+       key = {:route, trip["relationships"]["route"]["data"]["id"], trip["attributes"]["name"]}
        {key, trip["id"], trip["attributes"]["direction_id"]}
      end}
   end

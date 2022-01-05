@@ -22,9 +22,7 @@ defmodule CommuterRailBoarding.Application do
     children = [
       TripCache,
       ScheduleCache
-      | other_children(
-          Application.get_env(:commuter_rail_boarding, :start_children?)
-        )
+      | other_children(Application.get_env(:commuter_rail_boarding, :start_children?))
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -35,15 +33,13 @@ defmodule CommuterRailBoarding.Application do
 
   defp other_children(true) do
     [
-      {ServerSentEventStage,
-       name: ServerSentEventStage, url: {FirebaseUrl, :url, []}},
+      {ServerSentEventStage, name: ServerSentEventStage, url: {FirebaseUrl, :url, []}},
       {BoardingStatus.ProducerConsumer,
        name: BoardingStatus.ProducerConsumer,
        dispatcher: GenStage.BroadcastDispatcher,
        subscribe_to: [ServerSentEventStage]},
       {TripUpdates.ProducerConsumer,
-       name: TripUpdates.ProducerConsumer,
-       subscribe_to: [BoardingStatus.ProducerConsumer]},
+       name: TripUpdates.ProducerConsumer, subscribe_to: [BoardingStatus.ProducerConsumer]},
       {Uploader.Consumer,
        name: Uploader.Consumer,
        subscribe_to: [

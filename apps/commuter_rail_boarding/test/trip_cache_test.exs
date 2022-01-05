@@ -29,8 +29,7 @@ defmodule TripCacheTest do
 
     test "correctly finds a trip ID based on the date passed in" do
       # find the next Saturday
-      day_of_week =
-        @datetime |> DateHelpers.service_date() |> Date.day_of_week()
+      day_of_week = @datetime |> DateHelpers.service_date() |> Date.day_of_week()
 
       unix = DateTime.to_unix(@datetime)
       unix_saturday = unix + 86_400 * (6 - day_of_week)
