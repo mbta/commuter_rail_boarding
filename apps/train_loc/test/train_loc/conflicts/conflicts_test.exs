@@ -235,8 +235,7 @@ defmodule TrainLoc.Conflicts.ConflictsTest do
     refute Conflicts.contains_conflict?(filtered_by_trip, conflict2)
     refute Conflicts.contains_conflict?(filtered_by_trip, conflict3)
 
-    filtered_by_date =
-      Conflicts.filter_by(conflicts, :service_date, ~D[2017-09-02])
+    filtered_by_date = Conflicts.filter_by(conflicts, :service_date, ~D[2017-09-02])
 
     assert Conflicts.contains_conflict?(filtered_by_date, conflict1)
     assert Conflicts.contains_conflict?(filtered_by_date, conflict2)

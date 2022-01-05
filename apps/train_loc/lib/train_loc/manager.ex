@@ -66,8 +66,7 @@ defmodule TrainLoc.Manager do
         time_baseline: time_baseline_fn,
         excluded_vehicles: excluded_vehicles,
         producers: producers,
-        timeout_after:
-          Keyword.get(opts, :timeout_after, %__MODULE__{}.timeout_after)
+        timeout_after: Keyword.get(opts, :timeout_after, %__MODULE__{}.timeout_after)
       })
 
     {:consumer, state, subscribe_to: producers}

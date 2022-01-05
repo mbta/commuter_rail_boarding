@@ -77,8 +77,7 @@ defmodule BoardingStatus do
       {:ok,
        %__MODULE__{
          scheduled_time: scheduled_time,
-         predicted_time:
-           predicted_time(predicted_time_iso, scheduled_time, status),
+         predicted_time: predicted_time(predicted_time_iso, scheduled_time, status),
          route_id: route_id,
          trip_id: trip_id,
          stop_id: stop_id(stop_name, track),
@@ -155,9 +154,7 @@ defmodule BoardingStatus do
          },
          dt
        ) do
-    {:ok, trip_id, direction_id, added?} =
-      create_trip_id(route_id, trip_name, keolis_trip_id, dt)
-
+    {:ok, trip_id, direction_id, added?} = create_trip_id(route_id, trip_name, keolis_trip_id, dt)
     {:ok, trip_id, route_id, direction_id, added?}
   end
 

@@ -3,9 +3,7 @@ defmodule CommuterRailBoarding.ApplicationTest do
   use ExUnit.Case
 
   setup do
-    start_children? =
-      Application.get_env(:commuter_rail_boarding, :start_children?)
-
+    start_children? = Application.get_env(:commuter_rail_boarding, :start_children?)
     Application.put_env(:commuter_rail_boarding, :start_children?, true)
 
     on_exit(fn ->

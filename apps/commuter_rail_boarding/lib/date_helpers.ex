@@ -42,8 +42,7 @@ defmodule DateHelpers do
         @timezone
       )
 
-    microseconds =
-      DateTime.diff(next_service_start, DateTime.utc_now(), :microsecond)
+    microseconds = DateTime.diff(next_service_start, DateTime.utc_now(), :microsecond)
 
     # we want to return an integer, so we floor_div the seconds +
     # microseconds. the negatives make sure we floor towards

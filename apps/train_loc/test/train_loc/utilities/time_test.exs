@@ -44,9 +44,7 @@ defmodule TrainLoc.Utilities.TimeTest do
 
       micro_string = "2018-03-28T01:23:45.678910Z"
       micro_actual = parse_improper_iso(micro_string, @timezone)
-
-      micro_expected =
-        Timex.to_datetime(~N[2018-03-28T01:23:45.678910], @timezone)
+      micro_expected = Timex.to_datetime(~N[2018-03-28T01:23:45.678910], @timezone)
 
       assert micro_actual == micro_expected
     end
