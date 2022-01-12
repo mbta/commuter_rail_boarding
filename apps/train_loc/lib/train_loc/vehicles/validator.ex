@@ -27,9 +27,8 @@ defmodule TrainLoc.Vehicles.Validator do
          :ok <- must_have_min_length(veh, :trip),
          :ok <- must_have_valid_latitude(veh),
          :ok <- must_have_valid_longitude(veh),
-         :ok <- must_be_in_range(veh, :heading, 0..359),
-         :ok <- must_be_non_neg_int(veh, :speed) do
-      :ok
+         :ok <- must_be_in_range(veh, :heading, 0..359) do
+      must_be_non_neg_int(veh, :speed)
     end
   end
 
