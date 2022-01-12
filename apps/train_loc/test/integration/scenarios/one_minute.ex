@@ -110,31 +110,31 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         heading: 0,
         latitude: 42.37393,
         longitude: -71.07462,
-        trip: "000",
+        trip: :unassigned,
         speed: 0,
         timestamp: Timex.parse!("2018-01-29 14:23:30 America/New_York", time_format),
         vehicle_id: 1625,
-        block: "000"
+        block: :unassigned
       },
       %TrainLoc.Vehicles.Vehicle{
         heading: 0,
         latitude: 42.37433,
         longitude: -71.07749,
-        trip: "000",
+        trip: :unassigned,
         speed: 0,
         timestamp: Timex.parse!("2018-01-29 14:23:30 America/New_York", time_format),
         vehicle_id: 1626,
-        block: "000"
+        block: :unassigned
       },
       %TrainLoc.Vehicles.Vehicle{
         heading: 279,
         latitude: 42.37435,
         longitude: -71.07744,
-        trip: "000",
+        trip: :unassigned,
         speed: 0,
         timestamp: Timex.parse!("2018-01-29 14:23:31 America/New_York", time_format),
         vehicle_id: 1627,
-        block: "000"
+        block: :unassigned
       },
       %TrainLoc.Vehicles.Vehicle{
         heading: 318,
@@ -160,11 +160,11 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         heading: 0,
         latitude: 42.37415,
         longitude: -71.07522,
-        trip: "000",
+        trip: :unassigned,
         speed: 0,
         timestamp: Timex.parse!("2018-01-29 14:23:31 America/New_York", time_format),
         vehicle_id: 1630,
-        block: "000"
+        block: :unassigned
       },
       %TrainLoc.Vehicles.Vehicle{
         heading: 318,
@@ -180,11 +180,11 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         heading: 281,
         latitude: 42.37389,
         longitude: -71.07494,
-        trip: "000",
+        trip: :unassigned,
         speed: 0,
         timestamp: Timex.parse!("2018-01-29 14:23:21 America/New_York", time_format),
         vehicle_id: 1632,
-        block: "000"
+        block: :unassigned
       },
       %TrainLoc.Vehicles.Vehicle{
         heading: 246,
@@ -210,11 +210,11 @@ defmodule TrainLoc.IntegrationTest.Scenarios.OneMinute do
         heading: 123,
         latitude: 42.37442,
         longitude: -71.07525,
-        trip: "000",
+        trip: :unassigned,
         speed: 0,
         timestamp: Timex.parse!("2018-01-29 14:23:25 America/New_York", time_format),
         vehicle_id: 1637,
-        block: "000"
+        block: :unassigned
       }
     ]
   end

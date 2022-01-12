@@ -51,6 +51,26 @@ defmodule TrainLoc.Vehicles.VehiclesTest do
         longitude: -071.12890,
         speed: 000,
         heading: 188
+      },
+      vehicle5: %Vehicle{
+        vehicle_id: 1716,
+        timestamp: datetime,
+        block: :unassigned,
+        trip: :unassigned,
+        latitude: 42.24023,
+        longitude: -071.12890,
+        speed: 000,
+        heading: 188
+      },
+      vehicle6: %Vehicle{
+        vehicle_id: 1717,
+        timestamp: datetime,
+        block: :unassigned,
+        trip: :unassigned,
+        latitude: 42.24023,
+        longitude: -071.12890,
+        speed: 000,
+        heading: 188
       }
     }
 

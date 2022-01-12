@@ -3,7 +3,7 @@ defmodule TrainLoc.Manager.EventTest do
   alias TrainLoc.Manager.Event
   require TestHelpers
 
-  test "from_string/1" do
+  test "parse/1" do
     raw_vehicle_json =
       Jason.encode!(%{
         "1633" => %{
@@ -28,7 +28,7 @@ defmodule TrainLoc.Manager.EventTest do
         }
       })
 
-    assert {:ok, %Event{vehicles_json: result, date: nil}} = Event.from_string(raw_vehicle_json)
+    assert {:ok, %Event{vehicles_json: result, date: nil}} = Event.parse(raw_vehicle_json)
 
     assert length(result) == 2
     assert TestHelpers.match_any?(%{"VehicleID" => 1633}, result)

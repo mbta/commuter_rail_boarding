@@ -40,8 +40,8 @@ defmodule TrainLoc.Vehicles.Vehicle do
   @type t :: %__MODULE__{
           vehicle_id: non_neg_integer,
           timestamp: DateTime.t(),
-          block: String.t(),
-          trip: String.t(),
+          block: String.t() | :unassigned,
+          trip: String.t() | :unassigned,
           latitude: float | nil,
           longitude: float | nil,
           heading: 0..359,
@@ -81,16 +81,22 @@ defmodule TrainLoc.Vehicles.Vehicle do
   defp process_lat_long(0), do: nil
   defp process_lat_long(lat_long), do: lat_long
 
+  defp process_trip_block(0), do: :unassigned
+
   defp process_trip_block(trip_or_block) when is_integer(trip_or_block) do
     trip_or_block
     |> Integer.to_string()
     |> String.pad_leading(3, ["0"])
   end
 
+  defp process_trip_block("000"), do: :unassigned
+  defp process_trip_block("N/A"), do: :unassigned
+  defp process_trip_block(trip_or_block) when is_binary(trip_or_block), do: trip_or_block
+
   defp process_trip_block(_), do: nil
 
-  def active_vehicle?(%__MODULE__{block: "000"}), do: false
-  def active_vehicle?(%__MODULE__{trip: "000"}), do: false
+  def active_vehicle?(%__MODULE__{block: :unassigned}), do: false
+  def active_vehicle?(%__MODULE__{trip: :unassigned}), do: false
   def active_vehicle?(%__MODULE__{}), do: true
 
   @doc """

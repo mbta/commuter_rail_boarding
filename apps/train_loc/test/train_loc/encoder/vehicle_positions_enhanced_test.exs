@@ -37,6 +37,33 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
           longitude: -61.12890,
           speed: 000,
           heading: 0
+        },
+        %Vehicle{
+          heading: 0.0,
+          latitude: 42.240323,
+          longitude: -71.128225,
+          speed: 0,
+          trip: "456",
+          timestamp: datetime_timestamp,
+          vehicle_id: 1506
+        },
+        %Vehicle{
+          heading: 0.0,
+          latitude: 42.240323,
+          longitude: -71.127625,
+          speed: 0,
+          trip: "123",
+          timestamp: datetime_timestamp,
+          vehicle_id: 1507
+        },
+        %Vehicle{
+          heading: 199.0,
+          latitude: 42.23879,
+          longitude: -71.13356,
+          speed: 1,
+          timestamp: datetime_timestamp,
+          trip: "745",
+          vehicle_id: 1823
         }
       ]
 
@@ -50,7 +77,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       assert_in_delta(header["timestamp"], System.system_time(:second), 2)
 
       json_contents = decoded_json["entity"]
-      assert length(json_contents) == 3
+      assert length(json_contents) == 6
 
       for {vehicle, idx} <- Enum.with_index(vehicles) do
         json_content = Enum.at(json_contents, idx)
@@ -71,13 +98,14 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       end
     end
 
-    test "omits 'trip_short_name' field if '000'" do
+    test "omits 'trip_short_name' field if :unassigned" do
       unix_timestamp = 1_501_844_511
       datetime_timestamp = DateTime.from_unix!(unix_timestamp)
 
       vehicles = [
         %Vehicle{vehicle_id: 1, trip: "509", timestamp: datetime_timestamp},
-        %Vehicle{vehicle_id: 2, trip: "000", timestamp: datetime_timestamp}
+        %Vehicle{vehicle_id: 2, trip: :unassigned, timestamp: datetime_timestamp},
+        %Vehicle{vehicle_id: 1507, trip: :unassigned, timestamp: datetime_timestamp}
       ]
 
       json = VehiclePositionsEnhanced.encode(vehicles)
@@ -85,16 +113,23 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       decoded_json = Jason.decode!(json)
 
       json_contents = decoded_json["entity"]
-      assert length(json_contents) == 2
-      [vehicle_1, vehicle_2] = json_contents
+      assert length(json_contents) == 3
+      [vehicle_1, vehicle_2, vehicle_3] = json_contents
       assert Map.has_key?(vehicle_1["vehicle"]["trip"], "trip_short_name")
       refute Map.has_key?(vehicle_2["vehicle"]["trip"], "trip_short_name")
+      refute Map.has_key?(vehicle_3["vehicle"]["trip"], "trip_short_name")
 
       assert %{
                "vehicle" => %{
                  "vehicle" => %{"assignment_status" => "unassigned"}
                }
              } = vehicle_2
+
+      assert %{
+               "vehicle" => %{
+                 "vehicle" => %{"assignment_status" => "unassigned"}
+               }
+             } = vehicle_3
     end
   end
 

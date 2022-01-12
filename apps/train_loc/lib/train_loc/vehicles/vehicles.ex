@@ -87,7 +87,7 @@ defmodule TrainLoc.Vehicles.Vehicles do
 
   @spec reject_group?({String.t(), [Vehicle.t()]}) :: boolean
   defp reject_group?({_, [_]}), do: true
-  defp reject_group?({"000", _}), do: true
+  defp reject_group?({:unassigned, _}), do: true
   defp reject_group?({_, _}), do: false
 
   @spec log_changed_assigns(map, [Vehicle.t()]) :: any

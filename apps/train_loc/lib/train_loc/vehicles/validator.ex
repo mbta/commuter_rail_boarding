@@ -19,12 +19,12 @@ defmodule TrainLoc.Vehicles.Validator do
   def validate(%Vehicle{} = veh) do
     with :ok <- must_be_non_neg_int(veh, :vehicle_id),
          :ok <- must_be_datetime(veh, :timestamp),
-         :ok <- must_be_string(veh, :block),
+         :ok <- must_be_string_or_unassigned(veh, :block),
          :ok <- must_not_be_blank(veh, :block),
-         :ok <- must_have_min_length(veh, :block),
-         :ok <- must_be_string(veh, :trip),
+         :ok <- must_have_min_length_or_unassigned(veh, :block),
+         :ok <- must_be_string_or_unassigned(veh, :trip),
          :ok <- must_not_be_blank(veh, :trip),
-         :ok <- must_have_min_length(veh, :trip),
+         :ok <- must_have_min_length_or_unassigned(veh, :trip),
          :ok <- must_have_valid_latitude(veh),
          :ok <- must_have_valid_longitude(veh),
          :ok <- must_be_in_range(veh, :heading, 0..359) do
@@ -67,16 +67,16 @@ defmodule TrainLoc.Vehicles.Validator do
     run_validation(veh, field, &is_non_neg_int?/1)
   end
 
-  def must_be_string(veh, field) do
-    run_validation(veh, field, &is_binary/1)
+  def must_be_string_or_unassigned(veh, field) do
+    run_validation(veh, field, &(is_binary(&1) or &1 == :unassigned))
   end
 
   def must_not_be_blank(veh, field) do
     run_validation(veh, field, &is_not_blank?/1)
   end
 
-  def must_have_min_length(veh, field) do
-    run_validation(veh, field, &is_long_enough?/1)
+  def must_have_min_length_or_unassigned(veh, field) do
+    run_validation(veh, field, &(is_long_enough?(&1) or &1 == :unassigned))
   end
 
   def must_be_datetime(veh, field) do

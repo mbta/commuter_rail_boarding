@@ -1,0 +1,41 @@
+{
+  "path": "/",
+  "data": {
+    "processResults": {
+      "date": "2022-01-18 16:30:06",
+      "results": 3
+    },
+    "results": {
+      "1506": {
+        "Heading": 0.0,
+        "Latitude": 42.240323,
+        "Longitude": -71.128225,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2020-02-25T12:47:58.490000Z",
+        "VehicleID": 1506
+      },
+      "1507": {
+        "Heading": 0.0,
+        "Latitude": 42.240323,
+        "Longitude": -71.127625,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2020-12-14T10:19:54.883000Z",
+        "VehicleID": 1507
+      },
+      "1823": {
+        "Heading": 199.0,
+        "Latitude": 42.23879,
+        "Longitude": -71.13356,
+        "Source": "AVL",
+        "Speed": 1,
+        "TripID": "745",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1823
+      }
+    }
+  }
+}

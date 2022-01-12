@@ -14,8 +14,8 @@ defmodule TrainLoc.Manager.Event do
   defstruct date: nil,
             vehicles_json: []
 
-  @spec from_string(String.t()) :: {:ok, t()} | {:error, any()}
-  def from_string(string) when is_binary(string) do
-    EventJsonParser.parse(string)
+  @spec parse(String.t() | map) :: {:ok, t()} | {:error, any()}
+  def parse(data) when is_binary(data) or is_map(data) do
+    EventJsonParser.parse(data)
   end
 end
