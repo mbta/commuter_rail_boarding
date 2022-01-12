@@ -187,4 +187,107 @@ defmodule TrainLoc.ManagerTest do
   def send_self(message) do
     send(self(), message)
   end
+
+  describe "generate_feed/2" do
+    test "generates a feed from new vehicles" do
+      vehicles = [
+        %Vehicle{
+          heading: 0.0,
+          latitude: 42.240323,
+          longitude: -71.128225,
+          speed: 0,
+          trip: :unassigned,
+          timestamp: ~U[2022-01-20 23:43:42Z],
+          vehicle_id: 1506
+        },
+        %Vehicle{
+          heading: 0.0,
+          latitude: 42.240323,
+          longitude: -71.127625,
+          speed: 0,
+          trip: :unassigned,
+          timestamp: ~U[2022-01-20 23:43:42Z],
+          vehicle_id: 1507
+        },
+        %Vehicle{
+          heading: 199.0,
+          latitude: 42.23879,
+          longitude: -71.13356,
+          speed: 1,
+          timestamp: ~U[2022-01-20 23:43:42Z],
+          trip: "745",
+          vehicle_id: 1823
+        },
+        %Vehicle{
+          heading: 123.4,
+          latitude: 56.78901,
+          longitude: -23.45678,
+          speed: 1,
+          timestamp: ~U[2022-01-20 23:43:42Z],
+          trip: "123",
+          vehicle_id: 1234
+        },
+        %Vehicle{
+          heading: 120.4,
+          latitude: 52.78901,
+          longitude: -24.45678,
+          speed: 1,
+          timestamp: ~U[2022-01-20 23:11:42Z],
+          trip: "129",
+          vehicle_id: 56_789
+        }
+      ]
+
+      assert [
+               %{
+                 "id" => "54134678",
+                 "vehicle" => %{
+                   "position" => %{
+                     "bearing" => 0.0,
+                     "latitude" => 42.240323,
+                     "longitude" => -71.128225,
+                     "speed" => 0.0
+                   },
+                   "timestamp" => 1_642_722_222,
+                   "trip" => %{"start_date" => "20220120"},
+                   "vehicle" => %{"assignment_status" => "unassigned", "id" => 1506}
+                 }
+               },
+               %{
+                 "id" => "83231832",
+                 "vehicle" => %{
+                   "position" => %{
+                     "bearing" => 0.0,
+                     "latitude" => 42.240323,
+                     "longitude" => -71.127625,
+                     "speed" => 0.0
+                   },
+                   "timestamp" => 1_642_722_222,
+                   "trip" => %{"start_date" => "20220120"},
+                   "vehicle" => %{"assignment_status" => "unassigned", "id" => 1507}
+                 }
+               },
+               %{
+                 "id" => "59176583",
+                 "vehicle" => %{
+                   "position" => %{
+                     "bearing" => 199.0,
+                     "latitude" => 42.23879,
+                     "longitude" => -71.13356,
+                     "speed" => 0.447
+                   },
+                   "timestamp" => 1_642_722_222,
+                   "trip" => %{"start_date" => "20220120", "trip_short_name" => "745"},
+                   "vehicle" => %{"id" => 1823}
+                 }
+               }
+             ] ==
+               Manager.generate_feed(vehicles, %{
+                 excluded_vehicles: [1234],
+                 time_baseline: fn -> 1_642_722_222 end
+               })
+               |> Jason.decode!()
+               |> Map.get("entity")
+    end
+  end
 end

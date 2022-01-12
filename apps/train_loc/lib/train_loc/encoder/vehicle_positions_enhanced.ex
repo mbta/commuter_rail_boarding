@@ -21,8 +21,8 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   @type entity() :: %{
           id: String.t(),
           vehicle: %{
-            trip: entity_trip_t(),
-            vehicle: entity_vehicle_t(),
+            trip: entity_trip(),
+            vehicle: entity_vehicle(),
             position: %{
               latitude: float() | nil,
               longitude: float() | nil,
@@ -33,12 +33,12 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
           }
         }
 
-  @type entity_trip_t() :: %{
+  @type entity_trip() :: %{
           :start_date => String.t(),
           optional(:trip_short_name) => String.t()
         }
 
-  @type entity_vehicle_t() :: %{
+  @type entity_vehicle() :: %{
           :id => non_neg_integer(),
           optional(:assignment_status) => String.t()
         }
@@ -68,7 +68,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   defp feed_entity(list), do: Enum.map(list, &build_entity/1)
 
   @spec build_entity(Vehicle.t()) :: entity() | []
-  defp build_entity(%Vehicle{} = vehicle) do
+  defp build_entity(vehicle) do
     %{
       id: Integer.to_string(:erlang.phash2(vehicle)),
       vehicle: %{
@@ -85,10 +85,8 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     }
   end
 
-  defp build_entity(_), do: []
-
-  @spec entity_trip(Vehicle.t()) :: entity_trip_t()
-  defp entity_trip(%{trip: "000"} = vehicle) do
+  @spec entity_trip(Vehicle.t()) :: entity_trip()
+  defp entity_trip(%{trip: :unassigned} = vehicle) do
     %{start_date: start_date(vehicle.timestamp)}
   end
 
@@ -101,8 +99,8 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
     %{start_date: start_date(vehicle.timestamp)}
   end
 
-  @spec entity_vehicle(Vehicle.t()) :: entity_vehicle_t()
-  defp entity_vehicle(%{trip: "000"} = vehicle) do
+  @spec entity_vehicle(Vehicle.t()) :: entity_vehicle()
+  defp entity_vehicle(%{trip: :unassigned} = vehicle) do
     %{
       id: vehicle.vehicle_id,
       assignment_status: "unassigned"

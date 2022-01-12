@@ -12,13 +12,19 @@ defmodule TrainLoc.Manager.EventJsonParser do
   alias TrainLoc.Manager.Event
   alias TrainLoc.Vehicles.JsonValidator
 
-  @spec parse(String.t()) ::
+  @spec parse(String.t() | map()) ::
           {:error, any}
           | {:ok, Event.t()}
   def parse(data) when is_binary(data) do
-    with {:ok, json} <- Jason.decode(data, strings: :copy),
-         vehicles_json <- extract_vehicles_json(json),
-         date <- extract_date(json),
+    case Jason.decode(data, strings: :copy) do
+      {:ok, json} -> parse(json)
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  def parse(data) when is_map(data) do
+    with vehicles_json <- extract_vehicles_json(data),
+         date <- extract_date(data),
          :ok <- validate_vehicles_json(vehicles_json) do
       {:ok,
        %Event{

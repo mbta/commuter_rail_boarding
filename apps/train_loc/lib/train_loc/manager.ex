@@ -13,6 +13,7 @@ defmodule TrainLoc.Manager do
   alias TrainLoc.Conflicts.State, as: CState
   alias TrainLoc.Encoder.VehiclePositionsEnhanced
   alias TrainLoc.Logging
+  alias TrainLoc.Manager.BulkEvent
   alias TrainLoc.Manager.Event, as: ManagerEvent
   alias TrainLoc.Vehicles.{PreviousBatch, Vehicle}
   alias TrainLoc.Vehicles.State, as: VState
@@ -90,17 +91,20 @@ defmodule TrainLoc.Manager do
         "#{__MODULE__}: received event - #{inspect(event)}"
       end)
 
-      _ =
-        case Jason.decode(event.data, strings: :copy) do
-          {:ok, data} ->
-            case data["path"] do
-              "/" -> handle_new_event(data, state)
-              _ -> handle_old_event(data, state)
-            end
+      with {:ok, new_vehicles} <- BulkEvent.parse(event.data),
+           feed <- generate_feed(new_vehicles, state),
+           {:ok, _} <- @s3_api.put_object("VehiclePositions_enhanced.json", feed) do
+        :ok
+      else
+        {:error, %Jason.DecodeError{} = error} ->
+          Logger.error("Failed to decode event: #{inspect(error)}")
 
-          {:error, error} ->
-            Logger.error("Failed to decode event: #{inspect(error)}")
-        end
+        {:error, :invalid_event, event} ->
+          handle_old_event(event, state)
+
+        {:error, error} ->
+          Logger.error("Failed to generate feed from event: #{inspect(error)}")
+      end
     end
 
     {:noreply, [], %{state | first_message?: false}}
@@ -129,15 +133,49 @@ defmodule TrainLoc.Manager do
     {:noreply, [], state}
   end
 
-  defp update_vehicles(%ManagerEvent{} = manager_event, %{
-         first_message?: first_message?,
-         time_baseline: time_baseline_fn,
-         excluded_vehicles: excluded_vehicles
-       }) do
-    manager_event.vehicles_json
-    |> Enum.reject(&(&1["VehicleID"] in excluded_vehicles))
-    |> vehicles_from_data
+  @spec generate_feed([Vehicle.t()], map) :: binary
+  def generate_feed(data, state) do
+    data
+    |> prune_vehicles(state)
+    |> VehiclePositionsEnhanced.encode()
+  end
+
+  @spec handle_old_event(binary | map, map) :: :ok
+  def handle_old_event(data, state) do
+    Logger.info("Processing single vehicle event")
+
+    case ManagerEvent.parse(data) do
+      {:ok, manager_event} ->
+        update_vehicles(manager_event, state)
+
+      {:error, reason} ->
+        _ =
+          Logger.error(fn ->
+            Logging.log_string("Manager Event Parsing Error", reason)
+          end)
+
+        :ok
+    end
+  end
+
+  def prune_vehicles(vehicles, %{
+        time_baseline: time_baseline_fn,
+        excluded_vehicles: excluded_vehicles
+      }) do
+    vehicles
+    |> Enum.reject(&(&1.vehicle_id in excluded_vehicles))
     |> reject_stale_vehicles(time_baseline_fn.())
+  end
+
+  defp update_vehicles(
+         %ManagerEvent{} = manager_event,
+         %{
+           first_message?: first_message?
+         } = state
+       ) do
+    manager_event.vehicles_json
+    |> vehicles_from_data()
+    |> prune_vehicles(state)
     |> VState.upsert_vehicles()
 
     all_conflicts = VState.get_duplicate_logons()

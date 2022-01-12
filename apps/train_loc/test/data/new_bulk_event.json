@@ -1,0 +1,941 @@
+{
+  "path": "/",
+  "data": {
+    "processResults": {
+      "date": "2022-01-18 16:30:06",
+      "results": 93
+    },
+    "results": {
+      "1506": {
+        "Heading": 0.0,
+        "Latitude": 42.240323,
+        "Longitude": -71.128225,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2020-02-25T12:47:58.490000Z",
+        "VehicleID": 1506
+      },
+      "1507": {
+        "Heading": 0.0,
+        "Latitude": 42.240323,
+        "Longitude": -71.127625,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2020-12-14T10:19:54.883000Z",
+        "VehicleID": 1507
+      },
+      "1511": {
+        "Heading": 0.0,
+        "Latitude": 42.37558,
+        "Longitude": -71.07678,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-07-27T17:39:06.500000Z",
+        "VehicleID": 1511
+      },
+      "1512": {
+        "Heading": 0.0,
+        "Latitude": 42.37553,
+        "Longitude": -71.07741,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-12-21T21:03:20.657000Z",
+        "VehicleID": 1512
+      },
+      "1513": {
+        "Heading": 0.0,
+        "Latitude": 42.37499,
+        "Longitude": -71.07693,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2019-11-04T19:57:43.230000Z",
+        "VehicleID": 1513
+      },
+      "1514": {
+        "Heading": 0.0,
+        "Latitude": 42.240523,
+        "Longitude": -71.127825,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2020-12-30T23:29:37.353000Z",
+        "VehicleID": 1514
+      },
+      "1522": {
+        "Heading": 0.0,
+        "Latitude": 42.37501,
+        "Longitude": -71.07692,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-12-10T17:10:53.243000Z",
+        "VehicleID": 1522
+      },
+      "1524": {
+        "Heading": 0.0,
+        "Latitude": 42.37529,
+        "Longitude": -71.07529,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2020-11-01T13:06:02.003000Z",
+        "VehicleID": 1524
+      },
+      "1527": {
+        "Heading": 0.0,
+        "Latitude": 42.37552,
+        "Longitude": -71.07792,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-11T09:47:02.993000Z",
+        "VehicleID": 1527
+      },
+      "1528": {
+        "Heading": 0.0,
+        "Latitude": 42.37573,
+        "Longitude": -71.07655,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "1900-01-01T00:00:00.000000Z",
+        "VehicleID": 1528
+      },
+      "1529": {
+        "Heading": 0.0,
+        "Latitude": 42.240123,
+        "Longitude": -71.128225,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2019-06-17T23:27:35.710000Z",
+        "VehicleID": 1529
+      },
+      "1530": {
+        "Heading": 0.0,
+        "Latitude": 42.37486,
+        "Longitude": -71.07657,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-10-15T21:19:33.350000Z",
+        "VehicleID": 1530
+      },
+      "1531": {
+        "Heading": 0.0,
+        "Latitude": 42.37451,
+        "Longitude": -71.07585,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-01-07T14:24:03.807000Z",
+        "VehicleID": 1531
+      },
+      "1533": {
+        "Heading": 0.0,
+        "Latitude": 42.3759,
+        "Longitude": -71.07758,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-11T09:47:12.747000Z",
+        "VehicleID": 1533
+      },
+      "1625": {
+        "Heading": 0.0,
+        "Latitude": 42.36647,
+        "Longitude": -71.06304,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1625
+      },
+      "1626": {
+        "Heading": 67.0,
+        "Latitude": 42.57599,
+        "Longitude": -70.75976,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "113",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1626
+      },
+      "1627": {
+        "Heading": 0.0,
+        "Latitude": 42.37564,
+        "Longitude": -71.07707,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-14T06:23:32.533000Z",
+        "VehicleID": 1627
+      },
+      "1628": {
+        "Heading": 132.0,
+        "Latitude": 42.55934,
+        "Longitude": -71.18913,
+        "Source": "AVL",
+        "Speed": 42,
+        "TripID": "326",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1628
+      },
+      "1629": {
+        "Heading": 347.94,
+        "Latitude": 42.3672,
+        "Longitude": -71.06292,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:55.030000Z",
+        "VehicleID": 1629
+      },
+      "1630": {
+        "Heading": 1.93,
+        "Latitude": 42.79646,
+        "Longitude": -70.87584,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-07-03T22:11:52.733000Z",
+        "VehicleID": 1630
+      },
+      "1631": {
+        "Heading": 93.49,
+        "Latitude": 42.36744,
+        "Longitude": -71.06285,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:45.493000Z",
+        "VehicleID": 1631
+      },
+      "1632": {
+        "Heading": 97.0,
+        "Latitude": 42.46021,
+        "Longitude": -71.45638,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "422",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1632
+      },
+      "1633": {
+        "Heading": 260.68,
+        "Latitude": 42.46027,
+        "Longitude": -71.45689,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:58.363000Z",
+        "VehicleID": 1633
+      },
+      "1634": {
+        "Heading": 145.0,
+        "Latitude": 42.56876,
+        "Longitude": -71.15895,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "216",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1634
+      },
+      "1635": {
+        "Heading": 28.0,
+        "Latitude": 42.63947499999999,
+        "Longitude": -71.15705166666666,
+        "Source": "AVL",
+        "Speed": 33,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1635
+      },
+      "1636": {
+        "Heading": 301.0,
+        "Latitude": 42.57118,
+        "Longitude": -71.21636,
+        "Source": "AVL",
+        "Speed": 50,
+        "TripID": "325",
+        "Update Time": "2022-01-18T16:28:00.000000Z",
+        "VehicleID": 1636
+      },
+      "1637": {
+        "Heading": 166.0,
+        "Latitude": 42.36592,
+        "Longitude": -71.06234,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1637
+      },
+      "1638": {
+        "Heading": 43.0,
+        "Latitude": 42.57083,
+        "Longitude": -71.83947,
+        "Source": "AVL",
+        "Speed": 25,
+        "TripID": "424",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1638
+      },
+      "1639": {
+        "Heading": 0.0,
+        "Latitude": 42.37448,
+        "Longitude": -71.0795,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-17T18:26:12.850000Z",
+        "VehicleID": 1639
+      },
+      "1640": {
+        "Heading": 0.0,
+        "Latitude": 42.37551,
+        "Longitude": -71.07744,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-12-14T22:10:09.297000Z",
+        "VehicleID": 1640
+      },
+      "1641": {
+        "Heading": 75.0,
+        "Latitude": 42.45712,
+        "Longitude": -71.39235,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1641
+      },
+      "1642": {
+        "Heading": 146.27,
+        "Latitude": 42.36711,
+        "Longitude": -71.06315,
+        "Source": "ACSES",
+        "Speed": 8,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:30:09.580000Z",
+        "VehicleID": 1642
+      },
+      "1643": {
+        "Heading": 0.0,
+        "Latitude": 42.3757,
+        "Longitude": -71.0765,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-13T22:32:06.160000Z",
+        "VehicleID": 1643
+      },
+      "1644": {
+        "Heading": 0.0,
+        "Latitude": 42.37381,
+        "Longitude": -71.07258,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-16T22:50:26.257000Z",
+        "VehicleID": 1644
+      },
+      "1645": {
+        "Heading": 57.0,
+        "Latitude": 42.47058,
+        "Longitude": -70.92896,
+        "Source": "AVL",
+        "Speed": 33,
+        "TripID": "115",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1645
+      },
+      "1646": {
+        "Heading": 321.0,
+        "Latitude": 42.37704,
+        "Longitude": -71.07564,
+        "Source": "AVL",
+        "Speed": 16,
+        "TripID": "215",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1646
+      },
+      "1647": {
+        "Heading": 20.0,
+        "Latitude": 42.36647,
+        "Longitude": -71.0628,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "423",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1647
+      },
+      "1649": {
+        "Heading": 330.0,
+        "Latitude": 42.68401,
+        "Longitude": -70.84499,
+        "Source": "AVL",
+        "Speed": 18,
+        "TripID": "155",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1649
+      },
+      "1650": {
+        "Heading": 0.0,
+        "Latitude": 42.37392,
+        "Longitude": -71.07469,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-17T20:22:59.377000Z",
+        "VehicleID": 1650
+      },
+      "1651": {
+        "Heading": 262.0,
+        "Latitude": 42.36626,
+        "Longitude": -71.06313,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1651
+      },
+      "1652": {
+        "Heading": 187.0,
+        "Latitude": 42.51685,
+        "Longitude": -70.89604,
+        "Source": "AVL",
+        "Speed": 17,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1652
+      },
+      "1700": {
+        "Heading": 53.0,
+        "Latitude": 42.14395,
+        "Longitude": -71.26069,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1700
+      },
+      "1701": {
+        "Heading": 0.0,
+        "Latitude": 41.8789,
+        "Longitude": -70.91896,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-10T06:39:02.093000Z",
+        "VehicleID": 1701
+      },
+      "1702": {
+        "Heading": 0.0,
+        "Latitude": 42.24029,
+        "Longitude": -71.129,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1702
+      },
+      "1703": {
+        "Heading": 174.0,
+        "Latitude": 42.33329,
+        "Longitude": -71.05987,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1703
+      },
+      "1704": {
+        "Heading": 268.0,
+        "Latitude": 42.25263,
+        "Longitude": -71.00601,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1704
+      },
+      "1705": {
+        "Heading": 33.0,
+        "Latitude": 42.34976,
+        "Longitude": -71.05485,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "RV057",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1705
+      },
+      "1706": {
+        "Heading": 0.0,
+        "Latitude": 42.23959,
+        "Longitude": -71.12925,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-14T15:47:09.287000Z",
+        "VehicleID": 1706
+      },
+      "1707": {
+        "Heading": 27.0,
+        "Latitude": 41.91635,
+        "Longitude": -71.30211,
+        "Source": "AVL",
+        "Speed": 24,
+        "TripID": "828",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1707
+      },
+      "1708": {
+        "Heading": 177.0,
+        "Latitude": 42.33969,
+        "Longitude": -71.06012,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1708
+      },
+      "1709": {
+        "Heading": 20.0,
+        "Latitude": 42.23963,
+        "Longitude": -71.13291,
+        "Source": "AVL",
+        "Speed": 51,
+        "TripID": "880",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1709
+      },
+      "1711": {
+        "Heading": 175.0,
+        "Latitude": 42.35147,
+        "Longitude": -71.05593,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "SH721",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1711
+      },
+      "1712": {
+        "Heading": 0.0,
+        "Latitude": 42.23905,
+        "Longitude": -71.12904,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-08T16:15:25.873000Z",
+        "VehicleID": 1712
+      },
+      "1713": {
+        "Heading": 200.0,
+        "Latitude": 42.31036,
+        "Longitude": -71.07238,
+        "Source": "AVL",
+        "Speed": 23,
+        "TripID": "931",
+        "Update Time": "2022-01-18T16:28:00.000000Z",
+        "VehicleID": 1713
+      },
+      "1714": {
+        "Heading": 231.0,
+        "Latitude": 42.14609,
+        "Longitude": -71.25677,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "719",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1714
+      },
+      "1715": {
+        "Heading": 0.0,
+        "Latitude": 42.34771,
+        "Longitude": -71.07383,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-12-15T21:07:56.870000Z",
+        "VehicleID": 1715
+      },
+      "1716": {
+        "Heading": 0.0,
+        "Latitude": 42.19722,
+        "Longitude": -70.99848,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-12T08:59:09.263000Z",
+        "VehicleID": 1716
+      },
+      "1717": {
+        "Heading": 267.0,
+        "Latitude": 42.22254,
+        "Longitude": -70.9928,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "088",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1717
+      },
+      "1718": {
+        "Heading": 199.0,
+        "Latitude": 42.35091,
+        "Longitude": -71.05539,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1718
+      },
+      "1719": {
+        "Heading": 175.0,
+        "Latitude": 42.33502,
+        "Longitude": -71.06003,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1719
+      },
+      "1720": {
+        "Heading": 179.0,
+        "Latitude": 42.33888,
+        "Longitude": -71.06005,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1720
+      },
+      "1721": {
+        "Heading": 0.0,
+        "Latitude": 42.37469,
+        "Longitude": -71.07544,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2020-09-15T23:08:05.930000Z",
+        "VehicleID": 1721
+      },
+      "1722": {
+        "Heading": 165.6,
+        "Latitude": 41.87867,
+        "Longitude": -70.91877,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:30:08.527000Z",
+        "VehicleID": 1722
+      },
+      "1723": {
+        "Heading": 188.0,
+        "Latitude": 42.24021,
+        "Longitude": -71.12884,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1723
+      },
+      "1724": {
+        "Heading": 339.0,
+        "Latitude": 41.82961,
+        "Longitude": -71.41284,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "821",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1724
+      },
+      "1800": {
+        "Heading": 0.0,
+        "Latitude": 42.23984,
+        "Longitude": -71.13007,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-12-27T15:56:32.797000Z",
+        "VehicleID": 1800
+      },
+      "1801": {
+        "Heading": 0.0,
+        "Latitude": 42.24079,
+        "Longitude": -71.12944,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T02:18:42.327000Z",
+        "VehicleID": 1801
+      },
+      "1802": {
+        "Heading": 0.0,
+        "Latitude": 42.3754,
+        "Longitude": -71.07652,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-08T16:03:41.340000Z",
+        "VehicleID": 1802
+      },
+      "1803": {
+        "Heading": 104.0,
+        "Latitude": 41.99955,
+        "Longitude": -70.73774,
+        "Source": "AVL",
+        "Speed": 26,
+        "TripID": "055",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1803
+      },
+      "1804": {
+        "Heading": 0.0,
+        "Latitude": 42.23979,
+        "Longitude": -71.12886,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1804
+      },
+      "1805": {
+        "Heading": 20.0,
+        "Latitude": 42.34935997243144,
+        "Longitude": -71.05615517656767,
+        "Source": "AVL",
+        "Speed": 10,
+        "TripID": "522",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1805
+      },
+      "1806": {
+        "Heading": 0.0,
+        "Latitude": 42.23361,
+        "Longitude": -71.15774,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-17T08:09:08.660000Z",
+        "VehicleID": 1806
+      },
+      "1807": {
+        "Heading": 0.0,
+        "Latitude": 42.37541,
+        "Longitude": -71.07653,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-10-29T05:30:11.540000Z",
+        "VehicleID": 1807
+      },
+      "1808": {
+        "Heading": 242.0,
+        "Latitude": 42.29728,
+        "Longitude": -71.29448,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "523",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1808
+      },
+      "1809": {
+        "Heading": 0.0,
+        "Latitude": 41.79795,
+        "Longitude": -70.78232,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-15T06:12:13.747000Z",
+        "VehicleID": 1809
+      },
+      "1810": {
+        "Heading": 0.0,
+        "Latitude": 42.24027,
+        "Longitude": -71.1293,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-13T06:18:55.860000Z",
+        "VehicleID": 1810
+      },
+      "1811": {
+        "Heading": 208.19,
+        "Latitude": 42.03286,
+        "Longitude": -71.21988,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:30:00.140000Z",
+        "VehicleID": 1811
+      },
+      "1812": {
+        "Heading": 176.0,
+        "Latitude": 42.33273,
+        "Longitude": -71.05965,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1812
+      },
+      "1813": {
+        "Heading": 95.0,
+        "Latitude": 42.26148,
+        "Longitude": -71.48241,
+        "Source": "AVL",
+        "Speed": 16,
+        "TripID": "524",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1813
+      },
+      "1814": {
+        "Heading": 63.74,
+        "Latitude": 42.28659,
+        "Longitude": -71.14482,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:30:06.887000Z",
+        "VehicleID": 1814
+      },
+      "1815": {
+        "Heading": 188.0,
+        "Latitude": 42.17876,
+        "Longitude": -70.74662,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1815
+      },
+      "1816": {
+        "Heading": 310.0,
+        "Latitude": 42.33866,
+        "Longitude": -71.06059,
+        "Source": "AVL",
+        "Speed": 1,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1816
+      },
+      "1817": {
+        "Heading": 199.0,
+        "Latitude": 41.58202,
+        "Longitude": -71.49078,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "819",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1817
+      },
+      "1818": {
+        "Heading": 256.0,
+        "Latitude": 42.27297,
+        "Longitude": -71.23684,
+        "Source": "AVL",
+        "Speed": 7,
+        "TripID": "621",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1818
+      },
+      "1819": {
+        "Heading": 305.0,
+        "Latitude": 42.35015,
+        "Longitude": -71.05478,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1819
+      },
+      "1820": {
+        "Heading": 40.0,
+        "Latitude": 42.30538,
+        "Longitude": -71.07645,
+        "Source": "AVL",
+        "Speed": 7,
+        "TripID": "930",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1820
+      },
+      "1821": {
+        "Heading": 324.0,
+        "Latitude": 42.12392,
+        "Longitude": -71.10347,
+        "Source": "AVL",
+        "Speed": 1,
+        "TripID": "876SH",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1821
+      },
+      "1822": {
+        "Heading": 225.0,
+        "Latitude": 42.18255,
+        "Longitude": -71.01394,
+        "Source": "AVL",
+        "Speed": 46,
+        "TripID": "019",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1822
+      },
+      "1823": {
+        "Heading": 199.0,
+        "Latitude": 42.23879,
+        "Longitude": -71.13356,
+        "Source": "AVL",
+        "Speed": 1,
+        "TripID": "745",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1823
+      },
+      "1824": {
+        "Heading": 237.0,
+        "Latitude": 42.34756,
+        "Longitude": -71.07103,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1824
+      },
+      "1825": {
+        "Heading": 191.0,
+        "Latitude": 42.23946,
+        "Longitude": -71.12936,
+        "Source": "AVL",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2022-01-18T16:29:00.000000Z",
+        "VehicleID": 1825
+      },
+      "1826": {
+        "Heading": 0.0,
+        "Latitude": 42.37464,
+        "Longitude": -71.07463,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "2021-11-23T07:58:23.480000Z",
+        "VehicleID": 1826
+      },
+      "1827": {
+        "Heading": 0.0,
+        "Latitude": 42.3743,
+        "Longitude": -71.07443,
+        "Source": "ACSES",
+        "Speed": 0,
+        "TripID": "N/A",
+        "Update Time": "1900-01-01T00:00:00.000000Z",
+        "VehicleID": 1827
+      }
+    }
+  }
+}

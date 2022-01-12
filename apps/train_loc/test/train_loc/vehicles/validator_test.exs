@@ -208,6 +208,7 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
       trip: "612",
       vehicle_id: 1827
     }
+
     test "works for valid structs" do
       assert Validator.validate(@valid_vehicle) == :ok
     end
@@ -223,6 +224,14 @@ defmodule TrainLoc.Vehicles.ValidatorTest do
         |> Validator.validate()
 
       assert result == {:error, :invalid_vehicle}
+    end
+
+    test "validates when trip is unassigned" do
+      assert :ok == Validator.validate(%{@valid_vehicle | trip: :unassigned})
+    end
+
+    test "validates when block is unassigned" do
+      assert :ok == Validator.validate(%{@valid_vehicle | block: :unassigned})
     end
   end
 end
