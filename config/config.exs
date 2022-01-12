@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Mapping of `gtfs_stop_name` values to stop IDs. Note these are expected to be valid *both* on
 # their own, and when a track number is appended, if the boarding status has a track assignment

@@ -1,4 +1,4 @@
-FROM hexpm/elixir:1.12.1-erlang-23.0.2-alpine-3.11.6 AS builder
+FROM hexpm/elixir:1.13.2-erlang-24.2-alpine-3.15.0 AS builder
 
 WORKDIR /root
 
@@ -17,10 +17,9 @@ WORKDIR /root
 
 RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, compile, distillery.release --verbose
 
-FROM alpine:3.11.6
+FROM alpine:3.15.0
 
-RUN apk add --update libssl1.1 ncurses-libs bash \
-	&& rm -rf /var/cache/apk
+RUN apk add --no-cache libssl1.1 ncurses-libs bash libstdc++ libgcc
 
 # Set environment
 ENV MIX_ENV=prod TERM=xterm LANG=C.UTF-8 REPLACE_OS_VARS=true

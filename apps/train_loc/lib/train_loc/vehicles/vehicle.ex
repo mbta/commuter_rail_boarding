@@ -57,7 +57,7 @@ defmodule TrainLoc.Vehicles.Vehicle do
     Enum.flat_map(map, &from_json_elem/1)
   end
 
-  @spec from_json_elem({any, map}) :: [%Vehicle{}]
+  @spec from_json_elem({any, map}) :: [t()]
   defp from_json_elem({_, veh_data = %{"VehicleID" => _vehicle_id}}) do
     [from_json(veh_data)]
   end

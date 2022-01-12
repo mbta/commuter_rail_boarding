@@ -14,11 +14,7 @@ defmodule TrainLoc.Manager.EventJsonParser do
 
   @spec parse(String.t()) ::
           {:error, any}
-          | {:ok,
-             %TrainLoc.Manager.Event{
-               date: String.t() | nil,
-               vehicles_json: [map()]
-             }}
+          | {:ok, Event.t()}
   def parse(data) when is_binary(data) do
     with {:ok, json} <- Jason.decode(data, strings: :copy),
          vehicles_json <- extract_vehicles_json(json),

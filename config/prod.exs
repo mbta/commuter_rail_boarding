@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :commuter_rail_boarding,
   uploader: Uploader.S3
