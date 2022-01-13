@@ -94,9 +94,10 @@ defmodule BoardingStatus.ProducerConsumer do
   end
 
   defp schedule_timeout(state) do
-    if state.timeout_ref do
-      Process.cancel_timer(state.timeout_ref)
-    end
+    _ =
+      if state.timeout_ref do
+        Process.cancel_timer(state.timeout_ref)
+      end
 
     ref = Process.send_after(self(), :timeout, state.timeout_after)
     %{state | timeout_ref: ref}
