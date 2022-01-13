@@ -86,23 +86,21 @@ defmodule TrainLoc.Manager do
     state = schedule_timeout(state)
 
     for event <- events, event.event == "put" do
+      Logger.debug(fn ->
+        "#{__MODULE__}: received event - #{inspect(event)}"
+      end)
+
       _ =
-        Logger.debug(fn ->
-          "#{__MODULE__}: received event - #{inspect(event)}"
-        end)
+        case Jason.decode(event.data, strings: :copy) do
+          {:ok, data} ->
+            case data["path"] do
+              "/" -> handle_new_event(data, state)
+              _ -> handle_old_event(data, state)
+            end
 
-      case ManagerEvent.from_string(event.data) do
-        {:ok, manager_event} ->
-          update_vehicles(manager_event, state)
-
-        {:error, reason} ->
-          _ =
-            Logger.error(fn ->
-              Logging.log_string("Manager Event Parsing Error", reason)
-            end)
-
-          :ok
-      end
+          {:error, error} ->
+            Logger.error("Failed to decode event: #{inspect(error)}")
+        end
     end
 
     {:noreply, [], %{state | first_message?: false}}
@@ -242,9 +240,10 @@ defmodule TrainLoc.Manager do
   end
 
   defp schedule_timeout(state) do
-    if state.timeout_ref do
-      Process.cancel_timer(state.timeout_ref)
-    end
+    _ =
+      if state.timeout_ref do
+        Process.cancel_timer(state.timeout_ref)
+      end
 
     ref = Process.send_after(self(), :timeout, state.timeout_after)
     %{state | timeout_ref: ref}
