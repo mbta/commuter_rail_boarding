@@ -1,6 +1,12 @@
 defmodule TrainLoc.IntegrationTest do
   @moduledoc """
   This module contains the core logic for running integration test scenarios.
+
+  To add a new integration test, create a new module that provides the functions
+  `TestModule.test_messages/0`, `TestModule.expected_vehicle_state/0`, and
+  `TestModule.expected_conflict_state/0`. Write a new test in
+  TrainLoc.IntegrationTest that passes the new module to
+  `TrainLoc.IntegrationTest.run_test/1`.
   """
   use ExUnit.Case
   require Logger
