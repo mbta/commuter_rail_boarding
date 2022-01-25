@@ -23,9 +23,6 @@ erl_crash.dump
 # Virtualenv for AWS CLI
 /aws
 
-# Release files (except the ones we need
-/rel
-!/rel/Dockerfile
-!/rel/config.exs
+# Environment variables
 /.env
 /.envrc
