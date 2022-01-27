@@ -26,6 +26,18 @@ defmodule TrainLoc.Manager do
   @stale_data_seconds 30 |> Duration.from_minutes() |> Duration.to_seconds()
   @s3_api Application.compile_env!(:train_loc, :s3_api)
 
+  @type t() :: %__MODULE__{
+          time_baseline: (() -> non_neg_integer()),
+          excluded_vehicles: [non_neg_integer()],
+          producers: [atom()],
+          timeout_ref: reference(),
+          first_message?: boolean(),
+          timeout_after: non_neg_integer(),
+          refresh_fn: (atom() -> :ok)
+        }
+
+  @type opts() :: [subscribe_to: atom() | nil, timeout_after: non_neg_integer() | nil]
+
   defstruct [
     :time_baseline,
     :excluded_vehicles,
@@ -36,10 +48,12 @@ defmodule TrainLoc.Manager do
     refresh_fn: &ServerSentEventStage.refresh/1
   ]
 
+  @spec start_link(opts()) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(opts) do
     GenStage.start_link(__MODULE__, opts, opts)
   end
 
+  @spec reset(GenStage.stage()) :: term()
   def reset(pid \\ __MODULE__) do
     GenStage.call(pid, :reset)
   end
@@ -47,10 +61,13 @@ defmodule TrainLoc.Manager do
   @doc """
   Awaits a reply.
   """
+  @spec await(GenStage.stage()) :: term()
   def await(pid \\ __MODULE__) do
     GenStage.call(pid, :await)
   end
 
+  @impl GenStage
+  @spec init(opts()) :: {:consumer, t(), [subscribe_to: [atom()]]}
   def init(opts) do
     _ = Logger.debug(fn -> "Starting #{__MODULE__}..." end)
     {time_mod, time_fn} = config(:time_baseline_fn)
@@ -73,6 +90,8 @@ defmodule TrainLoc.Manager do
     {:consumer, state, subscribe_to: producers}
   end
 
+  @impl GenStage
+  @spec handle_call(:await | :reset, GenServer.from(), t()) :: {:reply, :ok | true, [], t()}
   def handle_call(:reset, _from, state) do
     state = schedule_timeout(state)
     {:reply, :ok, [], %{state | first_message?: true}}
@@ -83,6 +102,8 @@ defmodule TrainLoc.Manager do
     {:reply, true, [], state}
   end
 
+  @impl GenStage
+  @spec handle_events([term()], GenStage.from() | :from, t()) :: {:noreply, [], t()}
   def handle_events(events, _from, state) do
     state = schedule_timeout(state)
 
@@ -110,6 +131,8 @@ defmodule TrainLoc.Manager do
     {:noreply, [], %{state | first_message?: false}}
   end
 
+  @impl GenStage
+  @spec handle_info({:events, [term()]} | :timeout | term(), t()) :: {:noreply, [], t()}
   def handle_info({:events, events}, state) do
     # only for testing
     handle_events(events, :from, state)
@@ -133,14 +156,14 @@ defmodule TrainLoc.Manager do
     {:noreply, [], state}
   end
 
-  @spec generate_feed([Vehicle.t()], map) :: binary
+  @spec generate_feed([Vehicle.t()], t()) :: binary
   def generate_feed(data, state) do
     data
     |> prune_vehicles(state)
     |> VehiclePositionsEnhanced.encode()
   end
 
-  @spec handle_old_event(binary | map, map) :: :ok
+  @spec handle_old_event(map(), t()) :: :ok
   def handle_old_event(data, state) do
     Logger.info("Processing single vehicle event")
 
@@ -158,6 +181,7 @@ defmodule TrainLoc.Manager do
     end
   end
 
+  @spec prune_vehicles([Vehicle.t()], t()) :: [Vehicle.t()]
   def prune_vehicles(vehicles, %{
         time_baseline: time_baseline_fn,
         excluded_vehicles: excluded_vehicles
@@ -167,6 +191,7 @@ defmodule TrainLoc.Manager do
     |> reject_stale_vehicles(time_baseline_fn.())
   end
 
+  @spec update_vehicles(ManagerEvent.t(), t()) :: :ok
   defp update_vehicles(
          %ManagerEvent{} = manager_event,
          %{
@@ -206,6 +231,7 @@ defmodule TrainLoc.Manager do
     :ok
   end
 
+  @spec vehicles_from_data([map()] | map()) :: [Vehicle.t()]
   def vehicles_from_data(data) when is_list(data) do
     Enum.flat_map(data, &vehicles_from_data/1)
   end
