@@ -118,18 +118,6 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       assert Map.has_key?(vehicle_1["vehicle"]["trip"], "trip_short_name")
       refute Map.has_key?(vehicle_2["vehicle"]["trip"], "trip_short_name")
       refute Map.has_key?(vehicle_3["vehicle"]["trip"], "trip_short_name")
-
-      assert %{
-               "vehicle" => %{
-                 "vehicle" => %{"assignment_status" => "unassigned"}
-               }
-             } = vehicle_2
-
-      assert %{
-               "vehicle" => %{
-                 "vehicle" => %{"assignment_status" => "unassigned"}
-               }
-             } = vehicle_3
     end
   end
 

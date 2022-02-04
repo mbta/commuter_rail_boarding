@@ -100,13 +100,6 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   end
 
   @spec entity_vehicle(Vehicle.t()) :: entity_vehicle()
-  defp entity_vehicle(%{trip: :unassigned} = vehicle) do
-    %{
-      id: vehicle.vehicle_id,
-      assignment_status: "unassigned"
-    }
-  end
-
   defp entity_vehicle(vehicle) do
     %{
       id: vehicle.vehicle_id

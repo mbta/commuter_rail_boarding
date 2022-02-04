@@ -250,7 +250,7 @@ defmodule TrainLoc.ManagerTest do
                    },
                    "timestamp" => 1_642_722_222,
                    "trip" => %{"start_date" => "20220120"},
-                   "vehicle" => %{"assignment_status" => "unassigned", "id" => 1506}
+                   "vehicle" => %{"id" => 1506}
                  }
                },
                %{
@@ -264,7 +264,7 @@ defmodule TrainLoc.ManagerTest do
                    },
                    "timestamp" => 1_642_722_222,
                    "trip" => %{"start_date" => "20220120"},
-                   "vehicle" => %{"assignment_status" => "unassigned", "id" => 1507}
+                   "vehicle" => %{"id" => 1507}
                  }
                },
                %{
