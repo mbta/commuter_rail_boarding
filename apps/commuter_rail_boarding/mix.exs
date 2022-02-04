@@ -43,7 +43,7 @@ defmodule CommuterRailBoarding.Mixfile do
       {:castore, "~> 0.1"},
       {:lcov_ex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:bypass, "~> 1.0", only: :test},
+      {:bypass, "~> 2.1", only: :test},
       {:distillery, "~> 2.0", runtime: false},
       {:ehmon, git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod}
     ]
