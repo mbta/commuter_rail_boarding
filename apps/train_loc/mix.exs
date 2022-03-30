@@ -56,7 +56,7 @@ defmodule TrainLoc.Mixfile do
       {:lcov_ex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:goth, "~> 1.0"},
       {:jason, "~> 1.1"},
-      {:timex, "~> 3.6.1"},
+      {:timex, "~> 3.7"},
       {:ex_json_schema, "~> 0.9.1"}
     ]
   end
