@@ -151,7 +151,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
       assert start_date(dt) == "20180322"
     end
 
-    test "converts UTC datestimes into service data around DST transitions" do
+    test "converts UTC datestimes into service dates around DST transitions" do
       # spring forward
       assert start_date(DateTime.from_naive!(~N[2018-03-11T06:59:59], "Etc/UTC")) == "20180310"
       assert start_date(DateTime.from_naive!(~N[2018-03-11T07:00:00], "Etc/UTC")) == "20180311"

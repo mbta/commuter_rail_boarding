@@ -48,16 +48,14 @@ defmodule TrainLoc.Utilities.Time do
 
   @spec get_service_date(DateTime.t()) :: Date.t()
   def get_service_date(current_time \\ DateTime.utc_now()) do
-    dt =
-      current_time
-      |> in_local_tz
-      |> Timex.shift(hours: -3)
-      |> case do
-        %DateTime{} = dt -> dt
-        %Timex.AmbiguousDateTime{before: before} -> before
-      end
+    local_time = in_local_tz(current_time)
+    current_date = DateTime.to_date(local_time)
 
-    DateTime.to_date(dt)
+    if local_time.hour < 3 do
+      Date.add(current_date, -1)
+    else
+      current_date
+    end
   end
 
   @spec format_datetime(DateTime.t()) :: String.t()
