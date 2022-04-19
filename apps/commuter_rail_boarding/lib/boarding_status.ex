@@ -110,7 +110,7 @@ defmodule BoardingStatus do
     :error
   end
 
-  def validate_movement_type(%{"movement_type" => type})
+  def validate_movement_type(%{"movementtype" => type})
       when type in ~w(O B E) do
     # O - Originating
     # B - Both End Train and Detrain
@@ -118,7 +118,7 @@ defmodule BoardingStatus do
     :ok
   end
 
-  def validate_movement_type(%{"movement_type" => _}) do
+  def validate_movement_type(%{"movementtype" => _}) do
     # other movement types shouldn't get boarding statuses
     :ignore
   end
