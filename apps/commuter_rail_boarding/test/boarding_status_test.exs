@@ -15,11 +15,11 @@ defmodule BoardingStatusTest do
            |> Map.get("results")
 
   describe "from_firebase/1" do
-    test "returns {:ok, t} for all items from fixture" do
+    test "returns :ok or :ignore for all items in fixture" do
       refute @results == []
 
       for result <- Task.async_stream(@results, &from_firebase/1) do
-        assert {:ok, {:ok, %BoardingStatus{}}} = result
+        assert match?({:ok, {:ok, %BoardingStatus{}}}, result) or match?({:ok, :ignore}, result)
       end
     end
 
@@ -160,9 +160,9 @@ defmodule BoardingStatusTest do
 
     test "ignores items with the wrong movement type" do
       original = List.first(@results)
-      result = Map.put(original, "movement_type", "")
+      result = Map.put(original, "movementtype", "")
       assert from_firebase(result) == :ignore
-      result = Map.put(original, "movement_type", "O")
+      result = Map.put(original, "movementtype", "O")
       assert {:ok, _} = from_firebase(result)
     end
 
