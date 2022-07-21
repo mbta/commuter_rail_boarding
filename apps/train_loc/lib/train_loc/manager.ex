@@ -9,15 +9,9 @@ defmodule TrainLoc.Manager do
   use Timex
 
   import TrainLoc.Utilities.ConfigHelpers
-  alias TrainLoc.Conflicts.Conflict
-  alias TrainLoc.Conflicts.State, as: CState
   alias TrainLoc.Encoder.VehiclePositionsEnhanced
-  alias TrainLoc.Logging
   alias TrainLoc.Manager.BulkEvent
-  alias TrainLoc.Manager.Event, as: ManagerEvent
-  alias TrainLoc.Vehicles.{PreviousBatch, Vehicle}
-  alias TrainLoc.Vehicles.State, as: VState
-  alias TrainLoc.Vehicles.Validator, as: VehicleValidator
+  alias TrainLoc.Vehicles.Vehicle
 
   require Logger
 
@@ -121,7 +115,7 @@ defmodule TrainLoc.Manager do
           Logger.error("Failed to decode event: #{inspect(error)}")
 
         {:error, :invalid_event, event} ->
-          handle_old_event(event, state)
+          Logger.warning("invalid event #{inspect(event)}")
 
         {:error, error} ->
           Logger.error("Failed to generate feed from event: #{inspect(error)}")
@@ -163,24 +157,6 @@ defmodule TrainLoc.Manager do
     |> VehiclePositionsEnhanced.encode()
   end
 
-  @spec handle_old_event(map(), t()) :: :ok
-  def handle_old_event(data, state) do
-    Logger.info("Processing single vehicle event")
-
-    case ManagerEvent.parse(data) do
-      {:ok, manager_event} ->
-        update_vehicles(manager_event, state)
-
-      {:error, reason} ->
-        _ =
-          Logger.error(fn ->
-            Logging.log_string("Manager Event Parsing Error", reason)
-          end)
-
-        :ok
-    end
-  end
-
   @spec prune_vehicles([Vehicle.t()], t()) :: [Vehicle.t()]
   def prune_vehicles(vehicles, %{
         time_baseline: time_baseline_fn,
@@ -191,73 +167,6 @@ defmodule TrainLoc.Manager do
     |> reject_stale_vehicles(time_baseline_fn.())
   end
 
-  @spec update_vehicles(ManagerEvent.t(), t()) :: :ok
-  defp update_vehicles(
-         %ManagerEvent{} = manager_event,
-         %{
-           first_message?: first_message?
-         } = state
-       ) do
-    manager_event.vehicles_json
-    |> vehicles_from_data()
-    |> prune_vehicles(state)
-    |> VState.upsert_vehicles()
-
-    all_conflicts = VState.get_duplicate_logons()
-    {removed_conflicts, new_conflicts} = CState.set_conflicts(all_conflicts)
-
-    if end_of_batch?(manager_event) do
-      run_end_of_batch_tasks(all_conflicts)
-    end
-
-    possibly_log_conflicts(first_message?, new_conflicts, removed_conflicts)
-  end
-
-  defp possibly_log_conflicts(false, new_conflicts, removed_conflicts) do
-    Enum.each(new_conflicts, fn c ->
-      _ = Logger.info(fn -> "New Conflict - #{Conflict.log_string(c)}" end)
-    end)
-
-    Enum.each(removed_conflicts, fn c ->
-      _ = Logger.info(fn -> "Resolved Conflict - #{Conflict.log_string(c)}" end)
-    end)
-  end
-
-  defp possibly_log_conflicts(
-         _first_message?,
-         _new_conflicts,
-         _removed_conflicts
-       ) do
-    :ok
-  end
-
-  @spec vehicles_from_data([map()] | map()) :: [Vehicle.t()]
-  def vehicles_from_data(data) when is_list(data) do
-    Enum.flat_map(data, &vehicles_from_data/1)
-  end
-
-  def vehicles_from_data(json) when is_map(json) do
-    vehicle = Vehicle.from_json(json)
-
-    case VehicleValidator.validate(vehicle) do
-      :ok ->
-        [vehicle]
-
-      {:error, reason} ->
-        log_invalid_vehicle(reason)
-        []
-    end
-  end
-
-  defp log_invalid_vehicle(reason) when is_atom(reason) do
-    _ =
-      Logger.warn(fn ->
-        Logging.log_string("Manager Vehicle Validation Failed", reason)
-      end)
-
-    :ok
-  end
-
   defp reject_stale_vehicles(vehicles, time_baseline) do
     Enum.reject(vehicles, fn vehicle -> stale?(vehicle, time_baseline) end)
   end
@@ -265,42 +174,6 @@ defmodule TrainLoc.Manager do
   defp stale?(vehicle, time_baseline) do
     age = time_baseline - Timex.to_unix(vehicle.timestamp)
     age > @stale_data_seconds
-  end
-
-  defp end_of_batch?(%ManagerEvent{date: date}) when is_binary(date), do: true
-  defp end_of_batch?(_), do: false
-
-  defp run_end_of_batch_tasks(all_conflicts) do
-    upload_vehicles_to_s3()
-    all_vehicles = VState.all_vehicles()
-    end_of_batch_logging(all_conflicts, all_vehicles)
-    PreviousBatch.put(all_vehicles)
-  end
-
-  defp end_of_batch_logging(all_conflicts, all_vehicles) do
-    _ =
-      Logger.debug(fn ->
-        "#{__MODULE__}: Currently tracking #{length(VState.all_vehicle_ids())} vehicles."
-      end)
-
-    _ =
-      Logger.debug(fn ->
-        "#{__MODULE__}: #{Enum.count(all_vehicles, &Vehicle.active_vehicle?/1)} vehicles active."
-      end)
-
-    _ =
-      Logger.info(fn ->
-        "#{__MODULE__}: Active conflicts:#{length(all_conflicts)}"
-      end)
-
-    :ok
-  end
-
-  defp upload_vehicles_to_s3 do
-    vehicles = VState.all_vehicles()
-    json = VehiclePositionsEnhanced.encode(vehicles)
-    {:ok, _} = @s3_api.put_object("VehiclePositions_enhanced.json", json)
-    :ok
   end
 
   defp schedule_timeout(state) do
