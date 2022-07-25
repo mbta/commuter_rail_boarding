@@ -54,39 +54,6 @@ defmodule TrainLoc.ManagerTest do
   end
 
   describe "`:events` callback logs 'only old locations in batch' warning" do
-    test "logs warning if batch has same data as previous batch" do
-      vehicle_1_data = %{
-        "Heading" => 0,
-        "Latitude" => 42.24005,
-        "Longitude" => -71.12007,
-        "TripID" => 123,
-        "Speed" => 7,
-        "Update Time" => generate_invalid_timestamp(),
-        "VehicleID" => 1712,
-        "WorkID" => 0
-      }
-
-      vehicle_1 = Vehicle.from_json(vehicle_1_data)
-      previous_batch = [vehicle_1]
-      PreviousBatch.put(previous_batch)
-
-      end_of_batch_event_data = %{data: %{date: "some date"}}
-
-      events =
-        for data <- [vehicle_1_data, end_of_batch_event_data] do
-          %ServerSentEvent{event: "put", data: Jason.encode!(data)}
-        end
-
-      fun = fn ->
-        # flips `first_message?` flag to false
-        send(Manager, {:events, []})
-        send(Manager, {:events, events})
-        Manager.await()
-      end
-
-      assert capture_log(fun) =~ PreviousBatch.only_old_locations_warning()
-    end
-
     test "doesn't log warning if batch has different data than previous batch" do
       timestamp = generate_invalid_timestamp()
       datetime_timestamp = TrainLocTime.parse_improper_iso(timestamp)
@@ -136,25 +103,6 @@ defmodule TrainLoc.ManagerTest do
       end
 
       refute capture_log(fun) =~ PreviousBatch.only_old_locations_warning()
-    end
-  end
-
-  describe "vehicles_from_data/1" do
-    @invalid_json %{
-      "Latitude" => 42.37405,
-      "Longitude" => -71.07496,
-      "TripID" => 0,
-      "Speed" => 0,
-      "Update Time" => "2018-01-16T15:03:27Z",
-      "VehicleID" => 1633,
-      "WorkID" => 0
-    }
-    test "logs message if vehicle validation fails" do
-      fun = fn ->
-        Manager.vehicles_from_data(@invalid_json)
-      end
-
-      assert capture_log(fun) =~ "Manager Vehicle Validation"
     end
   end
 
