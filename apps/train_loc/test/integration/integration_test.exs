@@ -2,9 +2,8 @@ defmodule TrainLoc.IntegrationTest do
   @moduledoc """
   This module contains the core logic for running integration test scenarios.
 
-  To add a new integration test, create a new module that provides the functions
-  `TestModule.test_messages/0`, `TestModule.expected_vehicle_state/0`, and
-  `TestModule.expected_conflict_state/0`. Write a new test in
+  To add a new integration test, create a new module that provides the function
+  `TestModule.test_messages/0`. Write a new test in
   TrainLoc.IntegrationTest that passes the new module to
   `TrainLoc.IntegrationTest.run_test/1`.
   """
@@ -17,19 +16,11 @@ defmodule TrainLoc.IntegrationTest do
 
     on_exit(fn ->
       TrainLoc.Manager.reset()
-      TrainLoc.Conflicts.State.reset()
-      TrainLoc.Vehicles.State.reset()
     end)
   end
 
   def run_test(test_module) do
     send_data(test_module.test_messages)
-
-    assert TrainLoc.Vehicles.State.all_vehicles() ==
-             test_module.expected_vehicle_state
-
-    assert TrainLoc.Conflicts.State.all_conflicts() ==
-             test_module.expected_conflict_state
 
     assert map_size(InMemory.list_objects()) == 1
   end
@@ -52,8 +43,6 @@ defmodule TrainLoc.IntegrationTest do
 
     # waits for the messages sent above to be processed
     TrainLoc.Manager.await()
-    TrainLoc.Vehicles.State.await()
-    TrainLoc.Conflicts.State.await()
   end
 
   defp await_down(pid) do

@@ -60,18 +60,18 @@ positions to [S3](https://aws.amazon.com/s3/).
       │                            │
       │                            │
       │                            │
-      └────────────────────────────┘            ┌────────────────────────────┐
-                     │                          │TrainLoc.Conflicts.State    │
-                     │                          │                            │
-                   Events                ┌─────▶│                            │
-                     │                   │      │                            │
-                     ▼                   │      └────────────────────────────┘
-      ┌────────────────────────────┐     │      ┌────────────────────────────┐
-      │TrainLoc.Manager            │     │      │TrainLoc.Vehicles.State     │
-      │                            │  Consults  │                            │
-      │                            │◀───and────▶│                            │
-      │                            │  Updates   │                            │
-      └────────────────────────────┘            └────────────────────────────┘
+      └────────────────────────────┘            
+                     │                          
+                     │                          
+                   Events                
+                     │                   
+                     ▼                   
+      ┌────────────────────────────┐     
+      │TrainLoc.Manager            │    
+      │                            │  
+      │                            │
+      │                            │ 
+      └────────────────────────────┘ 
                      │         │
                      │         │
                 Conflicting    │
@@ -95,7 +95,6 @@ positions to [S3](https://aws.amazon.com/s3/).
 Throughout the application, data is represented as one of two structs:
 
 * `Vehicle`: position and trip/block assignment
-* `Conflict`: conflicting assignment and vehicles involved
 
 ### ServerSentEventStage
 
@@ -107,17 +106,6 @@ this turns the Firebase feed into a stage of `%ServerSentEventStage.Event{}` str
 
 Updates application's state, determines conflicting assignments, reports
 conflict related data to Splunk Cloud, and vehicle positions to S3.
-
-### TrainLoc.Vehicles.State
-
-Stores the current position of all known vehicles. When a new list of
-vehicles comes in, any changed positions are logged.
-
-### TrainLoc.Conflicts.State
-
-Maintains the current list of conflicts: any time multiple vehicles are
-assigned to the same trip ID or block. Maintaining the state allows the
-Manager to know when a conflict has been created or resolved.
 
 ## Build/Deployment
 
