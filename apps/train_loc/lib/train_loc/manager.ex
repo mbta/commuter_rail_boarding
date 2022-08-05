@@ -192,6 +192,7 @@ defmodule TrainLoc.Manager do
          %{producers: producers, refresh_fn: refresh_fn}
        ) do
     if should_refresh?(events) do
+      Logger.info("Reauthenticating to Firebase...")
       Enum.each(producers, refresh_fn)
     end
   end
