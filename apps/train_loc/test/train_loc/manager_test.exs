@@ -53,6 +53,35 @@ defmodule TrainLoc.ManagerTest do
     end
   end
 
+  describe "handle_events/3" do
+    @state %Manager{
+      producers: [:one, :two],
+      refresh_fn: &__MODULE__.send_self/1
+    }
+
+    test "refreshes when any of the events were `auth_revoked`" do
+      events =
+        for event <- ~w(put keep-alive auth_revoked) do
+          %ServerSentEventStage.Event{event: event}
+        end
+
+      Manager.handle_events(events, self(), @state)
+      assert_received :one
+      assert_received :two
+    end
+
+    test "does not refresh when none of the events were `auth_revoked`" do
+      events =
+        for event <- ~w(put keep-alive) do
+          %ServerSentEventStage.Event{event: event}
+        end
+
+      Manager.handle_events(events, self(), @state)
+      refute_received :one
+      refute_received :two
+    end
+  end
+
   describe "`:events` callback logs 'only old locations in batch' warning" do
     test "doesn't log warning if batch has different data than previous batch" do
       timestamp = generate_invalid_timestamp()
