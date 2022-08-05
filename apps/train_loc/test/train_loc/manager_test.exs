@@ -19,6 +19,22 @@ defmodule TrainLoc.ManagerTest do
     end)
   end
 
+  def send_self(message) do
+    send(self(), message)
+  end
+
+  defp generate_invalid_timestamp do
+    local_offset =
+      :time_zone
+      |> config()
+      |> Timex.Timezone.get()
+      |> Timex.Timezone.total_offset()
+
+    DateTime.utc_now()
+    |> Timex.shift(seconds: local_offset)
+    |> Timex.format!("{ISO:Extended:Z}")
+  end
+
   describe "handle_info/2" do
     test "logs a warning with invalid messages" do
       message = {:unknown, System.unique_integer()}
@@ -118,22 +134,6 @@ defmodule TrainLoc.ManagerTest do
       refute_received :timeout
       assert state2.timeout_ref != state.timeout_ref
     end
-  end
-
-  defp generate_invalid_timestamp do
-    local_offset =
-      :time_zone
-      |> config()
-      |> Timex.Timezone.get()
-      |> Timex.Timezone.total_offset()
-
-    DateTime.utc_now()
-    |> Timex.shift(seconds: local_offset)
-    |> Timex.format!("{ISO:Extended:Z}")
-  end
-
-  def send_self(message) do
-    send(self(), message)
   end
 
   describe "generate_feed/2" do
@@ -236,6 +236,35 @@ defmodule TrainLoc.ManagerTest do
                })
                |> Jason.decode!()
                |> Map.get("entity")
+    end
+  end
+
+  describe "maybe_refresh!/1" do
+    @state %TrainLoc.Manager{
+      producers: [:one, :two]
+    }
+    @refresh_fn &__MODULE__.send_self/1
+
+    test "refreshes when any of the events were `auth_revoked`" do
+      events =
+        for event <- ~w(put keep-alive auth_revoked) do
+          %ServerSentEventStage.Event{event: event}
+        end
+
+      Manager.maybe_refresh!(events, @state, @refresh_fn)
+      assert_received :one
+      assert_received :two
+    end
+
+    test "does not refreshes when non of the events were `auth_revoked`" do
+      events =
+        for event <- ~w(put keep-alive) do
+          %ServerSentEventStage.Event{event: event}
+        end
+
+      Manager.maybe_refresh!(events, @state, @refresh_fn)
+      refute_received :one
+      refute_received :two
     end
   end
 end

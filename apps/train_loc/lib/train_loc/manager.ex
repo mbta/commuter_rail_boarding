@@ -100,6 +100,7 @@ defmodule TrainLoc.Manager do
   @spec handle_events([term()], GenStage.from() | :from, t()) :: {:noreply, [], t()}
   def handle_events(events, _from, state) do
     state = schedule_timeout(state)
+    maybe_refresh!(events, state)
 
     for event <- events, event.event == "put" do
       Logger.debug(fn ->
@@ -184,5 +185,19 @@ defmodule TrainLoc.Manager do
 
     ref = Process.send_after(self(), :timeout, state.timeout_after)
     %{state | timeout_ref: ref}
+  end
+
+  def maybe_refresh!(
+        events,
+        %{producers: producers},
+        refresh_fn \\ &ServerSentEventStage.refresh/1
+      ) do
+    if should_refresh?(events) do
+      Enum.each(producers, refresh_fn)
+    end
+  end
+
+  defp should_refresh?(events) do
+    Enum.any?(events, &(&1.event == "auth_revoked"))
   end
 end
