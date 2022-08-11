@@ -14,8 +14,6 @@ defmodule TrainLoc.ManagerTest do
 
     on_exit(fn ->
       Manager.reset()
-      TrainLoc.Conflicts.State.reset()
-      TrainLoc.Vehicles.State.reset()
     end)
   end
 
