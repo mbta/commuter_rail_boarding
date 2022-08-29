@@ -24,7 +24,7 @@ use Distillery.Releases.Config,
 environment :prod do
   set include_erts: true
   set include_src: false
-  set cookie: :"${Base.url_encode64(:crypto.strong_rand_bytes(40))}"
+  set cookie: :"#{Base.url_encode64(:crypto.strong_rand_bytes(40))}"
 end
 
 # You may define one or more releases in this file.
