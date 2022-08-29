@@ -1,0 +1,18 @@
+name: Deploy to ECS (shared)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: master
+
+jobs:
+  call-workflow:
+    uses: mbta/workflows/.github/workflows/deploy-ecs.yml@main
+    with:
+      app-name: commuter-rail-boarding
+      environment: dev
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      docker-repo: ${{ secrets.NEW_DOCKER_REPO }}
+      slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
