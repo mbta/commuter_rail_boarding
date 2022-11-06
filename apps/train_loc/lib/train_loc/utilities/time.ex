@@ -25,11 +25,10 @@ defmodule TrainLoc.Utilities.Time do
   @spec parse_improper_iso(String.t() | nil, String.t()) :: datetime | nil
   def parse_improper_iso(improper_iso, timezone \\ config(:time_zone))
 
-  def parse_improper_iso(improper_iso, timezone) when is_binary(improper_iso) do
+  def parse_improper_iso(improper_iso, _timezone) when is_binary(improper_iso) do
     improper_iso
-    |> String.trim_trailing("Z")
     |> NaiveDateTime.from_iso8601!()
-    |> Timex.to_datetime(timezone)
+    |> Timex.to_datetime()
     |> drop_microsecond
   end
 
