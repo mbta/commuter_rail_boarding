@@ -7,7 +7,6 @@ defmodule TrainLoc.Vehicles.VehicleTest do
   import ExUnit.CaptureLog
   alias TrainLoc.Vehicles.Vehicle
 
-  @time_format config(:time_format)
   @valid_vehicle_json %{
     "Heading" => 48,
     "Latitude" => 42.28179,
@@ -20,10 +19,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
   }
 
   # this DateTime is the parsed updatetime from above
-  @valid_timestamp Timex.parse!(
-                     "2018-01-05 11:38:50 America/New_York",
-                     @time_format
-                   )
+  @valid_timestamp ~U[2018-01-05 11:38:50Z]
 
   describe "from_json_object/1" do
     test "converts single JSON object to Vehicle struct" do
@@ -41,11 +37,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
       assert Vehicle.from_json_object(json_obj) == [
                %Vehicle{
                  vehicle_id: 1827,
-                 timestamp:
-                   Timex.parse!(
-                     "2018-01-05 11:38:50 America/New_York",
-                     @time_format
-                   ),
+                 timestamp: ~U[2018-01-05 11:38:50Z],
                  block: "602",
                  trip: "612",
                  latitude: 42.28179,
@@ -95,11 +87,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
       assert Vehicle.from_json_map(json_map) == [
                %Vehicle{
                  vehicle_id: 1633,
-                 timestamp:
-                   Timex.parse!(
-                     "2018-01-16 15:03:27 America/New_York",
-                     @time_format
-                   ),
+                 timestamp: ~U[2018-01-16 15:03:27Z],
                  block: :unassigned,
                  trip: :unassigned,
                  latitude: 42.37405,
@@ -109,11 +97,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
                },
                %Vehicle{
                  vehicle_id: 1643,
-                 timestamp:
-                   Timex.parse!(
-                     "2018-01-16 15:03:17 America/New_York",
-                     @time_format
-                   ),
+                 timestamp: ~U[2018-01-16 15:03:17Z],
                  block: "202",
                  trip: "170",
                  latitude: 42.72570,
@@ -123,11 +107,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
                },
                %Vehicle{
                  vehicle_id: 1652,
-                 timestamp:
-                   Timex.parse!(
-                     "2018-01-16 15:03:23 America/New_York",
-                     @time_format
-                   ),
+                 timestamp: ~U[2018-01-16 15:03:23Z],
                  block: "306",
                  trip: "326",
                  latitude: 42.36698,
@@ -257,7 +237,7 @@ defmodule TrainLoc.Vehicles.VehicleTest do
                latitude: 42.23879,
                longitude: -71.13356,
                speed: 1,
-               timestamp: DateTime.new!(~D[2022-01-18], ~T[16:29:00], "America/New_York"),
+               timestamp: ~U[2022-01-18 16:29:00Z],
                trip: "745",
                vehicle_id: 1823,
                block: nil

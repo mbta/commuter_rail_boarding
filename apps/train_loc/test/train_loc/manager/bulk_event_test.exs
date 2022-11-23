@@ -56,8 +56,7 @@ defmodule TrainLoc.Manager.BulkEventTest do
                   longitude: -71.128225,
                   speed: 0,
                   trip: :unassigned,
-                  timestamp:
-                    DateTime.new!(~D[2020-02-25], ~T[12:47:58.490000], "America/New_York"),
+                  timestamp: ~U[2020-02-25 12:47:58.490000Z],
                   vehicle_id: 1506,
                   block: nil
                 },
@@ -67,8 +66,7 @@ defmodule TrainLoc.Manager.BulkEventTest do
                   longitude: -71.127625,
                   speed: 0,
                   trip: :unassigned,
-                  timestamp:
-                    DateTime.new!(~D[2020-12-14], ~T[10:19:54.883000], "America/New_York"),
+                  timestamp: ~U[2020-12-14 10:19:54.883000Z],
                   vehicle_id: 1507,
                   block: nil
                 },
@@ -77,7 +75,7 @@ defmodule TrainLoc.Manager.BulkEventTest do
                   latitude: 42.23879,
                   longitude: -71.13356,
                   speed: 1,
-                  timestamp: DateTime.new!(~D[2022-01-18], ~T[16:29:00], "America/New_York"),
+                  timestamp: ~U[2022-01-18 16:29:00Z],
                   trip: "745",
                   vehicle_id: 1823,
                   block: nil
