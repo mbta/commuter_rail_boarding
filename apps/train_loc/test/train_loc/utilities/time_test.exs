@@ -30,7 +30,7 @@ defmodule TrainLoc.Utilities.TimeTest do
       test_string = "2018-03-28T12:34:56Z"
       actual = parse_improper_iso(test_string, @timezone)
 
-      expected = Timex.to_datetime(~N[2018-03-28T12:34:56], @timezone)
+      expected = ~U[2018-03-28 12:34:56Z]
 
       assert actual == expected
     end
@@ -38,13 +38,13 @@ defmodule TrainLoc.Utilities.TimeTest do
     test "handles millisecond and microsecond precision in string" do
       milli_string = "2018-03-28T01:23:45.678Z"
       milli_actual = parse_improper_iso(milli_string, @timezone)
-      milli_expected = Timex.to_datetime(~N[2018-03-28T01:23:45.678], @timezone)
+      milli_expected = ~U[2018-03-28 01:23:45.678Z]
 
       assert milli_actual == milli_expected
 
       micro_string = "2018-03-28T01:23:45.678910Z"
       micro_actual = parse_improper_iso(micro_string, @timezone)
-      micro_expected = Timex.to_datetime(~N[2018-03-28T01:23:45.678910], @timezone)
+      micro_expected = ~U[2018-03-28 01:23:45.678910Z]
 
       assert micro_actual == micro_expected
     end

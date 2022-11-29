@@ -17,5 +17,4 @@ config :train_loc, APIFetcher, connect_at_startup?: false
 
 config :train_loc,
   firebase_url: "http://httpbin.org?numbytes=1024&duration=2&code=200",
-  time_baseline_fn: {TrainLoc.IntegrationTest.TimeHelper, :test_time},
-  time_format: "{YYYY}-{0M}-{0D} {0h24}:{0m}:{0s} {Zname}"
+  time_baseline_fn: {TrainLoc.IntegrationTest.TimeHelper, :test_time}
