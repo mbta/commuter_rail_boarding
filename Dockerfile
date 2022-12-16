@@ -13,7 +13,7 @@ ENV MIX_ENV=prod
 
 ADD . .
 
-RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, compile, distillery.release --verbose
+RUN elixir --erl "-smp enable" /usr/local/bin/mix do deps.get --only prod, compile, release
 
 FROM alpine:3.17.0
 
