@@ -1,6 +1,8 @@
 name: Elixir CI
 
 on:
+  schedule:
+    - cron: '0 5 * * *'
   pull_request:
   push:
     branches: main
