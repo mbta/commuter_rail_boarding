@@ -12,6 +12,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  docker:
+    name: Validate Docker build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        uses: docker/build-push-action@v3
+        with:
+          push: false
   asdf:
     name: ASDF
     runs-on: ubuntu-22.04
