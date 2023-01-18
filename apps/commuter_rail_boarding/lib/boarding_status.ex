@@ -231,7 +231,7 @@ route #{route_id}, name #{trip_name}, trip ID #{keolis_trip_id}"
     end
   end
 
-  statuses = Application.get_env(:commuter_rail_boarding, :statuses)
+  statuses = Application.compile_env(:commuter_rail_boarding, :statuses)
 
   for {status, string} <- statuses do
     # build a function for each status in the map

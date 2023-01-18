@@ -14,7 +14,7 @@ concurrency:
 jobs:
   asdf:
       name: ASDF
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-22.04
 
       steps:
         - uses: actions/checkout@v2
@@ -31,7 +31,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: asdf
     env:
       V3_API_KEY: ${{ secrets.V3_API_KEY }}
@@ -76,7 +76,7 @@ jobs:
 
   format:
     name: Format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: asdf
 
     steps:
@@ -93,7 +93,7 @@ jobs:
 
   credo:
     name: Credo
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: asdf
 
     steps:
