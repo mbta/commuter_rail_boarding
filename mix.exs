@@ -26,6 +26,7 @@ defmodule LocUmbrella.Mixfile do
     [
       commuter_rail_boarding: [
         applications: [
+          runtime_tools: :permanent,
           commuter_rail_boarding: :permanent,
           train_loc: :permanent,
           ex_aws: :permanent,
