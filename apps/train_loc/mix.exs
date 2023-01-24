@@ -48,7 +48,6 @@ defmodule TrainLoc.Mixfile do
     [
       {:server_sent_event_stage, "~> 1.0"},
       {:castore, "~> 0.1"},
-      {:distillery, "~> 2.0", runtime: false},
       {:ehmon,
        git: "https://github.com/mbta/ehmon.git", tag: "master", only: :prod},
       {:ex_aws, "~> 2.0"},

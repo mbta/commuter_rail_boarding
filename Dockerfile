@@ -13,7 +13,7 @@ ENV MIX_ENV=prod
 
 ADD . .
 
-RUN mix do deps.get --only prod, compile, distillery.release --verbose
+RUN mix do deps.get --only prod, compile, release
 
 FROM alpine:3.17.0
 
@@ -26,4 +26,4 @@ COPY --from=builder /root/_build/prod/rel/ /root/rel
 
 RUN /root/rel/commuter_rail_boarding/bin/commuter_rail_boarding eval ":crypto.supports()"
 
-CMD ["/root/rel/commuter_rail_boarding/bin/commuter_rail_boarding", "foreground"]
+CMD ["/root/rel/commuter_rail_boarding/bin/commuter_rail_boarding", "start"]

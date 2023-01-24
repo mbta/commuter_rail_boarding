@@ -4,6 +4,7 @@ defmodule LocUmbrella.Mixfile do
   def project do
     [
       apps_path: "apps",
+      version: "1.0.0",
       aliases: aliases(),
       build_embedded: Mix.env() == :prod,
       deps: deps(),
@@ -16,6 +17,21 @@ defmodule LocUmbrella.Mixfile do
           :unmatched_returns
         ],
         ignore_warnings: "dialyzer.ignore-warnings"
+      ],
+      releases: releases()
+    ]
+  end
+
+  defp releases do
+    [
+      commuter_rail_boarding: [
+        applications: [
+          runtime_tools: :permanent,
+          commuter_rail_boarding: :permanent,
+          train_loc: :permanent,
+          ex_aws: :permanent,
+          hackney: :permanent
+        ]
       ]
     ]
   end

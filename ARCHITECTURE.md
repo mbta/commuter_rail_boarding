@@ -110,8 +110,7 @@ conflict related data to Splunk Cloud, and vehicle positions to S3.
 ## Build/Deployment
 
 Both applications are built together in an Alpine Linux Docker container
-(Dockerfile). The container makes a release build using
-[Distillery][distillery], and then a second stage builds the deployment
+(Dockerfile). The container makes a release build, and then a second stage builds the deployment
 container without any of the build dependencies.
 
 We push the release container (tagged with `git-<SHA>` and `latest`)
@@ -127,6 +126,5 @@ Both services run in the `commuter-rail-boarding` cluster.
 [gen_stage]: https://github.com/elixir-lang/gen_stage
 [server_sent_event]: https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream
 [httpoison]: https://github.com/edgurgel/httpoison
-[distillery]: https://github.com/bitwalker/distillery
 [ecr]: https://aws.amazon.com/ecr/
 [ecs]: https://aws.amazon.com/ecs/
