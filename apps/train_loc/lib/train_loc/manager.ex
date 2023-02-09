@@ -102,14 +102,20 @@ defmodule TrainLoc.Manager do
     state = schedule_timeout(state)
     maybe_refresh!(events, state)
 
+    _ = handle_put_events(events, state)
+
+    {:noreply, [], %{state | first_message?: false}}
+  end
+
+  defp handle_put_events(events, state) do
     for event <- events, event.event == "put" do
       Logger.debug(fn ->
         "#{__MODULE__}: received event - #{inspect(event)}"
       end)
 
       with {:ok, new_vehicles} <- BulkEvent.parse(event.data),
-           feed <- generate_feed(new_vehicles, state),
-           {:ok, result} <- @s3_api.put_object("VehiclePositions_enhanced.json", feed) do
+            feed <- generate_feed(new_vehicles, state),
+            {:ok, result} <- @s3_api.put_object("VehiclePositions_enhanced.json", feed) do
         Logger.info(["Uploaded vehicle locations to S3: ", inspect(result)])
       else
         {:error, %Jason.DecodeError{} = error} ->
@@ -122,8 +128,6 @@ defmodule TrainLoc.Manager do
           Logger.error("Failed to generate feed from event: #{inspect(error)}")
       end
     end
-
-    {:noreply, [], %{state | first_message?: false}}
   end
 
   @impl GenStage
