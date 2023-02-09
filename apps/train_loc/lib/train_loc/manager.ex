@@ -114,8 +114,8 @@ defmodule TrainLoc.Manager do
       end)
 
       with {:ok, new_vehicles} <- BulkEvent.parse(event.data),
-            feed <- generate_feed(new_vehicles, state),
-            {:ok, result} <- @s3_api.put_object("VehiclePositions_enhanced.json", feed) do
+           feed <- generate_feed(new_vehicles, state),
+           {:ok, result} <- @s3_api.put_object("VehiclePositions_enhanced.json", feed) do
         Logger.info(["Uploaded vehicle locations to S3: ", inspect(result)])
       else
         {:error, %Jason.DecodeError{} = error} ->
