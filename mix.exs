@@ -12,10 +12,7 @@ defmodule LocUmbrella.Mixfile do
       test_coverage: [tool: LcovEx],
       dialyzer: [
         plt_add_deps: :app_tree,
-        flags: [
-          :race_conditions,
-          :unmatched_returns
-        ],
+        flags: [:unmatched_returns],
         ignore_warnings: "dialyzer.ignore-warnings"
       ],
       releases: releases()

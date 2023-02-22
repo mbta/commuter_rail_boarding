@@ -102,6 +102,12 @@ defmodule TrainLoc.Manager do
     state = schedule_timeout(state)
     maybe_refresh!(events, state)
 
+    _ = handle_put_events(events, state)
+
+    {:noreply, [], %{state | first_message?: false}}
+  end
+
+  defp handle_put_events(events, state) do
     for event <- events, event.event == "put" do
       Logger.debug(fn ->
         "#{__MODULE__}: received event - #{inspect(event)}"
@@ -122,8 +128,6 @@ defmodule TrainLoc.Manager do
           Logger.error("Failed to generate feed from event: #{inspect(error)}")
       end
     end
-
-    {:noreply, [], %{state | first_message?: false}}
   end
 
   @impl GenStage
