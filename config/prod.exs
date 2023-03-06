@@ -10,7 +10,7 @@ config :commuter_rail_boarding, Uploader.S3,
 config :logger,
   truncate: :infinity,
   level: :debug,
-  backends: [:console]
+  backends: [:console, Sentry.LoggerBackend]
 
 config :ehmon, :report_mf, {:ehmon, :info_report}
 
