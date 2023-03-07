@@ -7,7 +7,7 @@ defmodule CommuterRailBoarding.Application do
 
   def start(_type, _args) do
     # Invoke Sentry logger programmatically to ensure it starts at the correct time:
-    Logger.add_backend(Sentry.LoggerBackend)
+    _ = Logger.add_backend(Sentry.LoggerBackend)
 
     Application.put_env(
       :commuter_rail_boarding,

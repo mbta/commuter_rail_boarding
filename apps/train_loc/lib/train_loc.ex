@@ -13,7 +13,7 @@ defmodule TrainLoc do
 
   def start(_type, _args) do
     # Invoke Sentry logger programmatically to ensure it starts at the correct time:
-    Logger.add_backend(Sentry.LoggerBackend)
+    _ = Logger.add_backend(Sentry.LoggerBackend)
 
     children = [
       TrainLoc.Supervisor
