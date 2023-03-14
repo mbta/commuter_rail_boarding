@@ -34,6 +34,69 @@ defmodule DateHelpersTest do
   end
 
   describe "seconds_until_next_service_date/1" do
+    test "handles non-DST" do
+      assert 3601 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-02-11T01:59:59])),
+                 local_dt!(~N[2018-02-11T01:59:59])
+               )
+
+      assert 84600 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-02-11T03:30:00])),
+                 local_dt!(~N[2018-02-11T03:30:00])
+               )
+
+      assert 81000 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-02-11T04:30:00])),
+                 local_dt!(~N[2018-02-11T04:30:00])
+               )
+    end
+
+    test "handles DST transitions" do
+      # spring forward
+      assert 3601 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-03-11T01:59:59])),
+                 local_dt!(~N[2018-03-11T01:59:59])
+               )
+
+      assert 1800 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-03-11T03:30:00])),
+                 local_dt!(~N[2018-03-11T03:30:00])
+               )
+
+      assert 84600 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-03-11T04:30:00])),
+                 local_dt!(~N[2018-03-11T04:30:00])
+               )
+
+      # fall back
+      {:ambiguous, dt_one, dt_two} = local_dt(~N[2018-11-04T01:30:00])
+
+      for {seconds_until, local_dt} <- %{5400 => dt_one, 1800 => dt_two} do
+        {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
+
+        assert seconds_until =
+                 seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
+      end
+
+      assert 84600 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-11-04T02:30:00])),
+                 local_dt!(~N[2018-11-04T02:30:00])
+               )
+
+      assert 81000 =
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-11-04T03:30:00])),
+                 local_dt!(~N[2018-11-04T03:30:00])
+               )
+    end
+
     test "returns a number of seconds until 3am tomorrow" do
       seconds = seconds_until_next_service_date()
       {:ok, now} = DateTime.now("America/New_York")

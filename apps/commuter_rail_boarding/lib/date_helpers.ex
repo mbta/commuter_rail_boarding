@@ -4,7 +4,6 @@ defmodule DateHelpers do
   """
 
   @timezone "America/New_York"
-  @three_hours_in_seconds 60 * 60 * 3
 
   @doc """
   Returns the current service date.
@@ -19,10 +18,42 @@ defmodule DateHelpers do
   end
 
   def service_date(%DateTime{} = dt) do
-    dt
-    |> ensure_timezone(@timezone)
-    |> DateTime.add(-@three_hours_in_seconds)
-    |> DateTime.to_date()
+    local_time =
+      dt
+      |> ensure_timezone(@timezone)
+
+    dst = get_dst_info(local_time)
+
+    days_to_add =
+      cond do
+        dst.is_march_timechange_date and local_time.hour < 4 ->
+          -1
+
+        dst.is_nov_timechange_date and local_time.hour < 2 ->
+          -1
+
+        local_time.hour < 3 and not dst.is_nov_timechange_date and
+            not dst.is_march_timechange_date ->
+          -1
+
+        true ->
+          0
+      end
+
+    local_time
+    |> NaiveDateTime.add(days_to_add, :day)
+    |> NaiveDateTime.to_date()
+  end
+
+  defp get_dst_info(%DateTime{} = dt) do
+    day_of_week = Date.day_of_week(dt)
+
+    %{
+      day_of_week: day_of_week,
+      is_march_timechange_date:
+        dt.month == 3 and dt.day >= 8 and dt.day <= 14 and day_of_week == 7,
+      is_nov_timechange_date: dt.month == 11 and dt.day >= 1 and dt.day <= 7 and day_of_week == 7
+    }
   end
 
   @doc """
@@ -32,9 +63,23 @@ defmodule DateHelpers do
   """
   @spec seconds_until_next_service_date :: non_neg_integer
   def seconds_until_next_service_date do
-    today = service_date()
-    tomorrow = Date.add(today, 1)
-    {:ok, naive} = NaiveDateTime.new(tomorrow, ~T[03:00:00])
+    service_date()
+    |> seconds_until_next_service_date(DateTime.utc_now())
+  end
+
+  @spec seconds_until_next_service_date :: non_neg_integer
+  def seconds_until_next_service_date(%Date{} = start_service_date, %DateTime{} = current_time) do
+    tomorrow = Date.add(start_service_date, 1)
+    dst = get_dst_info(current_time)
+
+    start_time =
+      cond do
+        dst.is_march_timechange_date -> ~T[04:00:00]
+        dst.is_nov_timechange_date -> ~T[02:00:00]
+        true -> ~T[03:00:00]
+      end
+
+    {:ok, naive} = NaiveDateTime.new(tomorrow, start_time)
 
     {:ok, next_service_start} =
       DateTime.from_naive(
@@ -42,7 +87,7 @@ defmodule DateHelpers do
         @timezone
       )
 
-    microseconds = DateTime.diff(next_service_start, DateTime.utc_now(), :microsecond)
+    microseconds = DateTime.diff(next_service_start, current_time, :microsecond)
 
     # we want to return an integer, so we floor_div the seconds +
     # microseconds. the negatives make sure we floor towards
