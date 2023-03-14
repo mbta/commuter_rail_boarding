@@ -31,8 +31,8 @@ defmodule DateHelpers do
       end
 
     local_time
-    |> NaiveDateTime.add(days_to_add, :day)
-    |> NaiveDateTime.to_date()
+    |> DateTime.add(days_to_add, :day)
+    |> DateTime.to_date()
   end
 
   @doc """
