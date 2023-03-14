@@ -41,13 +41,13 @@ defmodule DateHelpersTest do
                  local_dt!(~N[2018-02-11T01:59:59])
                )
 
-      assert 84600 =
+      assert 84_600 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-02-11T03:30:00])),
                  local_dt!(~N[2018-02-11T03:30:00])
                )
 
-      assert 81000 =
+      assert 81_000 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-02-11T04:30:00])),
                  local_dt!(~N[2018-02-11T04:30:00])
@@ -68,7 +68,7 @@ defmodule DateHelpersTest do
                  local_dt!(~N[2018-03-11T03:30:00])
                )
 
-      assert 84600 =
+      assert 84_600 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-03-11T04:30:00])),
                  local_dt!(~N[2018-03-11T04:30:00])
@@ -84,13 +84,13 @@ defmodule DateHelpersTest do
                  seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
       end
 
-      assert 84600 =
+      assert 84_600 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-11-04T02:30:00])),
                  local_dt!(~N[2018-11-04T02:30:00])
                )
 
-      assert 81000 =
+      assert 81_000 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-11-04T03:30:00])),
                  local_dt!(~N[2018-11-04T03:30:00])
