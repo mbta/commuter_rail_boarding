@@ -24,6 +24,9 @@ defmodule DateHelpers do
 
     dst = get_dst_info(local_time)
 
+    # This condition handles the case where we preserve the service time that would otherwise be lost or gained
+    # on the specific spring forward / fall back day. Essentially, "delay" by an hour in March and "advance" by an hour
+    # in November.
     days_to_add =
       cond do
         dst.is_march_timechange_date and local_time.hour < 4 ->
