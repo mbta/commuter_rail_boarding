@@ -70,7 +70,6 @@ defmodule DateHelpers do
     |> seconds_until_next_service_date(DateTime.utc_now())
   end
 
-  @spec seconds_until_next_service_date :: non_neg_integer
   def seconds_until_next_service_date(%Date{} = start_service_date, %DateTime{} = current_time) do
     tomorrow = Date.add(start_service_date, 1)
     dst = get_dst_info(current_time)

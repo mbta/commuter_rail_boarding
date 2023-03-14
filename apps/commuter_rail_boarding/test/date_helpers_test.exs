@@ -56,18 +56,21 @@ defmodule DateHelpersTest do
 
     test "handles DST transitions" do
       # spring forward
+      # This is 1 second before the change, so 1 hour + 1 second makes sense
       assert 3601 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-03-11T01:59:59])),
                  local_dt!(~N[2018-03-11T01:59:59])
                )
 
+      # This is 30 minutes after the change, so 30 minutes makes sense:
       assert 1800 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-03-11T03:30:00])),
                  local_dt!(~N[2018-03-11T03:30:00])
                )
 
+      # At this point we are already a half hour past when it would have changed otherwise, so 23.5 hours makes sense:
       assert 84_600 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-03-11T04:30:00])),
@@ -84,12 +87,14 @@ defmodule DateHelpersTest do
                  seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
       end
 
+      # This is 30 minutes after the time going back, so 23.5 hours makes sense:
       assert 84_600 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-11-04T02:30:00])),
                  local_dt!(~N[2018-11-04T02:30:00])
                )
 
+      # This is 1.5h after the time going back, so 22.5 hours makes sense:
       assert 81_000 =
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-11-04T03:30:00])),
