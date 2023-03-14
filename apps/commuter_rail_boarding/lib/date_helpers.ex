@@ -75,6 +75,8 @@ defmodule DateHelpers do
     tomorrow = Date.add(start_service_date, 1)
     dst = get_dst_info(current_time)
 
+    # Like the condition above, we need to account for the time shift on the "next" service date calculation, to
+    # avoid negative deltas:
     start_time =
       cond do
         dst.is_march_timechange_date -> ~T[04:00:00]
