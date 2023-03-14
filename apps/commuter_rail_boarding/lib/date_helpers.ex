@@ -48,6 +48,7 @@ defmodule DateHelpers do
     |> NaiveDateTime.to_date()
   end
 
+  # Provides a map used in multiple spots to handle DST changeover day edge cases:
   defp get_dst_info(%DateTime{} = dt) do
     day_of_week = Date.day_of_week(dt)
 
