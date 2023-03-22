@@ -42,8 +42,7 @@ defmodule DateHelpers do
   """
   @spec seconds_until_next_service_date :: non_neg_integer
   def seconds_until_next_service_date do
-    service_date()
-    |> seconds_until_next_service_date(DateTime.utc_now())
+    seconds_until_next_service_date(service_date(), DateTime.utc_now())
   end
 
   def seconds_until_next_service_date(%Date{} = start_service_date, %DateTime{} = current_time) do
