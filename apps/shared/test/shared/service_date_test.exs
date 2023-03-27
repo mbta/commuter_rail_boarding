@@ -79,30 +79,32 @@ defmodule ServiceDateTest do
     end
 
     test "DST - Fall Back" do
-      # fall back
       {:ambiguous, dt_one, dt_two} = local_dt(~N[2018-11-04T01:30:00])
 
+      # This checks that when the time goes back, the ambiguous hour is handled correctly.
+      # Basically, the two times it is 1:30AM reference the correct amount of remaining seconds (5400, 1800)
+      # for service date rollover.
       for {seconds_until, local_dt} <- %{5400 => dt_one, 1800 => dt_two} do
         {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
 
         assert seconds_until =
-                seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
+                 seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
       end
 
       # This is 30 minutes after the time going back, so .5 hour makes sense:
       assert 1800 =
-              seconds_until_next_service_date(
-                service_date(local_dt!(~N[2018-11-04T02:30:00])),
-                local_dt!(~N[2018-11-04T02:30:00])
-              )
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-11-04T02:30:00])),
+                 local_dt!(~N[2018-11-04T02:30:00])
+               )
 
       # This is 1.5h after the time going back, so 23.5 hours makes sense:
       assert 84_600 =
-              seconds_until_next_service_date(
-                service_date(local_dt!(~N[2018-11-04T03:30:00])),
-                local_dt!(~N[2018-11-04T03:30:00])
-              )
-      end
+               seconds_until_next_service_date(
+                 service_date(local_dt!(~N[2018-11-04T03:30:00])),
+                 local_dt!(~N[2018-11-04T03:30:00])
+               )
+    end
 
     test "returns a number of seconds until 3am tomorrow" do
       seconds = seconds_until_next_service_date()
