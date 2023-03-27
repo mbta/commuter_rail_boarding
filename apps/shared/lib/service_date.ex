@@ -18,9 +18,7 @@ defmodule Shared.ServiceDate do
   end
 
   def service_date(%DateTime{} = dt) do
-    local_time =
-      dt
-      |> ensure_timezone(@timezone)
+    local_time = ensure_timezone(dt, @timezone)
 
     # Determine the number of days to "add" for the before-3am on next day case:
     days_to_add =
