@@ -55,7 +55,6 @@ defmodule ServiceDateTest do
     end
 
     test "DST - Spring Forward" do
-      # spring forward
       # This is 1 second before the change, 1 second makes sense
       assert 1 =
                seconds_until_next_service_date(
