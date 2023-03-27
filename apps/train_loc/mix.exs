@@ -46,6 +46,7 @@ defmodule TrainLoc.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:shared, in_umbrella: true},
       {:server_sent_event_stage, "~> 1.0"},
       {:castore, "~> 0.1"},
       {:ehmon,

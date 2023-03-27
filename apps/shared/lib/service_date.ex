@@ -1,6 +1,6 @@
-defmodule DateHelpers do
+defmodule Shared.ServiceDate do
   @moduledoc """
-  Helper functions for working with Dates
+  Helper functions for working with Service Date
   """
 
   @timezone "America/New_York"

@@ -7,15 +7,6 @@ defmodule TrainLoc.Utilities.Time do
 
   @type datetime :: DateTime.t() | Timex.AmbiguousDateTime.t() | {:error, term}
 
-  @spec in_local_tz(DateTime.t()) :: datetime
-  @spec in_local_tz(DateTime.t(), Timex.Types.valid_timezone()) :: datetime
-  def in_local_tz(dt, timezone \\ config(:time_zone)) do
-    case dt do
-      %DateTime{time_zone: ^timezone} -> dt
-      dt -> Timex.to_datetime(dt, timezone)
-    end
-  end
-
   @spec unix_now() :: integer
   def unix_now do
     System.system_time(:second)
@@ -43,18 +34,6 @@ defmodule TrainLoc.Utilities.Time do
 
   defp drop_microsecond(%{} = dt) do
     dt
-  end
-
-  @spec get_service_date(DateTime.t()) :: Date.t()
-  def get_service_date(current_time \\ DateTime.utc_now()) do
-    local_time = in_local_tz(current_time)
-    current_date = DateTime.to_date(local_time)
-
-    if local_time.hour < 3 do
-      Date.add(current_date, -1)
-    else
-      current_date
-    end
   end
 
   @spec format_datetime(DateTime.t()) :: String.t()

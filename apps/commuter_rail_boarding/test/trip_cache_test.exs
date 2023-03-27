@@ -33,7 +33,7 @@ defmodule TripCacheTest do
 
   describe "handle_info(:timeout)" do
     test "clears the table and reschedules for the next day" do
-      timeout = :timer.seconds(DateHelpers.seconds_until_next_service_date())
+      timeout = :timer.seconds(Shared.ServiceDate.seconds_until_next_service_date())
       assert {:noreply, :state, ^timeout} = handle_info(:timeout, :state)
       assert :ets.info(TripCache.Table, :size) == 0
     end

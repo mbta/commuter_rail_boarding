@@ -1,7 +1,7 @@
-defmodule DateHelpersTest do
+defmodule ServiceDateTest do
   @moduledoc false
   use ExUnit.Case, async: true
-  import DateHelpers
+  import Shared.ServiceDate
 
   describe "service_date/1" do
     test "returns the current date if it's 3am or after" do
