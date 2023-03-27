@@ -54,7 +54,7 @@ defmodule ServiceDateTest do
                )
     end
 
-    test "handles DST transitions" do
+    test "DST - Spring Forward" do
       # spring forward
       # This is 1 second before the change, 1 second makes sense
       assert 1 =
@@ -76,7 +76,9 @@ defmodule ServiceDateTest do
                  service_date(local_dt!(~N[2018-03-11T04:30:00])),
                  local_dt!(~N[2018-03-11T04:30:00])
                )
+    end
 
+    test "DST - Fall Back" do
       # fall back
       {:ambiguous, dt_one, dt_two} = local_dt(~N[2018-11-04T01:30:00])
 
@@ -84,23 +86,23 @@ defmodule ServiceDateTest do
         {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
 
         assert seconds_until =
-                 seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
+                seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
       end
 
-      # This is 30 minutes after the time going back, so 23.5 hours makes sense:
+      # This is 30 minutes after the time going back, so .5 hour makes sense:
       assert 1800 =
-               seconds_until_next_service_date(
-                 service_date(local_dt!(~N[2018-11-04T02:30:00])),
-                 local_dt!(~N[2018-11-04T02:30:00])
-               )
+              seconds_until_next_service_date(
+                service_date(local_dt!(~N[2018-11-04T02:30:00])),
+                local_dt!(~N[2018-11-04T02:30:00])
+              )
 
-      # This is 1.5h after the time going back, so 22.5 hours makes sense:
+      # This is 1.5h after the time going back, so 23.5 hours makes sense:
       assert 84_600 =
-               seconds_until_next_service_date(
-                 service_date(local_dt!(~N[2018-11-04T03:30:00])),
-                 local_dt!(~N[2018-11-04T03:30:00])
-               )
-    end
+              seconds_until_next_service_date(
+                service_date(local_dt!(~N[2018-11-04T03:30:00])),
+                local_dt!(~N[2018-11-04T03:30:00])
+              )
+      end
 
     test "returns a number of seconds until 3am tomorrow" do
       seconds = seconds_until_next_service_date()
