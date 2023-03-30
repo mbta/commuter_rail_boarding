@@ -34,7 +34,7 @@ defmodule CommuterRailBoarding.Mixfile do
     [
       {:shared, in_umbrella: true},
       {:goth, "~> 1.0"},
-      {:httpoison, "~> 1.5"},
+      {:httpoison, "~> 2.1"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:gen_stage, "~> 1.0"},
