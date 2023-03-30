@@ -109,7 +109,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   @spec start_date(DateTime.t()) :: String.t()
   def start_date(%DateTime{} = timestamp) do
     timestamp
-    |> get_service_date()
+    |> Shared.ServiceDate.service_date()
     |> Date.to_iso8601(:basic)
   end
 

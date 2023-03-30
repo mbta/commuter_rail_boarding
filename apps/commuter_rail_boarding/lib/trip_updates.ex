@@ -50,8 +50,8 @@ defmodule TripUpdates do
   def trip(%BoardingStatus{} = bs) do
     start_date =
       case bs.scheduled_time do
-        :unknown -> DateHelpers.service_date()
-        dt -> DateHelpers.service_date(dt)
+        :unknown -> Shared.ServiceDate.service_date()
+        dt -> Shared.ServiceDate.service_date(dt)
       end
 
     Map.merge(

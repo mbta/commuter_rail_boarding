@@ -126,7 +126,7 @@ defmodule TripCache do
              params: [
                "fields[trip]": "name,direction_id",
                route: route_id,
-               date: Date.to_iso8601(DateHelpers.service_date(dt))
+               date: Date.to_iso8601(Shared.ServiceDate.service_date(dt))
              ]
            ),
          %{status_code: 200, body: body} <- response,
@@ -159,7 +159,7 @@ defmodule TripCache do
     ]
 
     _ = :ets.new(@table, ets_options)
-    timeout = DateHelpers.seconds_until_next_service_date()
+    timeout = Shared.ServiceDate.seconds_until_next_service_date()
     {:ok, :state, :timer.seconds(timeout)}
   end
 
@@ -170,7 +170,7 @@ defmodule TripCache do
       end)
 
     :ets.delete_all_objects(@table)
-    timeout = DateHelpers.seconds_until_next_service_date()
+    timeout = Shared.ServiceDate.seconds_until_next_service_date()
     {:noreply, state, :timer.seconds(timeout)}
   end
 end

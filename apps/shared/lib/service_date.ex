@@ -1,10 +1,9 @@
-defmodule DateHelpers do
+defmodule Shared.ServiceDate do
   @moduledoc """
-  Helper functions for working with Dates
+  Helper functions for working with Service Date
   """
 
   @timezone "America/New_York"
-  @three_hours_in_seconds 60 * 60 * 3
 
   @doc """
   Returns the current service date.
@@ -19,9 +18,18 @@ defmodule DateHelpers do
   end
 
   def service_date(%DateTime{} = dt) do
-    dt
-    |> ensure_timezone(@timezone)
-    |> DateTime.add(-@three_hours_in_seconds)
+    local_time = ensure_timezone(dt, @timezone)
+
+    # Determine the number of days to "add" for the before-3am on next day case:
+    days_to_add =
+      if local_time.hour < 3 do
+        -1
+      else
+        0
+      end
+
+    local_time
+    |> DateTime.add(days_to_add, :day)
     |> DateTime.to_date()
   end
 
@@ -32,8 +40,12 @@ defmodule DateHelpers do
   """
   @spec seconds_until_next_service_date :: non_neg_integer
   def seconds_until_next_service_date do
-    today = service_date()
-    tomorrow = Date.add(today, 1)
+    seconds_until_next_service_date(service_date(), DateTime.utc_now())
+  end
+
+  def seconds_until_next_service_date(%Date{} = start_service_date, %DateTime{} = current_time) do
+    tomorrow = Date.add(start_service_date, 1)
+
     {:ok, naive} = NaiveDateTime.new(tomorrow, ~T[03:00:00])
 
     {:ok, next_service_start} =
@@ -42,7 +54,7 @@ defmodule DateHelpers do
         @timezone
       )
 
-    microseconds = DateTime.diff(next_service_start, DateTime.utc_now(), :microsecond)
+    microseconds = DateTime.diff(next_service_start, current_time, :microsecond)
 
     # we want to return an integer, so we floor_div the seconds +
     # microseconds. the negatives make sure we floor towards
