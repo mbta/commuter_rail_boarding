@@ -11,7 +11,11 @@ if is_prod? and is_release? do
       dsn: System.fetch_env!("SENTRY_DSN"),
       environment_name: sentry_env,
       enable_source_code_context: true,
-      root_source_code_path: File.cwd!(),
+      root_source_code_paths: [
+        "#{File.cwd!()}/apps/commuter_rail_boarding",
+        "#{File.cwd!()}/apps/shared",
+        "#{File.cwd!()}/apps/train_loc"
+      ],
       tags: %{
         env: sentry_env
       },
