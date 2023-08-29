@@ -51,8 +51,7 @@ defmodule LocUmbrella.Mixfile do
   # and cannot be accessed from applications inside the apps folder
   defp deps do
     [
-      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:sentry, "~> 8.0"}
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
