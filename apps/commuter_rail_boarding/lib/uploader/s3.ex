@@ -10,6 +10,7 @@ defmodule Uploader.S3 do
   @impl true
   def upload(filename, binary) do
     full_filename = Path.join("commuter_rail_boarding", filename)
+
     request =
       S3.put_object(
         config(Uploader.S3, :bucket),
