@@ -33,6 +33,7 @@ defmodule CommuterRailBoarding.Mixfile do
   defp deps do
     [
       {:shared, in_umbrella: true},
+      {:train_loc, in_umbrella: true},
       {:goth, "~> 1.0"},
       {:httpoison, "~> 1.5"},
       {:ex_aws, "~> 2.1"},
