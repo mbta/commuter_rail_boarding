@@ -7,7 +7,7 @@ defmodule TrainLoc.S3.HTTPClient do
   @impl TrainLoc.S3
   def put_object(filename, body) do
     bucket = get_bucket()
-    full_filename = Path.join("train_loc", filename)
+    full_filename = Path.join("commuter_rail_boarding/train_loc", filename)
     opts = [acl: :public_read, content_type: "application/json"]
 
     bucket
