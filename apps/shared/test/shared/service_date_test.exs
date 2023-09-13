@@ -5,49 +5,49 @@ defmodule ServiceDateTest do
 
   describe "service_date/1" do
     test "returns the current date if it's 3am or after" do
-      assert ~D[2017-01-01] = service_date(local_dt!(~N[2017-01-01T03:00:00]))
-      assert ~D[2017-01-01] = service_date(local_dt!(~N[2017-01-01T15:00:00]))
-      assert ~D[2017-01-01] = service_date(local_dt!(~N[2017-01-01T23:59:59]))
+      assert ~D[2017-01-01] == service_date(local_dt!(~N[2017-01-01T03:00:00]))
+      assert ~D[2017-01-01] == service_date(local_dt!(~N[2017-01-01T15:00:00]))
+      assert ~D[2017-01-01] == service_date(local_dt!(~N[2017-01-01T23:59:59]))
     end
 
     test "returns the previous date if it's between midnight and 3am" do
-      assert ~D[2016-12-31] = service_date(local_dt!(~N[2017-01-01T00:00:00]))
-      assert ~D[2016-12-31] = service_date(local_dt!(~N[2017-01-01T02:59:59]))
+      assert ~D[2016-12-31] == service_date(local_dt!(~N[2017-01-01T00:00:00]))
+      assert ~D[2016-12-31] == service_date(local_dt!(~N[2017-01-01T02:59:59]))
     end
 
     test "handles both DST transitions" do
       # spring forward
-      assert ~D[2018-03-10] = service_date(local_dt!(~N[2018-03-11T01:59:59]))
-      assert ~D[2018-03-11] = service_date(local_dt!(~N[2018-03-11T03:30:00]))
-      assert ~D[2018-03-11] = service_date(local_dt!(~N[2018-03-11T04:30:00]))
+      assert ~D[2018-03-10] == service_date(local_dt!(~N[2018-03-11T01:59:59]))
+      assert ~D[2018-03-11] == service_date(local_dt!(~N[2018-03-11T03:30:00]))
+      assert ~D[2018-03-11] == service_date(local_dt!(~N[2018-03-11T04:30:00]))
       # fall back
       {:ambiguous, dt_one, dt_two} = local_dt(~N[2018-11-04T01:30:00])
 
       for local_dt <- [dt_one, dt_two] do
         {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
-        assert ~D[2018-11-03] = service_date(utc_datetime)
+        assert ~D[2018-11-03] == service_date(utc_datetime)
       end
 
-      assert ~D[2018-11-03] = service_date(local_dt!(~N[2018-11-04T02:30:00]))
-      assert ~D[2018-11-04] = service_date(local_dt!(~N[2018-11-04T03:30:00]))
+      assert ~D[2018-11-03] == service_date(local_dt!(~N[2018-11-04T02:30:00]))
+      assert ~D[2018-11-04] == service_date(local_dt!(~N[2018-11-04T03:30:00]))
     end
   end
 
   describe "seconds_until_next_service_date/1" do
     test "handles non-DST" do
-      assert 3601 =
+      assert 3601 ==
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-02-11T01:59:59])),
                  local_dt!(~N[2018-02-11T01:59:59])
                )
 
-      assert 84_600 =
+      assert 84_600 ==
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-02-11T03:30:00])),
                  local_dt!(~N[2018-02-11T03:30:00])
                )
 
-      assert 81_000 =
+      assert 81_000 ==
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-02-11T04:30:00])),
                  local_dt!(~N[2018-02-11T04:30:00])
@@ -56,21 +56,21 @@ defmodule ServiceDateTest do
 
     test "DST - Spring Forward" do
       # This is 1 second before the change, 1 second makes sense
-      assert 1 =
+      assert 1 ==
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-03-11T01:59:59])),
                  local_dt!(~N[2018-03-11T01:59:59])
                )
 
       # This is 30 minutes after the change, so 23.5 hours makes sense:
-      assert 84_600 =
+      assert 84_600 ==
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-03-11T03:30:00])),
                  local_dt!(~N[2018-03-11T03:30:00])
                )
 
       # At this point we are already a half hour past when it would have changed otherwise, so 22.5 hours makes sense:
-      assert 81_000 =
+      assert 81_000 ==
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-03-11T04:30:00])),
                  local_dt!(~N[2018-03-11T04:30:00])
@@ -87,7 +87,6 @@ defmodule ServiceDateTest do
       # Second time it is 1:30AM, there are only 1.5 hours (5400 seconds) until service date rollover (3am).
       for {seconds_until, local_dt} <- [{9000, dt_one}, {5400, dt_two}] do
         {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
-
         assert seconds_until ==
                  seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
       end
@@ -100,7 +99,7 @@ defmodule ServiceDateTest do
                )
 
       # This is 1.5h after the time going back, so 23.5 hours makes sense:
-      assert 84_600 =
+      assert 84_600 ==
                seconds_until_next_service_date(
                  service_date(local_dt!(~N[2018-11-04T03:30:00])),
                  local_dt!(~N[2018-11-04T03:30:00])
