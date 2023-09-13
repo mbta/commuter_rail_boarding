@@ -87,6 +87,7 @@ defmodule ServiceDateTest do
       # Second time it is 1:30AM, there are only 1.5 hours (5400 seconds) until service date rollover (3am).
       for {seconds_until, local_dt} <- [{9000, dt_one}, {5400, dt_two}] do
         {:ok, utc_datetime} = DateTime.shift_zone(local_dt, "Etc/UTC")
+
         assert seconds_until ==
                  seconds_until_next_service_date(service_date(utc_datetime), utc_datetime)
       end
