@@ -6,6 +6,8 @@ defmodule TrainLoc.S3 do
   """
   @type filename :: String.t()
   @type body :: String.t()
+  @type bucket :: String.t()
+  @type opts :: []
 
-  @callback put_object(filename, body) :: {:ok, term} | {:error, term}
+  @callback put_object(filename, body, bucket, opts) :: {:ok, term} | {:error, term}
 end

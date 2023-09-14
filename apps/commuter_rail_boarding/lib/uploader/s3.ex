@@ -8,14 +8,20 @@ defmodule Uploader.S3 do
   import ConfigHelpers
 
   @impl true
-  def upload(filename, binary) do
-    request =
-      S3.put_object(
-        config(Uploader.S3, :bucket),
+  def upload(
         filename,
         binary,
-        acl: :public_read,
-        content_type: "application/json"
+        bucket \\ config(Uploader.S3, :bucket),
+        opts \\ [acl: :public_read]
+      ) do
+    opts = [content_type: "application/json"] ++ opts
+
+    request =
+      S3.put_object(
+        bucket,
+        filename,
+        binary,
+        opts
       )
 
     {time, result} = :timer.tc(fn -> request!(request) end)
