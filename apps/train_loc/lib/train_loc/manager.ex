@@ -158,18 +158,18 @@ defmodule TrainLoc.Manager do
   end
 
   def upload_feed(feed, state) do
-    with result <-
+    new_bucket_upload? = Application.get_env(:shared, :new_bucket_upload?)
+
+    with {:ok, result} <-
            @s3_api.put_object(
              "train_loc/VehiclePositions_enhanced.json",
              feed
            ),
-         new_result <-
+         {:ok, new_result} when new_bucket_upload? <-
            @s3_api.put_object("VehiclePositions_enhanced.json", feed, state.new_bucket, []) do
-      Logger.info(["Uploaded vehicle locations to S3: ", inspect(result)])
-      Logger.info(["Uploaded vehicle locations to new S3 bucket: ", inspect(new_result)])
       {:ok, result, new_result}
     else
-      e -> e
+      error -> error
     end
   end
 

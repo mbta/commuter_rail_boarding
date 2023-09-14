@@ -84,20 +84,43 @@ defmodule TrainLoc.ManagerTest do
   end
 
   describe "upload_feed/2" do
-    test "uploads to new bucket root" do
-      Manager.upload_feed("gtfs", %{new_bucket: :new_bucket})
+    test "uploads to new bucket root if configured" do
+      new_bucket_upload? = Application.get_env(:shared, :new_bucket_upload?)
+      Application.put_env(:shared, :new_bucket_upload?, true)
+
+      Manager.upload_feed("gtfs", %{new_bucket: "new_bucket"})
       objects = S3.InMemory.list_objects()
 
-      assert Map.has_key?(objects, :new_bucket)
-      assert Map.has_key?(objects.new_bucket, "VehiclePositions_enhanced.json")
+      assert Map.has_key?(objects, "new_bucket")
+      assert Map.has_key?(objects["new_bucket"], "VehiclePositions_enhanced.json")
+
+      Application.put_env(:shared, :new_bucket_upload?, new_bucket_upload?)
     end
 
     test "doesn't apply public_read ACL in new bucket" do
-      Manager.upload_feed("gtfs", %{new_bucket: :new_bucket})
+      new_bucket_upload? = Application.get_env(:shared, :new_bucket_upload?)
+      Application.put_env(:shared, :new_bucket_upload?, true)
+
+      Manager.upload_feed("gtfs", %{new_bucket: "new_bucket"})
       objects = S3.InMemory.list_objects()
 
-      assert Map.has_key?(objects, :new_bucket)
-      refute objects.new_bucket["opts"] == [acl: :public_read]
+      assert Map.has_key?(objects, "new_bucket")
+      assert objects["new_bucket"]["opts"] == []
+
+      Application.put_env(:shared, :new_bucket_upload?, new_bucket_upload?)
+    end
+
+    test "doesn't upload to new bucket if not configured" do
+      new_bucket_upload? = Application.get_env(:shared, :new_bucket_upload?)
+      Application.put_env(:shared, :new_bucket_upload?, false)
+
+      Manager.upload_feed("gtfs", %{new_bucket: "new_bucket"})
+      objects = S3.InMemory.list_objects()
+
+      refute Map.has_key?(objects, "new_bucket")
+      assert Map.has_key?(objects["new_bucket"], "VehiclePositions_enhanced.json")
+
+      Application.put_env(:shared, :new_bucket_upload?, new_bucket_upload?)
     end
 
     test "uploads to correct path in current bucket" do
