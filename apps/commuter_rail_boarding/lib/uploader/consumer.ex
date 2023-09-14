@@ -24,10 +24,14 @@ defmodule Uploader.Consumer do
 
   defp upload_events(events) do
     new_bucket = Application.get_env(:shared, :new_bucket)
+    new_bucket_upload? = Application.get_env(:shared, :new_bucket_upload?)
 
     for {filename, body} <- Map.new(events) do
       Uploader.upload(filename, body)
-      Uploader.upload(filename, body, new_bucket, [])
+      
+      if new_bucket_upload? do
+        Uploader.upload(filename, body, new_bucket, [])
+      end
     end
   end
 end

@@ -22,6 +22,7 @@ if is_prod? and is_release? do
       capture_log_messages: true
 
     config :shared,
-      new_bucket: System.fetch_env!("COMMUTER_RAIL_S3_BUCKET")
+      new_bucket: System.fetch_env!("COMMUTER_RAIL_S3_BUCKET"), # bucket for Keolis cutover 2023-09-14
+      new_bucket_upload: true # whether to upload to this bucket, set false immediately before cutover
   end
 end

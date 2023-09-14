@@ -35,7 +35,10 @@ defmodule Uploader.ConsumerTest do
              }
     end
 
-    test "uploads the last data received to new bucket" do
+    test "uploads the last data received to second bucket if configured" do
+      new_bucket_upload? = Application.get_env(:shared, :new_bucket_upload?)
+      Application.put_env(:shared, :new_bucket_upload?, true)
+
       assert {:noreply, [], :state} =
                handle_events(
                  [
@@ -55,6 +58,29 @@ defmodule Uploader.ConsumerTest do
                "TripUpdates_enhanced.json" => "gtfs3",
                "opts" => []
              }
+
+      Application.put_env(:shared, :new_bucket_upload?, new_bucket_upload?)
+    end
+
+    test "doesn't upload data to second bucket if not configured" do
+      new_bucket_upload? = Application.get_env(:shared, :new_bucket_upload?)
+      Application.put_env(:shared, :new_bucket_upload?, false)
+
+      assert {:noreply, [], :state} =
+               handle_events(
+                 [
+                   {"TripUpdates_enhanced.json", "gtfs1"},
+                   {"TripUpdates_enhanced.json", "gtfs2"},
+                   {"TripUpdates_enhanced.json", "gtfs3"}
+                 ],
+                 :from,
+                 :state
+               )
+
+      objects = S3.InMemory.list_objects()
+
+      refute Map.has_key?(objects, "new_bucket")
+      Application.put_env(:shared, :new_bucket_upload?, new_bucket_upload?)
     end
   end
 end
