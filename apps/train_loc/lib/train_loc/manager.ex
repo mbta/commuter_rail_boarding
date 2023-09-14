@@ -160,7 +160,7 @@ defmodule TrainLoc.Manager do
   def upload_feed(feed, state) do
     with result <-
            @s3_api.put_object(
-             "commuter_rail_boarding/train_loc/VehiclePositions_enhanced.json",
+             "train_loc/VehiclePositions_enhanced.json",
              feed
            ),
          new_result <-
