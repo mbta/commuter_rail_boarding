@@ -27,7 +27,8 @@ defmodule TrainLoc.Manager do
           timeout_ref: reference(),
           first_message?: boolean(),
           timeout_after: non_neg_integer(),
-          refresh_fn: (atom() -> :ok)
+          refresh_fn: (atom() -> :ok),
+          new_bucket: String.t()
         }
 
   @type opts() :: [subscribe_to: atom() | nil, timeout_after: non_neg_integer() | nil]
@@ -37,6 +38,7 @@ defmodule TrainLoc.Manager do
     :excluded_vehicles,
     :producers,
     :timeout_ref,
+    :new_bucket,
     first_message?: true,
     timeout_after: @default_timeout,
     refresh_fn: &ServerSentEventStage.refresh/1
@@ -78,7 +80,8 @@ defmodule TrainLoc.Manager do
         time_baseline: time_baseline_fn,
         excluded_vehicles: excluded_vehicles,
         producers: producers,
-        timeout_after: Keyword.get(opts, :timeout_after, %__MODULE__{}.timeout_after)
+        timeout_after: Keyword.get(opts, :timeout_after, %__MODULE__{}.timeout_after),
+        new_bucket: Application.get_env(:shared, :new_bucket)
       })
 
     {:consumer, state, subscribe_to: producers}
@@ -115,8 +118,7 @@ defmodule TrainLoc.Manager do
 
       with {:ok, new_vehicles} <- BulkEvent.parse(event.data),
            feed <- generate_feed(new_vehicles, state),
-           {:ok, result} <- @s3_api.put_object("VehiclePositions_enhanced.json", feed) do
-        Logger.info(["Uploaded vehicle locations to S3: ", inspect(result)])
+           {:ok, _, _} <- upload_feed(feed, state) do
       else
         {:error, %Jason.DecodeError{} = error} ->
           Logger.error("Failed to decode event: #{inspect(error)}")
@@ -153,6 +155,22 @@ defmodule TrainLoc.Manager do
       end)
 
     {:noreply, [], state}
+  end
+
+  def upload_feed(feed, state) do
+    with result <-
+           @s3_api.put_object(
+             "commuter_rail_boarding/train_loc/VehiclePositions_enhanced.json",
+             feed
+           ),
+         new_result <-
+           @s3_api.put_object("VehiclePositions_enhanced.json", feed, state.new_bucket, []) do
+      Logger.info(["Uploaded vehicle locations to S3: ", inspect(result)])
+      Logger.info(["Uploaded vehicle locations to new S3 bucket: ", inspect(new_result)])
+      {:ok, result, new_result}
+    else
+      e -> e
+    end
   end
 
   @spec generate_feed([Vehicle.t()], t()) :: binary

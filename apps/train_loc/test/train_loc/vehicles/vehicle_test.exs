@@ -3,7 +3,6 @@ defmodule TrainLoc.Vehicles.VehicleTest do
   use Timex
 
   import Jason.Sigil
-  import TrainLoc.Utilities.ConfigHelpers
   import ExUnit.CaptureLog
   alias TrainLoc.Vehicles.Vehicle
 

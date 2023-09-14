@@ -20,5 +20,8 @@ if is_prod? and is_release? do
     config :logger, Sentry.LoggerBackend,
       level: :error,
       capture_log_messages: true
+
+    config :shared,
+      new_bucket: System.fetch_env!("COMMUTER_RAIL_S3_BUCKET")
   end
 end
