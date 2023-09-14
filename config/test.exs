@@ -10,7 +10,7 @@ config :goth, json: File.read!("test/test-credentials.json")
 
 config :commuter_rail_boarding,
   firebase_url: "http://httpbin.org?numbytes=1024&duration=2&code=200",
-  uploader: TrainLoc.S3.InMemory,
+  uploader: Uploader.Mock,
   start_children?: false
 
 config :train_loc, APIFetcher, connect_at_startup?: false

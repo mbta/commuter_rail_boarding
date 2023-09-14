@@ -67,8 +67,6 @@ config :commuter_rail_boarding,
   v3_api_url: System.get_env("V3_API_URL"),
   start_children?: true
 
-config :commuter_rail_boarding, Uploader.S3, bucket: "console"
-
 config :goth, json: {:system, "GCS_CREDENTIAL_JSON"}
 
 config :logger,
@@ -92,7 +90,5 @@ config :train_loc,
 
 config :ex_aws,
   json_codec: Jason
-
-config :shared, new_bucket: "new_bucket"
 
 import_config "#{Mix.env()}.exs"

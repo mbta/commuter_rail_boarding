@@ -25,9 +25,9 @@ defmodule Uploader.S3Test do
 
   describe "upload/1" do
     test "uploads to a configured S3 bucket" do
-      assert :ok = upload("commuter_rail_boarding/filename", "binary")
+      assert :ok = upload("filename", "binary")
       assert_received {:aws_request, request}
-      assert request.path == "commuter_rail_boarding/filename"
+      assert request.path == "filename"
       assert request.bucket == "test_bucket"
       assert request.body == "binary"
       assert request.headers["content-type"] == "application/json"

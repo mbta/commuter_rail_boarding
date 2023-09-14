@@ -5,11 +5,13 @@ defmodule TrainLoc.S3.HTTPClient do
   @behaviour TrainLoc.S3
 
   @impl TrainLoc.S3
-  def put_object(filename, body, bucket \\ get_bucket(), opts \\ [acl: :public_read]) do
-    opts = [content_type: "application/json"] ++ opts
+  def put_object(filename, body) do
+    bucket = get_bucket()
+    full_filename = Path.join("train_loc", filename)
+    opts = [acl: :public_read, content_type: "application/json"]
 
     bucket
-    |> ExAws.S3.put_object(filename, body, opts)
+    |> ExAws.S3.put_object(full_filename, body, opts)
     |> ExAws.request()
   end
 

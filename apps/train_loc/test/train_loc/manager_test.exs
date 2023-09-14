@@ -5,18 +5,15 @@ defmodule TrainLoc.ManagerTest do
   import TrainLoc.Utilities.ConfigHelpers
   alias ServerSentEventStage.Event, as: ServerSentEvent
   alias TrainLoc.Manager
-  alias TrainLoc.S3
   alias TrainLoc.Utilities.Time, as: TrainLocTime
   alias TrainLoc.Vehicles.PreviousBatch
   alias TrainLoc.Vehicles.Vehicle
 
   setup do
     Application.ensure_all_started(:train_loc)
-    S3.InMemory.start()
 
     on_exit(fn ->
       Manager.reset()
-      S3.InMemory.stop()
     end)
   end
 
@@ -80,44 +77,6 @@ defmodule TrainLoc.ManagerTest do
       Manager.handle_events(events, self(), @state)
       refute_received :one
       refute_received :two
-    end
-  end
-
-  describe "upload_feed/2" do
-    test "uploads to new bucket root" do
-      Manager.upload_feed("gtfs", %{new_bucket: :new_bucket})
-      objects = S3.InMemory.list_objects()
-
-      assert Map.has_key?(objects, :new_bucket)
-      assert Map.has_key?(objects.new_bucket, "VehiclePositions_enhanced.json")
-    end
-
-    test "doesn't apply public_read ACL in new bucket" do
-      Manager.upload_feed("gtfs", %{new_bucket: :new_bucket})
-      objects = S3.InMemory.list_objects()
-
-      assert Map.has_key?(objects, :new_bucket)
-      refute objects.new_bucket["opts"] == [acl: :public_read]
-    end
-
-    test "uploads to correct path in current bucket" do
-      Manager.upload_feed("gtfs", %{new_bucket: :new_bucket})
-      objects = S3.InMemory.list_objects()
-
-      assert Map.has_key?(objects, :default)
-
-      assert Map.has_key?(
-               objects.default,
-               "commuter_rail_boarding/train_loc/VehiclePositions_enhanced.json"
-             )
-    end
-
-    test "applys public_read ACL in current bucket" do
-      Manager.upload_feed("gtfs", %{new_bucket: :new_bucket})
-      objects = S3.InMemory.list_objects()
-
-      assert Map.has_key?(objects, :default)
-      assert objects.default["opts"] == [acl: :public_read]
     end
   end
 

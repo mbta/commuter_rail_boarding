@@ -6,12 +6,7 @@ defmodule Uploader.Console do
   require Logger
 
   @impl true
-  def upload(
-        filename,
-        binary,
-        bucket,
-        _opts
-      ) do
-    Logger.info(fn -> "#{__MODULE__}.upload: #{bucket} #{filename} #{inspect(binary)}" end)
+  def upload(filename, binary) do
+    Logger.info(fn -> "#{__MODULE__}.upload: #{filename} #{inspect(binary)}" end)
   end
 end
