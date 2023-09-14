@@ -108,7 +108,7 @@ defmodule TrainLoc.ManagerTest do
 
       assert Map.has_key?(
                objects.default,
-               "commuter_rail_boarding/train_loc/VehiclePositions_enhanced.json"
+               "train_loc/VehiclePositions_enhanced.json"
              )
     end
 

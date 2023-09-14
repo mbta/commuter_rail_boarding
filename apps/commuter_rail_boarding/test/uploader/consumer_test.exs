@@ -30,7 +30,7 @@ defmodule Uploader.ConsumerTest do
       assert Map.has_key?(objects, "console")
 
       assert Map.fetch!(objects, "console") == %{
-               "commuter_rail_boarding/a" => "third",
+               "a" => "third",
                "opts" => [acl: :public_read]
              }
     end

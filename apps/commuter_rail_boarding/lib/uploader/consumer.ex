@@ -26,7 +26,7 @@ defmodule Uploader.Consumer do
     new_bucket = Application.get_env(:shared, :new_bucket)
 
     for {filename, body} <- Map.new(events) do
-      Uploader.upload(Path.join("commuter_rail_boarding", filename), body)
+      Uploader.upload(filename, body)
       Uploader.upload(filename, body, new_bucket, [])
     end
   end
