@@ -266,7 +266,7 @@ defmodule TrainLoc.ManagerTest do
                    },
                    "timestamp" => 1_642_722_222,
                    "trip" => %{"start_date" => "20220120"},
-                   "vehicle" => %{"id" => 1506}
+                   "vehicle" => %{"id" => "1506"}
                  }
                },
                %{
@@ -280,7 +280,7 @@ defmodule TrainLoc.ManagerTest do
                    },
                    "timestamp" => 1_642_722_222,
                    "trip" => %{"start_date" => "20220120"},
-                   "vehicle" => %{"id" => 1507}
+                   "vehicle" => %{"id" => "1507"}
                  }
                },
                %{
@@ -294,7 +294,7 @@ defmodule TrainLoc.ManagerTest do
                    },
                    "timestamp" => 1_642_722_222,
                    "trip" => %{"start_date" => "20220120", "trip_short_name" => "745"},
-                   "vehicle" => %{"id" => 1823}
+                   "vehicle" => %{"id" => "1823"}
                  }
                }
              ] ==

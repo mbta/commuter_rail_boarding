@@ -39,7 +39,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
         }
 
   @type entity_vehicle() :: %{
-          :id => non_neg_integer(),
+          :id => String.t(),
           optional(:assignment_status) => String.t()
         }
 
@@ -102,7 +102,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhanced do
   @spec entity_vehicle(Vehicle.t()) :: entity_vehicle()
   defp entity_vehicle(vehicle) do
     %{
-      id: vehicle.vehicle_id
+      id: "#{vehicle.vehicle_id}"
     }
   end
 
