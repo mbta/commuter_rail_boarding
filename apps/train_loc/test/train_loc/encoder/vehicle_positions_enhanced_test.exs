@@ -89,7 +89,7 @@ defmodule TrainLoc.Encoder.VehiclePositionsEnhancedTest do
         assert is_binary(json_content["id"])
         assert json_trip_data["start_date"] == "20170804"
         assert json_trip_data["trip_short_name"] == vehicle.trip
-        assert json_vehicle_data["vehicle"]["id"] == vehicle.vehicle_id
+        assert json_vehicle_data["vehicle"]["id"] == Integer.to_string(vehicle.vehicle_id)
         assert json_position_data["latitude"] == vehicle.latitude
         assert json_position_data["longitude"] == vehicle.longitude
         assert json_position_data["bearing"] == vehicle.heading
