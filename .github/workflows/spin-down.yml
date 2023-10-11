@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: run command
-        run: aws ecs update-service --cluster lamp --service commuter-rail-boarding-${{ github.event.inputs.environment }} --desired-count ${{ github.event.inputs.new_count }}
+        run: aws ecs update-service --cluster commuter-rail-boarding --service commuter-rail-boarding-${{ github.event.inputs.environment }} --desired-count ${{ github.event.inputs.new_count }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
