@@ -12,9 +12,6 @@ defmodule TrainLoc do
   def env, do: @env
 
   def start(_type, _args) do
-    # Invoke Sentry logger programmatically to ensure it starts at the correct time:
-    _ = Logger.add_backend(Sentry.LoggerBackend)
-
     children = [
       TrainLoc.Supervisor
       | start_children(Application.get_env(:train_loc, APIFetcher)[:connect_at_startup?])

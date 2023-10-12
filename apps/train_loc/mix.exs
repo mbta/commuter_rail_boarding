@@ -57,7 +57,8 @@ defmodule TrainLoc.Mixfile do
       {:goth, "~> 1.0"},
       {:jason, "~> 1.1"},
       {:timex, "~> 3.7"},
-      {:ex_json_schema, "~> 0.9.1"}
+      {:ex_json_schema, "~> 0.9.1"},
+      {:sentry, "~> 8.0"}
     ]
   end
 end
