@@ -158,12 +158,12 @@ defmodule TrainLoc.Manager do
   end
 
   def upload_feed(feed, state) do
-    with result <-
+    with {:ok, result} <-
            @s3_api.put_object(
              "train_loc/VehiclePositions_enhanced.json",
              feed
            ),
-         new_result <-
+         {:ok, new_result} <-
            @s3_api.put_object("VehiclePositions_enhanced.json", feed, state.new_bucket, []) do
       Logger.info(["Uploaded vehicle locations to S3: ", inspect(result)])
       Logger.info(["Uploaded vehicle locations to new S3 bucket: ", inspect(new_result)])
